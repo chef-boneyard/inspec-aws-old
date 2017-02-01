@@ -8,3 +8,7 @@ describe aws_ec2(name: 'aws-inspec') do
   its('vpc_id') { should eq 'vpc-1234567' }
   its('subnet_id') { should eq 'subnet-1234567' }
 end
+
+describe aws_iam_user('mfa_test_user') do
+  its('is_mfa_enabled?') { should be true }
+end
