@@ -12,6 +12,13 @@ module AwsIam
       self.class.convert(aws_user)
     end
 
+    def get_users(*)
+      aws_users = @iam_resource.users
+      aws_users.map do |aws_user|
+        self.class.convert(aws_user)
+      end
+    end
+
     class << self
       def has_mfa_enabled?(aws_user)
         !aws_user.mfa_devices.first.nil?

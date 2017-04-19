@@ -22,6 +22,17 @@ class AwsIamUserProviderTest < Minitest::Test
     assert !@user_provider.get_user(Username).nil?
   end
 
+  def test_get_users
+    @mock_iam_resource.expect :users, [create_mock_user, create_mock_user, create_mock_user]
+    mock_user_output = {has_mfa_enabled?: true, has_console_password?: true}
+    assert @user_provider.get_users == [mock_user_output, mock_user_output, mock_user_output]
+  end
+
+  def test_get_users_no_users
+    @mock_iam_resource.expect :users, []
+    assert @user_provider.get_users == []
+  end
+  
   def test_has_mfa_enabled_returns_true
     @mock_iam_resource.expect :user, create_mock_user(has_mfa_enabled: true), [Username]
     assert @user_provider.get_user(Username)[:has_mfa_enabled?]
