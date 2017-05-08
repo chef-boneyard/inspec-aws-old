@@ -5,7 +5,8 @@ require 'helper'
 require 'aws_iam_user'
 
 class AwsIamUserTest < Minitest::Test
-Username = "test" 
+  Username = "test" 
+  AccessKeyId = 3
   
   def setup
     @mock_user_provider = Minitest::Mock.new
@@ -17,8 +18,8 @@ Username = "test"
   end
 
   def test_that_MFA_enable_returns_false_if_MFA_is_not_Enabled
-    @mock_user_provider.expect :user, {has_mfa_enabled?: false}, [Username]
-    assert !AwsIamUser.new(Username, @mock_user_provider).has_mfa_enabled?
+    @mock_user_provider.expect :get_user, {has_mfa_enabled?: false}, [Username]
+    refute AwsIamUser.new(Username, @mock_user_provider).has_mfa_enabled?
   end
 
   def test_that_console_Password_returns_true_if_console_Password_has_been_set
@@ -27,7 +28,17 @@ Username = "test"
   end
 
   def test_that_console_Password_returns_false_if_console_Password_has_not_been_set
-    @mock_user_provider.expect :user, {has_console_password?: false}, [Username]
-    assert !AwsIamUser.new(Username, @mock_user_provider).has_console_password?
+    @mock_user_provider.expect :get_user, {has_console_password?: false}, [Username]
+    refute AwsIamUser.new(Username, @mock_user_provider).has_console_password?
+  end
+
+  def test_that_access_keys_returns_aws_iam_access_key_resources
+    stub_access_key = OpenStruct.new({ access_key_id: AccessKeyId })
+
+    @mock_user_provider.expect :get_user, {access_keys: [stub_access_key]}, [Username]
+
+    access_key = AwsIamUser.new(Username, @mock_user_provider).access_keys[0]
+    assert_equal stub_access_key, access_key.instance_variable_get(:@access_key)
+    assert_equal AccessKeyId, access_key.instance_variable_get(:@id)
   end
 end

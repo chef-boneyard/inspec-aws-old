@@ -67,9 +67,17 @@ class AwsIamUserProviderTest < Minitest::Test
     end
   end
 
+  def test_access_keys_returns_access_keys
+    access_key = Object.new
+
+    @mock_iam_resource.expect :user, create_mock_user(access_keys: [access_key]), [Username]
+
+    assert_equal [access_key], @user_provider.get_user(Username)[:access_keys]
+  end
+
   private
 
-  def create_mock_user(has_console_password: true, has_mfa_enabled: true)
+  def create_mock_user(has_console_password: true, has_mfa_enabled: true, access_keys: [])
     mock_user = Minitest::Mock.new
     mock_login_profile = Minitest::Mock.new
     
@@ -77,6 +85,8 @@ class AwsIamUserProviderTest < Minitest::Test
     
     mock_login_profile.expect :create_date, has_console_password ? 'date' : nil
     mock_user.expect :login_profile, mock_login_profile
+
+    mock_user.expect :access_keys, access_keys
   end
   
   def create_mock_user_throw(exception)
@@ -89,5 +99,6 @@ class AwsIamUserProviderTest < Minitest::Test
       raise exception
     end
     mock_user.expect :login_profile, mock_login_profile
+    mock_user.expect :access_keys, []
   end
 end
