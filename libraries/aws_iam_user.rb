@@ -12,9 +12,12 @@ class AwsIamUser < Inspec.resource(1)
       its('has_console_password?') { should be true }
     end
   "
-  def initialize(name, aws_user_provider = AwsIam::UserProvider.new)
+  def initialize(name, aws_user_provider = AwsIam::UserProvider.new,
+                 access_key_factory = AwsIamAccessKeyFactory.new)
+
     @name = name
     @user = aws_user_provider.user(name)
+    @access_key_factory = access_key_factory
   end
 
   def has_mfa_enabled?
@@ -27,7 +30,13 @@ class AwsIamUser < Inspec.resource(1)
 
   def access_keys
     @user[:access_keys].map { |elm|
-      AwsIamAccessKey.new({ access_key: elm })
+      @access_key_factory.create_access_key(elm)
     }
+  end
+
+  class AwsIamAccessKeyFactory
+    def create_access_key(access_key)
+      AwsIamAccessKey.new({ access_key: access_key })
+    end
   end
 end

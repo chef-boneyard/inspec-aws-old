@@ -33,12 +33,16 @@ class AwsIamUserTest < Minitest::Test
   end
 
   def test_that_access_keys_returns_aws_iam_access_key_resources
-    stub_access_key = OpenStruct.new({ access_key_id: AccessKeyId })
+    stub_aws_access_key = Object.new
+    stub_access_key_resource = Object.new
+    mock_access_key_factory = Minitest::Mock.new
 
-    @mock_user_provider.expect :get_user, {access_keys: [stub_access_key]}, [Username]
+    @mock_user_provider.expect :get_user, {access_keys: [stub_aws_access_key]}, [Username]
+    mock_access_key_factory.expect :create_access_key, stub_access_key_resource, [stub_aws_access_key]
 
-    access_key = AwsIamUser.new(Username, @mock_user_provider).access_keys[0]
-    assert_equal stub_access_key, access_key.instance_variable_get(:@access_key)
-    assert_equal AccessKeyId, access_key.instance_variable_get(:@id)
+    assert_equal(stub_access_key_resource,
+                 AwsIamUser.new(Username, @mock_user_provider, mock_access_key_factory).access_keys[0])
+
+    mock_access_key_factory.verify
   end
 end
