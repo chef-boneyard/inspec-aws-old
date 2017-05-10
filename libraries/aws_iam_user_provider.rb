@@ -7,12 +7,12 @@ module AwsIam
       @iam_resource = conn.iam_resource
     end
 
-    def get_user(name)
+    def user(name)
       aws_user = @iam_resource.user(name)
       self.class.convert(aws_user)
     end
 
-    def get_users # rubocop:disable AccessorMethodName
+    def list_users
       aws_users = @iam_resource.users
       aws_users.map do |aws_user|
         self.class.convert(aws_user)
