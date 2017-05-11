@@ -6,7 +6,6 @@ require 'aws_iam_user'
 
 class AwsIamUserTest < Minitest::Test
   Username = "test" 
-  AccessKeyId = 3
   
   def setup
     @mock_user_provider = Minitest::Mock.new
