@@ -35,7 +35,7 @@ class AwsIamAccessKeyTest < Minitest::Test
   def test_initialize_accepts_fields
     assert_equal(
       Id,
-      AwsIamAccessKey.new({id: Id, username: Username})
+      AwsIamAccessKey.new({id: Id, username: Username}, nil)
         .instance_variable_get('@id')
     );
   end
@@ -43,7 +43,7 @@ class AwsIamAccessKeyTest < Minitest::Test
   def test_initialize_accepts_access_key
     assert_equal(
       Id,
-      AwsIamAccessKey.new({access_key: OpenStruct.new(access_key_id: Id)})
+      AwsIamAccessKey.new({access_key: OpenStruct.new(access_key_id: Id)}, nil)
         .instance_variable_get('@id')
     );
   end
@@ -54,7 +54,7 @@ class AwsIamAccessKeyTest < Minitest::Test
       AwsIamAccessKey.new({
         id: 'foo',
         access_key: OpenStruct.new(access_key_id: Id)
-      }).instance_variable_get('@id')
+      }, nil).instance_variable_get('@id')
     );
   end
 
