@@ -78,26 +78,23 @@ class AwsIamUserProviderTest < Minitest::Test
   private
 
   def create_mock_user(has_console_password: true, has_mfa_enabled: true, access_keys: [])
-    mock_user = Minitest::Mock.new
     mock_login_profile = Minitest::Mock.new
-    
-    mock_user.expect :mfa_devices, has_mfa_enabled ? ['device'] : []
-    
     mock_login_profile.expect :create_date, has_console_password ? 'date' : nil
+    
+    mock_user = Minitest::Mock.new
+    mock_user.expect :mfa_devices, has_mfa_enabled ? ['device'] : []
     mock_user.expect :login_profile, mock_login_profile
-
     mock_user.expect :access_keys, access_keys
   end
   
   def create_mock_user_throw(exception)
-    mock_user = Minitest::Mock.new
     mock_login_profile = Minitest::Mock.new
-    
-    mock_user.expect :mfa_devices, []
-    
     mock_login_profile.expect :create_date, nil do |args|
       raise exception
     end
+    
+    mock_user = Minitest::Mock.new
+    mock_user.expect :mfa_devices, []
     mock_user.expect :login_profile, mock_login_profile
     mock_user.expect :access_keys, []
   end
