@@ -37,16 +37,16 @@ class AwsIamPasswordPolicyTest < Minitest::Test
     assert_equal e.message, 'this policy does not expire passwords'
   end
 
-  def test_prevent_password_reuse_returns_true_when_not_nil
+  def test_prevents_password_reuse_returns_true_when_not_nil
     configure_policy_password_reuse_prevention(value: Object.new)
 
-    assert AwsIamPasswordPolicy.new(@mockConn).prevent_password_reuse?
+    assert AwsIamPasswordPolicy.new(@mockConn).prevents_password_reuse?
   end
 
-  def test_prevent_password_reuse_returns_false_when_nil
+  def test_prevents_password_reuse_returns_false_when_nil
     configure_policy_password_reuse_prevention(value: nil)
 
-    refute AwsIamPasswordPolicy.new(@mockConn).prevent_password_reuse?
+    refute AwsIamPasswordPolicy.new(@mockConn).prevents_password_reuse?
   end
 
   def test_number_of_passwords_to_remember_throws_when_nil
