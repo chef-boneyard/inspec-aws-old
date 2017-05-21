@@ -7,6 +7,7 @@ class AwsIamPasswordPolicyTest < Minitest::Test
   def setup
     @mockConn = Minitest::Mock.new
     @mockResource = Minitest::Mock.new
+    @mockPolicy = Minitest::Mock.new
 
     @mockConn.expect :iam_resource, @mockResource
   end
@@ -26,10 +27,8 @@ class AwsIamPasswordPolicyTest < Minitest::Test
   end
 
   def test_throws_when_password_age_0
-    policyObject = Minitest::Mock.new
-    policyObject.expect :expire_passwords, false
-
-    @mockResource.expect :account_password_policy, policyObject
+    @mockPolicy.expect :expire_passwords, false
+    @mockResource.expect :account_password_policy, @mockPolicy
 
     e = assert_raises Exception do
       AwsIamPasswordPolicy.new(@mockConn).max_password_age
@@ -39,19 +38,19 @@ class AwsIamPasswordPolicyTest < Minitest::Test
   end
 
   def test_prevent_password_reuse_returns_true_when_not_nil
-    @mockResource.expect :account_password_policy, create_mock_policy(password_reuse_prevention: Object.new)
+    configure_policy_password_reuse_prevention(value: Object.new)
 
-    assert_equal true, AwsIamPasswordPolicy.new(@mockConn).prevent_password_reuse?
+    assert AwsIamPasswordPolicy.new(@mockConn).prevent_password_reuse?
   end
 
   def test_prevent_password_reuse_returns_false_when_nil
-    @mockResource.expect :account_password_policy, create_mock_policy(password_reuse_prevention: nil)
+    configure_policy_password_reuse_prevention(value: nil)
 
-    assert_equal false, AwsIamPasswordPolicy.new(@mockConn).prevent_password_reuse?
+    refute AwsIamPasswordPolicy.new(@mockConn).prevent_password_reuse?
   end
 
   def test_number_of_passwords_to_remember_throws_when_nil
-    @mockResource.expect :account_password_policy, create_mock_policy(password_reuse_prevention: nil)
+    configure_policy_password_reuse_prevention(value: nil)
 
     e = assert_raises Exception do
       AwsIamPasswordPolicy.new(@mockConn).number_of_passwords_to_remember
@@ -60,19 +59,17 @@ class AwsIamPasswordPolicyTest < Minitest::Test
     assert_equal e.message, 'this policy does not prevent password reuse'
   end
 
-
   def test_number_of_passwords_to_remember_returns_configured_value
     expectedValue = 5
-    @mockResource.expect :account_password_policy, create_mock_policy(password_reuse_prevention: expectedValue)
+    configure_policy_password_reuse_prevention(value: expectedValue, n: 2)
 
     assert_equal expectedValue, AwsIamPasswordPolicy.new(@mockConn).number_of_passwords_to_remember
   end
 
   private 
 
-  def create_mock_policy(password_reuse_prevention: nil)
-    Class.new {
-      define_method(:password_reuse_prevention) { password_reuse_prevention }
-    }.new
+  def configure_policy_password_reuse_prevention(value: value, n: 1)
+    n.times { @mockPolicy.expect :password_reuse_prevention, value }
+    @mockResource.expect :account_password_policy, @mockPolicy
   end
 end
