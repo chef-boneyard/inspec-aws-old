@@ -16,6 +16,10 @@ class AwsIamRootUser < Inspec.resource(1)
     summary_account['AccountAccessKeysPresent']
   end
 
+  def to_s
+    'IAM Root User'
+  end
+
   private
 
   def summary_account
