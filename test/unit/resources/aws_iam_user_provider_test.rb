@@ -24,7 +24,7 @@ class AwsIamUserProviderTest < Minitest::Test
 
   def test_list_users
     @mock_iam_resource.expect :users, [create_mock_user, create_mock_user, create_mock_user]
-    mock_user_output = {has_mfa_enabled?: true, has_console_password?: true}
+    mock_user_output = {has_mfa_enabled?: true, has_console_password?: true, access_keys: []}
     assert @user_provider.list_users == [mock_user_output, mock_user_output, mock_user_output]
   end
 
@@ -72,7 +72,7 @@ class AwsIamUserProviderTest < Minitest::Test
 
     @mock_iam_resource.expect :user, create_mock_user(access_keys: [access_key]), [Username]
 
-    assert_equal [access_key], @user_provider.get_user(Username)[:access_keys]
+    assert_equal [access_key], @user_provider.user(Username)[:access_keys]
   end
 
   private

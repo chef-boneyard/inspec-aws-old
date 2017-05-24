@@ -17,7 +17,7 @@ class AwsIamUserTest < Minitest::Test
   end
 
   def test_that_MFA_enable_returns_false_if_MFA_is_not_Enabled
-    @mock_user_provider.expect :get_user, {has_mfa_enabled?: false}, [Username]
+    @mock_user_provider.expect :user, {has_mfa_enabled?: false}, [Username]
     refute AwsIamUser.new(Username, @mock_user_provider).has_mfa_enabled?
   end
 
@@ -27,7 +27,7 @@ class AwsIamUserTest < Minitest::Test
   end
 
   def test_that_console_Password_returns_false_if_console_Password_has_not_been_set
-    @mock_user_provider.expect :get_user, {has_console_password?: false}, [Username]
+    @mock_user_provider.expect :user, {has_console_password?: false}, [Username]
     refute AwsIamUser.new(Username, @mock_user_provider).has_console_password?
   end
 
@@ -36,7 +36,7 @@ class AwsIamUserTest < Minitest::Test
     stub_access_key_resource = Object.new
     mock_access_key_factory = Minitest::Mock.new
 
-    @mock_user_provider.expect :get_user, {access_keys: [stub_aws_access_key]}, [Username]
+    @mock_user_provider.expect :user, {access_keys: [stub_aws_access_key]}, [Username]
     mock_access_key_factory.expect :create_access_key, stub_access_key_resource, [stub_aws_access_key]
 
     assert_equal(stub_access_key_resource,
