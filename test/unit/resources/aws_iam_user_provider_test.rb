@@ -8,7 +8,7 @@ require 'helper'
 require 'aws_iam_user_provider'
 
 class AwsIamUserProviderTest < Minitest::Test
-  Username = "test"
+  Username = 'test'.freeze
 
   def setup
     @mock_iam_resource = Minitest::Mock.new
@@ -23,9 +23,16 @@ class AwsIamUserProviderTest < Minitest::Test
   end
 
   def test_list_users
-    @mock_iam_resource.expect :users, [create_mock_user, create_mock_user, create_mock_user]
-    mock_user_output = {has_mfa_enabled?: true, has_console_password?: true, access_keys: []}
-    assert @user_provider.list_users == [mock_user_output, mock_user_output, mock_user_output]
+    @mock_iam_resource.expect(
+      :users,
+      [create_mock_user, create_mock_user, create_mock_user],
+    )
+    mock_user_output = { has_mfa_enabled?: true, has_console_password?: true,  access_keys: [] }
+    assert @user_provider.list_users == [
+      mock_user_output,
+      mock_user_output,
+      mock_user_output,
+    ]
   end
 
   def test_list_users_no_users
@@ -34,34 +41,57 @@ class AwsIamUserProviderTest < Minitest::Test
   end
 
   def test_has_mfa_enabled_returns_true
-    @mock_iam_resource.expect :user, create_mock_user(has_mfa_enabled: true), [Username]
+    @mock_iam_resource.expect(
+      :user,
+      create_mock_user(has_mfa_enabled: true),
+      [Username],
+    )
     assert @user_provider.user(Username)[:has_mfa_enabled?]
   end
 
   def test_has_mfa_enabled_returns_false
-    @mock_iam_resource.expect :user, create_mock_user(has_mfa_enabled: false), [Username]
+    @mock_iam_resource.expect(
+      :user,
+      create_mock_user(has_mfa_enabled: false),
+      [Username],
+    )
     assert !@user_provider.user(Username)[:has_mfa_enabled?]
   end
-  
+
   def test_has_console_password_returns_true
-    @mock_iam_resource.expect :user, create_mock_user(has_console_password: true), [Username]
+    @mock_iam_resource.expect(
+      :user,
+      create_mock_user(has_console_password: true),
+      [Username],
+    )
     assert @user_provider.user(Username)[:has_console_password?]
   end
 
   def test_has_console_password_returns_false
-    @mock_iam_resource.expect :user, create_mock_user(has_console_password: false), [Username]
+    @mock_iam_resource.expect(
+      :user,
+      create_mock_user(has_console_password: false),
+      [Username],
+    )
     assert !@user_provider.user(Username)[:has_console_password?]
   end
-  
+
   def test_has_console_password_returns_false_when_nosuchentity
-    @mock_iam_resource.expect :user, create_mock_user_throw(Aws::IAM::Errors::NoSuchEntity.new(nil, nil)), [Username]
-    
+    @mock_iam_resource.expect(
+      :user,
+      create_mock_user_throw(Aws::IAM::Errors::NoSuchEntity.new(nil, nil)),
+      [Username],
+    )
     assert !@user_provider.user(Username)[:has_console_password?]
   end
-  
+
   def test_has_console_password_throws
-    @mock_iam_resource.expect :user, create_mock_user_throw(ArgumentError), [Username]
-    
+    @mock_iam_resource.expect(
+      :user,
+      create_mock_user_throw(ArgumentError),
+      [Username],
+    )
+
     assert_raises ArgumentError do
       @user_provider.user(Username)
     end
@@ -86,7 +116,7 @@ class AwsIamUserProviderTest < Minitest::Test
     mock_user.expect :login_profile, mock_login_profile
     mock_user.expect :access_keys, access_keys
   end
-  
+
   def create_mock_user_throw(exception)
     mock_login_profile = Minitest::Mock.new
     mock_login_profile.expect :create_date, nil do |args|
