@@ -17,7 +17,7 @@ class AwsIamRootUser < Inspec.resource(1)
   end
 
   def to_s
-    'IAM Root User'
+    'AWS Root-User'
   end
 
   private
