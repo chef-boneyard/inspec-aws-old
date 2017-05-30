@@ -28,4 +28,12 @@ class AWSConnection
   def iam_client
     @iam_client ||= Aws::IAM::Client.new
   end
+
+  def sts_client
+    @sts_client ||= Aws::STS::Client.new
+  end
+
+  def account_id
+    sts_client.get_caller_identity[:account]
+  end
 end

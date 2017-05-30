@@ -10,6 +10,7 @@ class AwsIamRootUser < Inspec.resource(1)
 
   def initialize(conn = AWSConnection.new)
     @client = conn.iam_client
+    @account_id = conn.account_id
   end
 
   def access_key_count
@@ -17,7 +18,7 @@ class AwsIamRootUser < Inspec.resource(1)
   end
 
   def to_s
-    'AWS Root-User'
+    "AWS Root-User #{@account_id}"
   end
 
   private

@@ -6,8 +6,10 @@ class AwsIamRootUserTest < Minitest::Test
   def setup
     @mockConn = Minitest::Mock.new
     @mockClient = Minitest::Mock.new
+    @mockAccountId = Minitest::Mock.new
 
     @mockConn.expect :iam_client, @mockClient
+    @mockConn.expect :account_id, @mockAccountId
   end
 
   def test_access_key_count_returns_from_summary_account
