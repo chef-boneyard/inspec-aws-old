@@ -12,9 +12,14 @@ class AwsIamUser < Inspec.resource(1)
       its('has_console_password?') { should be true }
     end
   "
-  def initialize(opts, aws_user_provider = AwsIam::UserProvider.new)
+  def initialize(
+    opts,
+    aws_user_provider = AwsIam::UserProvider.new,
+    access_key_factory = AwsIamAccessKeyFactory.new
+  )
     @user = opts[:user]
     @user = aws_user_provider.user(opts[:name]) if @user.nil?
+    @access_key_factory = access_key_factory
   end
 
   def has_mfa_enabled?

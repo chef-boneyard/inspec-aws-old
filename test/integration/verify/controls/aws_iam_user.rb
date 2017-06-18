@@ -22,7 +22,7 @@ describe aws_iam_user(name: console_password_enabled_user) do
   it { should have_console_password }
 end
 
-aws_iam_user(access_key_user).access_keys.each { |access_key|
+aws_iam_user(name: access_key_user).access_keys.each { |access_key|
   describe access_key do
    it { should be_active }
   end

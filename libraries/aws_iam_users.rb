@@ -8,9 +8,8 @@ class AwsIamUsers < Inspec.resource(1)
     filter = FilterTable.create
     filter.add_accessor(:where)
           .add_accessor(:entries)
-          .add(:user_name, field: :user)
-          .add(:has_mfa_enabled?)
           .add(:has_console_password?)
+          .add(:exists?) { |x| !x.entries.empty? }
     filter.connect(self, :collect_user_details)
 
   def initialize(aws_user_provider = AwsIam::UserProvider.new,
@@ -29,6 +28,10 @@ class AwsIamUsers < Inspec.resource(1)
     users.map { |user|
       @user_factory.create_user(user)
     }
+  end
+
+  def to_s
+    'IAM Users'
   end
 
   class AwsIamUserFactory
