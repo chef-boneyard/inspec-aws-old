@@ -28,9 +28,11 @@ task default: [:lint, :test]
 namespace :test do
   terraform_env = ENV['INSPEC_TERRAFORM_ENV'] || SecureRandom.urlsafe_base64(5)
   project_dir = File.dirname(__FILE__)
-  attribute_file = File.join(project_dir, ".attribute.yml")
-  integration_dir = File.join(project_dir, "test/integration")
-  run_dir = "/tmp/inspec-aws/test/integration"
+  integration_path = "test/integration"
+  integration_dir = File.join(project_dir, integration_path)
+  tmp_dir = "/tmp/inspec-aws"
+  attribute_file = File.join(tmp_dir, ".attribute.yml")
+  run_dir = File.join(tmp_dir, integration_path)
 
   # run inspec check to verify that the profile is properly configured
   task :check do
@@ -70,7 +72,7 @@ namespace :test do
     puts "----> Destroying terraform environment"
     sh("cd #{run_dir}/build/ && terraform env select default")
     sh("cd #{run_dir}/build && terraform env delete #{terraform_env}")
-    sh("rm -rf #{run_dir}")
+    sh("rm -rf #{tmp_dir}")
   end
 
   task :integration do
