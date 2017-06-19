@@ -30,6 +30,7 @@ namespace :test do
   project_dir = File.dirname(__FILE__)
   attribute_file = File.join(project_dir, ".attribute.yml")
   integration_dir = File.join(project_dir, "test/integration")
+  run_dir = "/tmp/inspec-aws/test/integration"
 
   # run inspec check to verify that the profile is properly configured
   task :check do
@@ -38,14 +39,16 @@ namespace :test do
 
   task :configure_test_environment do
     puts "----> Creating terraform environment"
-    sh("cd #{integration_dir}/build/ && terraform env new #{terraform_env}")
+    sh("mkdir -p #{run_dir}")
+    sh("cp -R #{integration_dir}/* #{run_dir}")
+    sh("cd #{run_dir}/build/ && terraform env new #{terraform_env}")
   end
 
   task :setup_integration_tests do
     puts "----> Setup"
-    sh("cd #{integration_dir}/build/ && terraform plan")
-    sh("cd #{integration_dir}/build/ && terraform apply")
-    sh("cd #{integration_dir}/build/ && terraform output > #{attribute_file}")
+    sh("cd #{run_dir}/build/ && terraform plan")
+    sh("cd #{run_dir}/build/ && terraform apply")
+    sh("cd #{run_dir}/build/ && terraform output > #{attribute_file}")
 
     raw_output = File.read(attribute_file)
     yaml_output = raw_output.gsub(" = ", " : ")
@@ -55,18 +58,19 @@ namespace :test do
 
   task :run_integration_tests do
     puts "----> Run"
-    sh("bundle exec inspec exec #{integration_dir}/verify --attrs #{attribute_file}")
+    sh("bundle exec inspec exec #{run_dir}/verify --attrs #{attribute_file}")
   end
 
   task :cleanup_integration_tests do
     puts "----> Cleanup"
-    sh("cd #{integration_dir}/build/ && terraform destroy -force")
+    sh("cd #{run_dir}/build/ && terraform destroy -force")
   end
 
   task :destroy_test_environment do
     puts "----> Destroying terraform environment"
-    sh("cd #{integration_dir}/build/ && terraform env select default")
-    sh("cd #{integration_dir}/build && terraform env delete #{terraform_env}")
+    sh("cd #{run_dir}/build/ && terraform env select default")
+    sh("cd #{run_dir}/build && terraform env delete #{terraform_env}")
+    sh("rm -rf #{run_dir}")
   end
 
   task :integration do
