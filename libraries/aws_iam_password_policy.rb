@@ -70,6 +70,6 @@ class AwsIamPasswordPolicy < Inspec.resource(1)
   end
 
   def to_s
-    "IAM Password-Policy"
+    'IAM Password-Policy'
   end
 end
