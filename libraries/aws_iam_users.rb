@@ -1,16 +1,17 @@
 # author: Alex Bedley
 # author: Steffanie Freeman
+# author: Simon Varlow
+# author: Chris Redekop
 class AwsIamUsers < Inspec.resource(1)
   name 'aws_iam_users'
   desc 'Verifies settings for AWS IAM users'
   example ''
 
-    filter = FilterTable.create
-    filter.add_accessor(:where)
-          .add_accessor(:entries)
-          .add(:has_console_password?)
-          .add(:exists?) { |x| !x.entries.empty? }
-    filter.connect(self, :collect_user_details)
+  filter = FilterTable.create
+  filter.add_accessor(:where)
+        .add_accessor(:entries)
+        .add(:exists?) { |x| !x.entries.empty? }
+  filter.connect(self, :collect_user_details)
 
   def initialize(aws_user_provider = AwsIam::UserProvider.new,
                  user_factory = AwsIamUserFactory.new)
