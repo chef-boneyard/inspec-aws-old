@@ -28,8 +28,11 @@ task default: [:lint, :test]
 namespace :test do
   terraform_env = ENV['INSPEC_TERRAFORM_ENV'] || SecureRandom.urlsafe_base64(5)
   project_dir = File.dirname(__FILE__)
-  attribute_file = File.join(project_dir, ".attribute.yml")
-  integration_dir = File.join(project_dir, "test/integration")
+  integration_path = "test/integration"
+  integration_dir = File.join(project_dir, integration_path)
+  tmp_dir = "/tmp/inspec-aws"
+  attribute_file = File.join(tmp_dir, ".attribute.yml")
+  run_dir = File.join(tmp_dir, integration_path)
 
   # run inspec check to verify that the profile is properly configured
   task :check do
@@ -38,14 +41,16 @@ namespace :test do
 
   task :configure_test_environment do
     puts "----> Creating terraform environment"
-    sh("cd #{integration_dir}/build/ && terraform env new #{terraform_env}")
+    sh("mkdir -p #{run_dir}")
+    sh("cp -R #{integration_dir}/* #{run_dir}")
+    sh("cd #{run_dir}/build/ && terraform env new #{terraform_env}")
   end
 
   task :setup_integration_tests do
     puts "----> Setup"
-    sh("cd #{integration_dir}/build/ && terraform plan")
-    sh("cd #{integration_dir}/build/ && terraform apply")
-    sh("cd #{integration_dir}/build/ && terraform output > #{attribute_file}")
+    sh("cd #{run_dir}/build/ && terraform plan")
+    sh("cd #{run_dir}/build/ && terraform apply")
+    sh("cd #{run_dir}/build/ && terraform output > #{attribute_file}")
 
     raw_output = File.read(attribute_file)
     yaml_output = raw_output.gsub(" = ", " : ")
@@ -55,18 +60,19 @@ namespace :test do
 
   task :run_integration_tests do
     puts "----> Run"
-    sh("bundle exec inspec exec #{integration_dir}/verify --attrs #{attribute_file}")
+    sh("bundle exec inspec exec #{run_dir}/verify --attrs #{attribute_file}")
   end
 
   task :cleanup_integration_tests do
     puts "----> Cleanup"
-    sh("cd #{integration_dir}/build/ && terraform destroy -force")
+    sh("cd #{run_dir}/build/ && terraform destroy -force")
   end
 
   task :destroy_test_environment do
     puts "----> Destroying terraform environment"
-    sh("cd #{integration_dir}/build/ && terraform env select default")
-    sh("cd #{integration_dir}/build && terraform env delete #{terraform_env}")
+    sh("cd #{run_dir}/build/ && terraform env select default")
+    sh("cd #{run_dir}/build && terraform env delete #{terraform_env}")
+    sh("rm -rf #{tmp_dir}")
   end
 
   task :integration do
