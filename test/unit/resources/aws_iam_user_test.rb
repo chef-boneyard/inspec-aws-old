@@ -51,18 +51,32 @@ class AwsIamUserTest < Minitest::Test
     stub_access_key_resource = Object.new
     mock_access_key_factory = Minitest::Mock.new
 
-    @mock_user_provider.expect :user, {access_keys: [stub_aws_access_key]}, [Username]
-    mock_access_key_factory.expect :create_access_key, stub_access_key_resource, [stub_aws_access_key]
+    @mock_user_provider.expect(
+      :user,
+      { access_keys: [stub_aws_access_key] },
+      [Username],
+    )
+    mock_access_key_factory.expect(
+      :create_access_key,
+      stub_access_key_resource,
+      [stub_aws_access_key],
+    )
 
-    assert_equal(stub_access_key_resource,
-                 AwsIamUser.new(Username, @mock_user_provider, mock_access_key_factory).access_keys[0])
+    assert_equal(
+      stub_access_key_resource,
+      AwsIamUser.new(
+        Username,
+        @mock_user_provider,
+        mock_access_key_factory,
+      ).access_keys[0],
+    )
 
     mock_access_key_factory.verify
   end
 
   def test_to_s
-    @mock_user_provider.expect :user, {has_mfa_enabled?: true}, [Username]
-    expected = "IAM User test"
+    @mock_user_provider.expect :user, { has_mfa_enabled?: true }, [Username]
+    expected = 'IAM User test'
     test = AwsIamUser.new(Username, @mock_user_provider).to_s
     assert_equal expected, test
   end
