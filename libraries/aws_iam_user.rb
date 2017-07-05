@@ -20,10 +20,11 @@ class AwsIamUser < Inspec.resource(1)
     @user = opts[:user]
     @user = aws_user_provider.user(opts[:name]) if @user.nil?
     @access_key_factory = access_key_factory
+    @aws_user_provider = aws_user_provider
   end
 
   def has_mfa_enabled?
-    @user[:has_mfa_enabled?]
+    @aws_user_provider.has_mfa_enabled?(@user)
   end
 
   def has_console_password?

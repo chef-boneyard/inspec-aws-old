@@ -16,6 +16,7 @@ class AwsIamUserTest < Minitest::Test
       { has_mfa_enabled?: true },
       [Username],
     )
+    @mock_user_provider.expect :has_mfa_enabled?, true, [Object]
     assert(
       AwsIamUser.new(
         { name: Username },
@@ -30,6 +31,7 @@ class AwsIamUserTest < Minitest::Test
       { has_mfa_enabled?: false },
       [Username],
     )
+    @mock_user_provider.expect :has_mfa_enabled?, false, [Object]
     refute(
       AwsIamUser.new(
         { name: Username },
