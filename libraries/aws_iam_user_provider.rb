@@ -8,8 +8,7 @@ module AwsIam
     end
 
     def user(name)
-      aws_user = @iam_resource.user(name)
-      self.class.convert(aws_user)
+      @iam_resource.user(name)
     end
 
     def list_users

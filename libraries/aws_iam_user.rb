@@ -28,11 +28,11 @@ class AwsIamUser < Inspec.resource(1)
   end
 
   def has_console_password?
-    @user[:has_console_password?]
+    @aws_user_provider.has_console_password?(@user)
   end
 
   def access_keys
-    @user[:access_keys].map { |access_key|
+    @aws_user_provider.access_keys(@user).map { |access_key|
       @access_key_factory.create_access_key(access_key)
     }
   end

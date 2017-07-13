@@ -46,6 +46,7 @@ class AwsIamUserTest < Minitest::Test
       { has_console_password?: true },
       [Username],
     )
+    @mock_user_provider.expect :has_console_password?, true, [Object]
     assert(
       AwsIamUser.new(
         { name: Username },
@@ -60,6 +61,7 @@ class AwsIamUserTest < Minitest::Test
       { has_console_password?: false },
       [Username],
     )
+    @mock_user_provider.expect :has_console_password?, false, [Object]
     refute(
       AwsIamUser.new(
         { name: Username },
@@ -78,6 +80,7 @@ class AwsIamUserTest < Minitest::Test
       { access_keys: [stub_aws_access_key] },
       [Username],
     )
+    @mock_user_provider.expect :access_keys, [stub_aws_access_key], [Object]
     mock_access_key_factory.expect(
       :create_access_key,
       stub_access_key_resource,
