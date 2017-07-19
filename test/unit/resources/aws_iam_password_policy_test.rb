@@ -70,7 +70,7 @@ class AwsIamPasswordPolicyTest < Minitest::Test
   end
 
   def test_policy_to_s
-    configure_policy_password_reuse_prevention(value: Object.new)
+    configure_policy_password_reuse_prevention
     expected_value = 'IAM Password-Policy'
     test = AwsIamPasswordPolicy.new(@mock_conn).to_s
     assert_equal expected_value, test
@@ -78,7 +78,7 @@ class AwsIamPasswordPolicyTest < Minitest::Test
 
   private
 
-  def configure_policy_password_reuse_prevention(value: value=nil, n: 1)
+  def configure_policy_password_reuse_prevention(value: nil, n: 1)
     n.times { @mock_policy.expect :password_reuse_prevention, value }
     @mock_resource.expect :account_password_policy, @mock_policy
   end
