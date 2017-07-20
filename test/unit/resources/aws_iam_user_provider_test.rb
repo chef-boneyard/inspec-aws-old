@@ -24,17 +24,8 @@ class AwsIamUserProviderTest < Minitest::Test
   end
 
   def test_list_users
-    @mock_iam_resource.expect(
-      :users,
-      [create_mock_user, create_mock_user],
-    )
-    mock_user_output = {
-      name: Username,
-      has_mfa_enabled?: true,
-      has_console_password?: true,
-      access_keys: [],
-    }
-    assert @user_provider.list_users == [mock_user_output, mock_user_output]
+    @mock_iam_resource.expect :users, [Username, Username, Username]
+    assert @user_provider.list_users == [Username, Username, Username]
   end
 
   def test_list_users_no_users

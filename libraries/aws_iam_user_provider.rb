@@ -12,10 +12,7 @@ module AwsIam
     end
 
     def list_users
-      aws_users = @iam_resource.users
-      aws_users.map do |aws_user|
-        self.class.convert(aws_user)
-      end
+      @iam_resource.users
     end
 
     class << self

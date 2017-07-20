@@ -29,13 +29,16 @@ class AwsIamUsers < Inspec.resource(1)
 
   def collect_user_details
     @users_cache ||= @user_provider.list_users unless @user_provider.nil?
+    @users_cache.map do |aws_user|
+      @user_provider.convert(aws_user)
+    end
   end
 
   def users
     users = []
     users ||= @user_provider.list_users unless @user_provider.nil?
     users.map { |user|
-      @user_factory.create_user(user)
+      @user_factory.create_user(@user_provider.convert(user))
     }
   end
 
