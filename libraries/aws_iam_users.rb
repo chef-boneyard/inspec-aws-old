@@ -5,7 +5,15 @@
 class AwsIamUsers < Inspec.resource(1)
   name 'aws_iam_users'
   desc 'Verifies settings for AWS IAM users'
-  example ''
+  example '
+    describe aws_iam_users.where(has_mfa_enabled?: false) do
+      it { should_not exist }
+    end
+
+    describe aws_iam_users.where(has_console_password?: true) do
+      it { should exist }
+    end
+  '
 
   filter = FilterTable.create
   filter.add_accessor(:where)

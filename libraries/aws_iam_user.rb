@@ -36,8 +36,12 @@ class AwsIamUser < Inspec.resource(1)
     }
   end
 
+  def name
+    @user[:name]
+  end
+
   def to_s
-    "IAM User #{@user[:name]}"
+    "IAM User #{name}"
   end
 
   class AwsIamAccessKeyFactory
