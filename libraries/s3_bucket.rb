@@ -34,5 +34,4 @@ class S3Bucket < Inspec.resource(1)
   def bucket
     @bucket ||= @s3_bucket_resource.bucket(name)
   end
-
 end

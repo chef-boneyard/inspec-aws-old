@@ -13,7 +13,7 @@ class TestS3Bucket < Minitest::Test
     @mock_conn.expect :s3_bucket_resource, @mock_resource
   end
 
-  def test_that_S3_Bucket_returns_name_directly_when_constructed_with_a_name
+  def test_that_s3_bucket_returns_name_directly_when_constructed_with_a_name
     assert_equal Name, S3Bucket.new(Name, @mock_conn).name
   end
 
@@ -23,5 +23,4 @@ class TestS3Bucket < Minitest::Test
     @mock_resource.expect :bucket, mock, [Name]
     assert S3Bucket.new(Name, @mock_conn).exists?
   end
-
 end

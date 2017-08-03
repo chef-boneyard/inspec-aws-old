@@ -83,6 +83,14 @@ end
 To execute the unit tests, run:
 
 ```
+bundle exec rake
+```
+
+This will force RuboCop to validate your code for proper syntax prior to executing unit tests.
+
+If you only want to run the unit tests and not RuboCop validation, run:
+
+```
 bundle exec rake test
 ```
 
