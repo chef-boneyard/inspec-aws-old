@@ -62,7 +62,7 @@ end
 ### Available Resources
 
  * `aws_ec2` - This resource reads information about an ec2 instance
- * `aws_s3_bucket` - This resource reads information about an S3 bucket
+ * `aws_s3_bucket` - This resource reads information about an s3 bucket
 
 ### Roadmap
 
