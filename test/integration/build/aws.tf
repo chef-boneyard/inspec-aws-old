@@ -33,6 +33,10 @@ resource "aws_iam_access_key" "access_key" {
   pgp_key = "${var.login_profile_pgp_key}"
 }
 
+resource "aws_s3_bucket" "bucket" {
+  bucket = "${terraform.env}.test-bucket.inspec-aws"
+}
+
 output "mfa_not_enabled_user" {
   value = "${aws_iam_user.mfa_not_enabled_user.name}"
 }
@@ -51,4 +55,8 @@ output "example_ec2_name" {
 
 output "example_ec2_id" {
   value = "${aws_instance.example.id}"
+}
+
+output "s3_bucket_name" {
+  value = "${aws_s3_bucket.bucket.id}"
 }

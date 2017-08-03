@@ -28,4 +28,12 @@ class AWSConnection
   def iam_client
     @iam_client ||= Aws::IAM::Client.new
   end
+
+  def s3_bucket_resource
+    @s3_bucket_resource ||= Aws::S3::Resource.new
+  end
+
+  def s3_bucket_client
+    @s3_bucket_client ||= Aws::S3::Client.new
+  end
 end
