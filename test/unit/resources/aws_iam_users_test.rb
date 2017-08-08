@@ -97,5 +97,4 @@ class AwsIamUsersTest < Minitest::Test
       has_mfa_enabled?: has_mfa_enabled
     }
   end
-
 end
