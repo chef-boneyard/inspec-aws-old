@@ -29,10 +29,10 @@ class TestEc2 < Minitest::Test
     mock_instance = Object.new
 
     @mock_resource.expect :instance, mock_instance, [Id]
-    assert_same mock_instance, AwsEc2Instance.new(
-      Id,
-      @mock_conn,
-    ).send(:instance)
+    assert_same(
+      mock_instance,
+      AwsEc2Instance.new(Id, @mock_conn).send(:instance),
+    )
   end
 
   def test_that_instance_returns_nil_when_instance_does_not_exist
