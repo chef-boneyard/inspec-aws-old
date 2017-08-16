@@ -1,5 +1,5 @@
 require 'helper'
-require 'ec2'
+require 'aws_ec2'
 
 class TestEc2 < Minitest::Test
   Id = 'instance-id'.freeze

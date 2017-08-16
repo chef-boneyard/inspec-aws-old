@@ -1,6 +1,6 @@
 # author: Christoph Hartmann
 
-class Ec2 < Inspec.resource(1)
+class AwsEc2 < Inspec.resource(1)
   name 'aws_ec2'
   desc 'Verifies settings for an EC2 instance'
 
@@ -41,6 +41,7 @@ class Ec2 < Inspec.resource(1)
   alias instance_id id
 
   def exists?
+    return false if instance.nil?
     instance.exists?
   end
 
@@ -67,7 +68,7 @@ class Ec2 < Inspec.resource(1)
     instance_type image_id vpc_id
   }.each do |attribute|
     define_method attribute do
-      instance.send(attribute)
+      instance.send(attribute) if instance
     end
   end
 
