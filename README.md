@@ -62,6 +62,7 @@ end
 ### Available Resources
 
  * `aws_ec2` - This resource reads information about an ec2 instance
+ * `aws_s3_bucket` - This resource reads information about an s3 bucket
 
 ### Roadmap
 
@@ -80,6 +81,14 @@ end
 ### Unit tests
 
 To execute the unit tests, run:
+
+```
+bundle exec rake
+```
+
+This will force RuboCop to validate your code for proper syntax prior to executing unit tests.
+
+If you only want to run the unit tests and not RuboCop validation, run:
 
 ```
 bundle exec rake test
