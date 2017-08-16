@@ -28,4 +28,8 @@ class AWSConnection
   def iam_client
     @iam_client ||= Aws::IAM::Client.new
   end
+
+  def cf_client
+    @cf_client ||= Aws::CloudFormation::Client.new
+  end
 end
