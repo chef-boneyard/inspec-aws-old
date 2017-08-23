@@ -38,7 +38,7 @@ class AwsIamUsers < Inspec.resource(1)
     users = []
     users ||= @user_provider.list_users unless @user_provider.nil?
     users.map { |user|
-      @user_factory.create_user(@user_provider.convert(user))
+      @user_factory.create_user(user)
     }
   end
 
