@@ -86,6 +86,15 @@ class AwsEc2Instance < Inspec.resource(1)
     "EC2 Instance #{@display_name}"
   end
 
+  def profile_arn
+    instance_profile = instance.iam_instance_profile
+
+    name = instance_profile.arn.gsub(/.*instance-profile\//, "")
+
+    conn.iam_resource.instance_profile(name).arn
+
+  end
+
   private
 
   def instance

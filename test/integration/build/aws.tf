@@ -4,9 +4,35 @@ terraform {
 
 provider "aws" {}
 
+resource "aws_iam_role" "example" {
+  name = "${terraform.env}.example"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_instance_profile" "example" {
+  name  = "${terraform.env}.example"
+  role = "${aws_iam_role.example.name}"
+}
+
 resource "aws_instance" "example" {
   ami           = "ami-0d729a60"
   instance_type = "t2.micro"
+  iam_instance_profile = "${aws_iam_instance_profile.example.name}"
 
   tags {
     Name = "${terraform.env}.Example"
