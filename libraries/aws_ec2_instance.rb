@@ -1,5 +1,4 @@
 # author: Christoph Hartmann
-
 class AwsEc2Instance < Inspec.resource(1)
   name 'aws_ec2_instance'
   desc 'Verifies settings for an EC2 instance'
@@ -19,6 +18,7 @@ class AwsEc2Instance < Inspec.resource(1)
     @opts.is_a?(Hash) ? @display_name = @opts[:name] : @display_name = opts
     @ec2_client = conn.ec2_client
     @ec2_resource = conn.ec2_resource
+    @iam_resource = conn.iam_resource
   end
 
   def id
@@ -87,11 +87,10 @@ class AwsEc2Instance < Inspec.resource(1)
   end
 
   def profile_arn
-    instance_profile = instance.iam_instance_profile
 
-    name = instance_profile.arn.gsub(/.*instance-profile\//, "")
+    name = instance.iam_instance_profile.arn
 
-    conn.iam_resource.instance_profile(name).arn
+    instprof = @iam_resource.instance_profile(name.gsub(/^.*\//,'')).roles.role_name
 
   end
 
