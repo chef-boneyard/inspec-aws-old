@@ -15,24 +15,27 @@ class AwsIamUser < Inspec.resource(1)
   def initialize(
     opts,
     aws_user_provider = AwsIam::UserProvider.new,
+    aws_user_details_provider = AwsIam::UserDetailsProvider.new,
     access_key_factory = AwsIamAccessKeyFactory.new
   )
     @user = opts[:user]
     @user = aws_user_provider.user(opts[:name]) if @user.nil?
+    aws_user_details_provider.user(@user)
+    @aws_user_details_provider = aws_user_details_provider
     @access_key_factory = access_key_factory
     @aws_user_provider = aws_user_provider
   end
 
   def has_mfa_enabled?
-    @aws_user_provider.has_mfa_enabled?(@user)
+    @aws_user_details_provider.has_mfa_enabled?
   end
 
   def has_console_password?
-    @aws_user_provider.has_console_password?(@user)
+    @aws_user_details_provider.has_console_password?
   end
 
   def access_keys
-    @aws_user_provider.access_keys(@user).map { |access_key|
+    @aws_user_details_provider.access_keys.map { |access_key|
       @access_key_factory.create_access_key(access_key)
     }
   end
