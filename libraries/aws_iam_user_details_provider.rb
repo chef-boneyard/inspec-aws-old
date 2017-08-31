@@ -1,3 +1,6 @@
+# author: Adnan Duric
+# author: Steffanie Freeman
+
 module AwsIam
   class UserDetailsProvider
     def initialize(user)
@@ -23,11 +26,9 @@ module AwsIam
     end
   end
 
-
   class UserDetailsProviderFactory
     def create(user)
       UserDetailsProvider.new(user)
     end
   end
-
 end

@@ -25,15 +25,25 @@ class AwsIamUserProviderTest < Minitest::Test
   end
 
   def test_list_users
-    mock_users = [@mock_iam_resource_user, @mock_iam_resource_user, @mock_iam_resource_user]
-    mock_users.map do |mock_user|
+    mock_users =
+      [
+        @mock_iam_resource_user,
+        @mock_iam_resource_user,
+        @mock_iam_resource_user,
+      ]
+    mock_users.map do ||
       @mock_iam_resource_user.expect :name, Username
     end
-    mock_user_output = {
-      name: Username
-    }
+
     @mock_iam_resource.expect :users, mock_users
-    assert @user_provider.list_users == [@mock_iam_resource_user, @mock_iam_resource_user, @mock_iam_resource_user]
+    assert_equal(
+      @user_provider.list_users,
+      [
+        @mock_iam_resource_user,
+        @mock_iam_resource_user,
+        @mock_iam_resource_user,
+      ],
+    )
   end
 
   def test_list_users_no_users
