@@ -15,13 +15,12 @@ class AwsIamUser < Inspec.resource(1)
   def initialize(
     opts,
     aws_user_provider = AwsIam::UserProvider.new,
-    aws_user_details_provider = AwsIam::UserDetailsProvider.new,
+    aws_user_details_provider_factory = AwsIam::UserDetailsProviderFactory.new,
     access_key_factory = AwsIamAccessKeyFactory.new
   )
     @user = opts[:user]
     @user = aws_user_provider.user(opts[:name]) if @user.nil?
-    aws_user_details_provider.user(@user)
-    @aws_user_details_provider = aws_user_details_provider
+    @aws_user_details_provider = aws_user_details_provider_factory.create(@user)
     @access_key_factory = access_key_factory
     @aws_user_provider = aws_user_provider
   end
@@ -41,7 +40,7 @@ class AwsIamUser < Inspec.resource(1)
   end
 
   def name
-    @user[:name]
+    @aws_user_details_provider.name
   end
 
   def to_s

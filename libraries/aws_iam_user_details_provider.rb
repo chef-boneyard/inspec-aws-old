@@ -1,7 +1,11 @@
 module AwsIam
   class UserDetailsProvider
-    def user(user)
+    def initialize(user)
       @aws_user = user
+    end
+
+    def name
+      @aws_user.name
     end
 
     def has_mfa_enabled?
@@ -17,13 +21,13 @@ module AwsIam
     def access_keys
       @aws_user.access_keys
     end
+  end
 
-    def convert
-      {
-        has_mfa_enabled?: has_mfa_enabled?,
-        has_console_password?: has_console_password?,
-        access_keys: access_keys,
-      }
+
+  class UserDetailsProviderFactory
+    def create(user)
+      UserDetailsProvider.new(user)
     end
   end
+
 end

@@ -1,3 +1,7 @@
+# author: Adnan Duric
+# author: Steffanie Freeman
+# author: Simon Varlow
+# author: Chris Redekop
 require 'aws-sdk'
 require 'helper'
 require 'aws_iam_users'
@@ -5,16 +9,21 @@ require 'aws_iam_users'
 class AwsIamUsersTest < Minitest::Test
   def setup
     @mock_user_factory = Minitest::Mock.new
+    @mock_user_details_provider_factory = Minitest::Mock.new
   end
 
   def test_users_nil_user_provider_returns_empty_list
-    cut = AwsIamUsers.new(nil, @mock_user_factory)
+    cut = AwsIamUsers.new(nil, nil, @mock_user_factory)
 
     assert_equal(cut.users, [])
   end
 
   def test_users_empty_list_user_provider_returns_empty_list
-    cut = AwsIamUsers.new(create_mock_user_provider, @mock_user_factory)
+    cut = AwsIamUsers.new(
+      create_mock_user_provider,
+      create_mock_user_details_provider_factory,
+      @mock_user_factory
+    )
 
     assert_equal(cut.users, [])
   end
@@ -22,6 +31,7 @@ class AwsIamUsersTest < Minitest::Test
   def test_users_returns_true_for_all_users_if_mfa_enabled
     cut = AwsIamUsers.new(
       create_mock_user_provider(create_mock_users([true, true])),
+      create_mock_user_details_provider_factory,
       @mock_user_factory,
     )
 
@@ -43,13 +53,15 @@ class AwsIamUsersTest < Minitest::Test
     }
   ].each do |test_material|
     define_method(test_material[:name]) do
+      mock_user_details_provider_factory = create_mock_user_details_provider_factory(
+        test_material[:user_material]
+      )
+
       cut = AwsIamUsers.new(
         create_mock_user_provider(
           test_material[:user_material]
         ),
-        create_mock_user_details_provider(
-          test_material[:user_material]
-        ),
+        mock_user_details_provider_factory,
         @mock_user_factory,
       )
 
@@ -61,13 +73,17 @@ class AwsIamUsersTest < Minitest::Test
     end
   end
 
-  def create_mock_user_details_provider(user_list = [])
-    @mock_user_details_provider = Minitest::Mock.new
-    user_list.each do |user| 
-      @mock_user_details_provider.expect :user, user, [user]
-      @mock_user_details_provider.expect :convert, create_mock_user(user)
+  def create_mock_user_details_provider_factory(attr_value_list = [])
+    mock_user_details_provider_factory = Minitest::Mock.new
+    attr_value_list.each do |attr_val| 
+      mock_user_details_provider = Minitest::Mock.new
+      mock_user_details_provider.expect :name, nil
+      mock_user_details_provider.expect :has_mfa_enabled?, attr_val
+      mock_user_details_provider.expect :has_console_password?, nil
+      mock_user_details_provider.expect :access_keys, []
+      mock_user_details_provider_factory.expect :create, mock_user_details_provider, [Object]
     end
-    @mock_user_details_provider
+    mock_user_details_provider_factory
   end
 
   def create_mock_user_provider(user_list = [])
