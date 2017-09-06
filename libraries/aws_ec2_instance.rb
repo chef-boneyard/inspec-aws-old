@@ -86,11 +86,13 @@ class AwsEc2Instance < Inspec.resource(1)
     "EC2 Instance #{@display_name}"
   end
 
-  def profile_arn
+  def has_roles?
 
-    name = instance.iam_instance_profile.arn
+    name = instance.iam_instance_profile.arn.gsub(/^.*\//,'')
+ 
+    roles = @iam_resource.instance_profile(name.gsub(/^.*\//,'')).roles
 
-    instprof = @iam_resource.instance_profile(name.gsub(/^.*\//,'')).roles.role_name
+    roles.length > 0
 
   end
 

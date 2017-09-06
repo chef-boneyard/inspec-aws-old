@@ -18,7 +18,7 @@ describe aws_ec2_instance(example_ec2_id) do
   it { should exist }
   its('image_id') { should eq 'ami-0d729a60' }
   its('instance_type') { should eq 't2.micro' }
-  its ('profile_arn') { should eq 'tav.example' }
+  it { should have_roles }
 end
 
 # must use a real EC2 instance name, as the SDK will first check to see if it's well formed before sending requests
