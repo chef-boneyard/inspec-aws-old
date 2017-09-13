@@ -8,9 +8,11 @@ class TestEc2 < Minitest::Test
     @mock_conn = Minitest::Mock.new
     @mock_client = Minitest::Mock.new
     @mock_resource = Minitest::Mock.new
+    @mock_iam_resource = Minitest::Mock.new
 
     @mock_conn.expect :ec2_client, @mock_client
     @mock_conn.expect :ec2_resource, @mock_resource
+    @mock_conn.expect :iam_resource, @mock_iam_resource
   end
 
   def test_that_id_returns_id_directly_when_constructed_with_an_id
@@ -54,5 +56,33 @@ class TestEc2 < Minitest::Test
     mock_instance.expect :exists?, false
     @mock_resource.expect :instance, mock_instance, [Id]
     assert !AwsEc2Instance.new(Id, @mock_conn).exists?
+  end
+  
+  def stub_instance_profile(arn: 'arn:aws:iam::434277117571:instance-profile/instance-role')
+    OpenStruct.new({ arn: arn })
+  end
+
+  def stub_instance_profile(
+      roles: ['instance-role'],
+      instance_profile: 'instance-role'
+      )
+    instance_profile = OpenStruct.new({
+      roles: roles,
+     })
+      @mock_iam_resource.expect :instance_profile, iam_instance_profile, ['instance_role']
+  end
+
+  def test_that_has_roles_returns_false_when_roles_does_not_exist
+    mock_instance = Minitest::Mock.new
+    mock_instance.expect :instance_profile, stub_instance_profile 
+    @mock_resource.expect :instance, mock_instance, [Id]
+    assert !AwsEc2Instance.new(Id, @mock_conn).has_roles?
+  end
+  
+  def test_that_has_roles_returns_true_when_roles_does_exist
+    mock_instance = Minitest::Mock.new
+    mock_instance.expect :instance_profile, stub_instance_profile 
+    @mock_resource.expect :instance, mock_instance, [Id]
+    assert AwsEc2Instance.new(Id, @mock_conn).has_roles?
   end
 end
