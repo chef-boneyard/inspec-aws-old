@@ -6,10 +6,12 @@ class AwsEc2Instance < Inspec.resource(1)
   example "
     describe aws_ec2_instance('i-123456') do
       it { should be_running }
+      it { should have_roles }
     end
 
     describe aws_ec2_instance(name: 'my-instance') do
       it { should be_running }
+      it { should have_roles }
     end
   "
 
