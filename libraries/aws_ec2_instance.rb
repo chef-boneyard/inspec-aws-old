@@ -89,13 +89,11 @@ class AwsEc2Instance < Inspec.resource(1)
   end
 
   def has_roles?
-
     name = instance.iam_instance_profile.arn.gsub(/^.*\//,'')
  
-    roles = @iam_resource.instance_profile(name.gsub(/^.*\//,'')).roles
+    roles = @iam_resource.instance_profile(name).roles
 
     roles.length > 0
-
   end
 
   private
