@@ -3,6 +3,7 @@ require 'aws_ec2_instance'
 
 class TestEc2 < Minitest::Test
   Id = 'instance-id'.freeze
+  InstanceProfile = 'instance-role'.freeze
 
   def setup
     @mock_conn = Minitest::Mock.new
@@ -72,7 +73,7 @@ class TestEc2 < Minitest::Test
     mock_instance.expect :iam_instance_profile, stub_iam_instance_profile
     @mock_resource.expect :instance, mock_instance, [Id]
 
-    @mock_iam_resource.expect :instance_profile, stub_instance_profile([]), ['instance-role']
+    @mock_iam_resource.expect :instance_profile, stub_instance_profile([]), [InstanceProfile]
 
     refute AwsEc2Instance.new(Id, @mock_conn).has_roles?
   end
@@ -82,7 +83,7 @@ class TestEc2 < Minitest::Test
     mock_instance.expect :iam_instance_profile, stub_iam_instance_profile
     @mock_resource.expect :instance, mock_instance, [Id]
 
-    @mock_iam_resource.expect :instance_profile, stub_instance_profile(['Role']), ['instance-role']
+    @mock_iam_resource.expect :instance_profile, stub_instance_profile(['Role']), [InstanceProfile]
 
     assert AwsEc2Instance.new(Id, @mock_conn).has_roles?
   end
