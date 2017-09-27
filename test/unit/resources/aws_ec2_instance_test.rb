@@ -4,6 +4,7 @@ require 'aws_ec2_instance'
 class TestEc2 < Minitest::Test
   Id = 'instance-id'.freeze
   InstanceProfile = 'instance-role'.freeze
+  Arn =  'arn:aws:iam::123456789012:instance-profile/instance-role'.freeze
 
   def setup
     @mock_conn = Minitest::Mock.new
@@ -60,7 +61,7 @@ class TestEc2 < Minitest::Test
   end
 
   def stub_iam_instance_profile 
-    OpenStruct.new({ arn: 'arn:aws:iam::434277117571:instance-profile/instance-role'})
+    OpenStruct.new({ arn: Arn })
   end  
  
   def stub_instance_profile(roles)
