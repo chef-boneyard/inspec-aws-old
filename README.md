@@ -60,7 +60,7 @@ end
 ```
 
 
-vailable Resources
+### Available Resources
 
  * `aws_ec2` - This resource reads information about an ec2 instance
  * `aws_iam_access_key` - Verifies settings for AWS IAM access keys
