@@ -93,7 +93,7 @@ class AwsEc2Instance < Inspec.resource(1)
 
     !instance_profile.nil? &&
       !@iam_resource.instance_profile(
-        instance_profile.arn.gsub(%r{^.*\/}, '')
+        instance_profile.arn.gsub(%r{^.*\/}, ''),
       ).roles.empty?
   end
 
