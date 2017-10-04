@@ -8,15 +8,10 @@ example_ec2_name = attribute(
   default: 'default.Example',
   description: 'Name of example ec2 instance')
 
-noroles_ec2_id = attribute(
-  'noroles_ec2_id',
-  default: 'default.noroles_ec2_id',
+no_roles_ec2_id = attribute(
+  'no_roles_ec2_id',
+  default: 'default.no_roles_ec2_id',
   description: 'ID of no-roles ec2 instance')
-
-noroles_ec2_name = attribute(
-  'noroles_ec2_name',
-  default: 'default.NoRoles',
-  description: 'Name of no-roles ec2 instance')
 
 describe aws_ec2_instance(name: example_ec2_name) do
   it { should exist }
@@ -31,7 +26,7 @@ describe aws_ec2_instance(example_ec2_id) do
   it { should have_roles }
 end
 
-describe aws_ec2_instance(noroles_ec2_id) do
+describe aws_ec2_instance(no_roles_ec2_id) do
   it { should exist }
   it { should_not have_roles }
 end

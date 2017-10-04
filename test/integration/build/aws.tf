@@ -93,10 +93,6 @@ output "example_ec2_id" {
   value = "${aws_instance.example.id}"
 }
 
-output "noroles_ec2_name" {
-  value = "${aws_instance.no_roles_instance.tags.Name}"
-}
-
-output "noroles_ec2_id" {
+output "no_roles_ec2_id" {
   value = "${aws_instance.no_roles_instance.id}"
 }
