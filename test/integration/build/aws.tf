@@ -40,6 +40,16 @@ resource "aws_instance" "example" {
   }
 }
 
+resource "aws_instance" "no_roles_instance" {
+  ami           = "ami-0d729a60"
+  instance_type = "t2.micro"
+
+  tags {
+    Name = "${terraform.env}.NoRoles"
+    X-Project = "inspec"
+  }
+}
+
 resource "aws_iam_user" "mfa_not_enabled_user" {
     name = "${terraform.env}.mfa_not_enabled_user"
 }
@@ -81,4 +91,12 @@ output "example_ec2_name" {
 
 output "example_ec2_id" {
   value = "${aws_instance.example.id}"
+}
+
+output "noroles_ec2_name" {
+  value = "${aws_instance.no_roles_instance.tags.Name}"
+}
+
+output "noroles_ec2_id" {
+  value = "${aws_instance.no_roles_instance.id}"
 }

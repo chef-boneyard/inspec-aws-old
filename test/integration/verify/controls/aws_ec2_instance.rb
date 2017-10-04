@@ -6,7 +6,17 @@ example_ec2_id = attribute(
 example_ec2_name = attribute(
   'example_ec2_name',
   default: 'default.Example',
-  description: 'Name of exapmle ec2 instance')
+  description: 'Name of example ec2 instance')
+
+noroles_ec2_id = attribute(
+  'noroles_ec2_id',
+  default: 'default.noroles_ec2_id',
+  description: 'ID of no-roles ec2 instance')
+
+noroles_ec2_name = attribute(
+  'noroles_ec2_name',
+  default: 'default.NoRoles',
+  description: 'Name of no-roles ec2 instance')
 
 describe aws_ec2_instance(name: example_ec2_name) do
   it { should exist }
@@ -21,8 +31,12 @@ describe aws_ec2_instance(example_ec2_id) do
   it { should have_roles }
 end
 
+describe aws_ec2_instance(noroles_ec2_id) do
+  it { should exist }
+  it { should_not have_roles }
+end
+
 # must use a real EC2 instance name, as the SDK will first check to see if it's well formed before sending requests
->>>>>>> Rename EC2-instance resources:test/integration/verify/controls/aws_ec2_instance.rb
 describe aws_ec2_instance('i-06b4bc106e0d03dfd') do
   it { should_not exist }
 end
