@@ -15,14 +15,13 @@ class AwsIamUser < Inspec.resource(1)
   def initialize(
     opts,
     aws_user_provider = AwsIam::UserProvider.new,
-    aws_user_details_provider_factory = AwsIam::UserDetailsProviderFactory.new,
+    aws_user_details_provider_ini = AwsIam::UserDetailsProviderInitializer.new,
     access_key_factory = AwsIamAccessKeyFactory.new
   )
-    @user = opts[:user]
-    @user = aws_user_provider.user(opts[:name]) if @user.nil?
-    @aws_user_details_provider = aws_user_details_provider_factory.create(@user)
+    user = opts[:user]
+    user = aws_user_provider.user(opts[:name]) if user.nil?
+    @aws_user_details_provider = aws_user_details_provider_ini.create(user)
     @access_key_factory = access_key_factory
-    @aws_user_provider = aws_user_provider
   end
 
   def has_mfa_enabled?

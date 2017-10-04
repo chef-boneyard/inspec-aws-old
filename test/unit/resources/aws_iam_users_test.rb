@@ -9,7 +9,7 @@ require 'aws_iam_users'
 class AwsIamUsersTest < Minitest::Test
   def setup
     @mock_user_factory = Minitest::Mock.new
-    @mock_user_details_provider_factory = Minitest::Mock.new
+    @mock_user_details_provider_initializer = Minitest::Mock.new
   end
 
   def test_users_nil_user_provider_returns_empty_list
@@ -21,7 +21,7 @@ class AwsIamUsersTest < Minitest::Test
   def test_users_empty_list_user_provider_returns_empty_list
     cut = AwsIamUsers.new(
       create_mock_user_provider,
-      create_mock_user_details_provider_fac,
+      create_mock_user_details_provider_ini,
       @mock_user_factory,
     )
 
@@ -31,7 +31,7 @@ class AwsIamUsersTest < Minitest::Test
   def test_users_returns_true_for_all_users_if_mfa_enabled
     cut = AwsIamUsers.new(
       create_mock_user_provider(create_mock_users([true, true])),
-      create_mock_user_details_provider_fac,
+      create_mock_user_details_provider_ini,
       @mock_user_factory,
     )
 
@@ -64,7 +64,7 @@ class AwsIamUsersTest < Minitest::Test
   end
 
   def create_cut(user_list = [])
-    mock_user_details_provider_factory = create_mock_user_details_provider_fac(
+    mock_user_details_provider_ini = create_mock_user_details_provider_ini(
       user_list[:user_material],
     )
 
@@ -72,22 +72,22 @@ class AwsIamUsersTest < Minitest::Test
       create_mock_user_provider(
         user_list[:user_material],
       ),
-      mock_user_details_provider_factory,
+      mock_user_details_provider_ini,
       @mock_user_factory,
     )
   end
 
-  def create_mock_user_details_provider_fac(attr_value_list = [])
-    mock_dets_provider_factory = Minitest::Mock.new
+  def create_mock_user_details_provider_ini(attr_value_list = [])
+    mock_dets_provider_ini = Minitest::Mock.new
     attr_value_list.each do |attr_val|
       mock_dets_provider = Minitest::Mock.new
       mock_dets_provider.expect :name, nil
       mock_dets_provider.expect :has_mfa_enabled?, attr_val
       mock_dets_provider.expect :has_console_password?, nil
       mock_dets_provider.expect :access_keys, []
-      mock_dets_provider_factory.expect :create, mock_dets_provider, [Object]
+      mock_dets_provider_ini.expect :create, mock_dets_provider, [Object]
     end
-    mock_dets_provider_factory
+    mock_dets_provider_ini
   end
 
   def create_mock_user_provider(user_list = [])

@@ -26,7 +26,7 @@ module AwsIam
     end
   end
 
-  class UserDetailsProviderFactory
+  class UserDetailsProviderInitializer
     def create(user)
       UserDetailsProvider.new(user)
     end
