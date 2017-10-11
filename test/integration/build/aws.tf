@@ -54,6 +54,26 @@ resource "aws_iam_user" "mfa_not_enabled_user" {
     name = "${terraform.env}.mfa_not_enabled_user"
 }
 
+resource "aws_iam_user_policy" "mfa_not_enabled_policy" {
+  name = "test"
+  user = "${aws_iam_user.mfa_not_enabled_user.name}"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "ec2:Describe*"
+      ],
+      "Effect": "Deny",
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+}
+
 resource "aws_iam_user" "console_password_enabled_user" {
     name = "${terraform.env}.console_password_enabled_user"
     force_destroy = true

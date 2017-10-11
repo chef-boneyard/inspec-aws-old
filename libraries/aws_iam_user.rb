@@ -36,6 +36,10 @@ class AwsIamUser < Inspec.resource(1)
     @aws_user_details_provider.has_console_password?
   end
 
+  def has_policies?
+    @user[:has_policies?]
+  end
+
   def access_keys
     @aws_user_details_provider.access_keys.map { |access_key|
       @access_key_factory.create_access_key(access_key)
