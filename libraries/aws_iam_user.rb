@@ -7,9 +7,15 @@ class AwsIamUser < Inspec.resource(1)
   name 'aws_iam_user'
   desc 'Verifies settings for AWS IAM user'
   example "
+<<<<<<< HEAD
     describe aws_iam_user(name: 'test_user_name') do
       it { should have_mfa_enabled }
       it { should have_console_password }
+=======
+    describe aws_iam_user(name: 'test_user') do
+      it { should have_mfa_enabled }
+      it { should_not have_console_password }
+>>>>>>> Update docs in source to use matcher-style calls, not properties-as-predicates
     end
   "
   def initialize(
