@@ -26,7 +26,7 @@ An `aws_iam_users` resource block users a filter to select a group of users and 
 
 The following examples show how to use this InSpec audit resource.
 
-### Test that all users have Multi Factor Authentication enabled
+### Test that all users have Multi-Factor Authentication enabled
 
     describe aws_iam_users.where(has_mfa_enabled?: false) do
       it { should_not exist }
@@ -38,8 +38,26 @@ The following examples show how to use this InSpec audit resource.
       it { should exist }
     end
 
+### Test that all users that have a console password have Multi-Factor Authentication enabled
+
+    describe aws_iam_users.where(has_console_password?: true) do
+      it { should have_mfa_enabled }
+    end
+
 <br>
 
 ## Matchers
 
-For a full list of available matchers (such as `exist`) please visit our [matchers page](https://www.inspec.io/docs/reference/matchers/).
+This InSpec audit resource has the following special matchers. For a full list of available matchers (such as `exist`) please visit our [matchers page](https://www.inspec.io/docs/reference/matchers/).
+
+### have_console_password
+
+The `have_console_password` matcher tests if the users have a password that could be used to log into the AWS web console.
+
+    it { should have_console_password }
+
+### have_mfa_enabled
+
+The `have_mfa_enabled` matcher tests if the users have Multi-Factor Authentication enabled, requiring them to enter a secondary code when they login to the web console.
+
+    it { should have_mfa_enabled }

@@ -54,4 +54,46 @@ The following examples show how to use this InSpec audit resource.
 
 ## Matchers
 
-For a full list of available matchers (such as `be_running`) please visit our [matchers page](https://www.inspec.io/docs/reference/matchers/).
+This InSpec audit resource has the following special matchers. For a full list of available matchers (such as `exist`) please visit our [matchers page](https://www.inspec.io/docs/reference/matchers/).
+
+### be_pending
+
+The `pending` matcher tests if the described EC2 instance state is `pending`
+
+    it { should be_pending }
+
+### be_running
+
+The `be_running` matcher tests if the described EC2 instance state is `running`
+
+    it { should be_running }
+
+### be_shutting_down_
+
+The `be_shutting_down` matcher tests if the described EC2 instance state is `shutting-down`
+
+    it { should be_shutting_down }
+
+### be_stopped
+
+The `be_stopped` matcher tests if the described EC2 instance state is `stopped`
+
+    it { should be_stopped }
+
+### be_stopping
+
+The `be_stopping` matcher tests if the described EC2 instance state is `stopping`
+
+    it { should be_stopping }
+
+### be_terminated
+
+The `be_terminated` matcher tests if the described EC2 instance state is `terminated`
+
+    it { should be_terminated }
+
+### be_unknown
+
+The `be_unknown` matcher tests if the described EC2 instance state is `unknown`
+
+    it { should be_unknown }

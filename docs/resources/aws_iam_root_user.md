@@ -17,7 +17,7 @@ To test properties of a specific AWS user use the `aws_iam_user` resource.
 An `aws_iam_root_user` resource block requires no parameters but has several matchers
 
     describe aws_iam_root_user do
-      its('has_mfa_enabled?') { should be true }
+      its { should have_mfa_enabled }
     end
 
 <br>
@@ -32,14 +32,20 @@ The following examples show how to use this InSpec audit resource.
       its('access_key_count') { should eq 1 }
     end
 
-### Test that the AWS root account has Multi Factor Authentication enabled
+### Test that the AWS root account has Multi-Factor Authentication enabled
 
     describe aws_iam_root_user do
-      its('has_mfa_enabled?') { should be true }
+      it { should have_mfa_enabled }
     end
 
 <br>
 
 ## Matchers
 
-For a full list of available matchers (such as `eq`) please visit our [matchers page](https://www.inspec.io/docs/reference/matchers/).
+This InSpec audit resource has the following special matchers. For a full list of available matchers (such as `exist`) please visit our [matchers page](https://www.inspec.io/docs/reference/matchers/).
+
+### have_mfa_enabled
+
+The `have_mfa_enabled` matcher tests if the AWS root user has Multi-Factor Authentication enabled, requiring them to enter a secondary code when they login to the web console.
+
+    it { should have_mfa_enabled }
