@@ -90,11 +90,18 @@ class AwsEc2Instance < Inspec.resource(1)
 
   def has_roles?
     instance_profile = instance.iam_instance_profile
-    roles = instance_profile.nil? ? nil : @iam_resource.instance_profile(
-      instance_profile.arn.gsub(%r{^.*\/}, ''),
-    ).roles
 
-    !roles.nil? && roles.size > 0
+    if instance_profile
+      roles = @iam_resource.instance_profile(
+        instance_profile.arn.gsub(%r{^.*\/}, ''),
+      ).roles
+    else
+      roles = nil
+    end
+
+    # rubocop:disable Style/ZeroLengthPredicate
+    roles && roles.size > 0
+    # rubocop:enable Style/ZeroLengthPredicate
   end
 
   private

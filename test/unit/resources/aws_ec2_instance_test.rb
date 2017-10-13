@@ -68,31 +68,51 @@ class TestEc2 < Minitest::Test
     OpenStruct.new({ roles: roles })
   end
 
-  def test_that_has_roles_returns_false_when_roles_do_not_exist
+  def test_that_has_roles_returns_false_when_roles_is_empty
     mock_instance = Minitest::Mock.new
     mock_instance.expect :iam_instance_profile, stub_iam_instance_profile
     @mock_resource.expect :instance, mock_instance, [Id]
 
+    mock_roles = Minitest::Mock.new
+    mock_roles.expect :size, 0
+
     @mock_iam_resource.expect(
       :instance_profile,
-      stub_instance_profile([]),
+      stub_instance_profile(mock_roles),
       [InstanceProfile],
     )
 
     refute AwsEc2Instance.new(Id, @mock_conn).has_roles?
   end
 
-  def test_that_has_roles_returns_true_when_roles_exist
+  def test_that_has_roles_returns_true_when_roles_is_not_empty
+    mock_instance = Minitest::Mock.new
+    mock_instance.expect :iam_instance_profile, stub_iam_instance_profile
+    @mock_resource.expect :instance, mock_instance, [Id]
+
+    mock_roles = Minitest::Mock.new
+    mock_roles.expect :size, 2
+
+    @mock_iam_resource.expect(
+      :instance_profile,
+      stub_instance_profile(mock_roles),
+      [InstanceProfile],
+    )
+
+    assert AwsEc2Instance.new(Id, @mock_conn).has_roles?
+  end
+
+  def test_that_has_roles_returns_false_when_roles_does_not_exist
     mock_instance = Minitest::Mock.new
     mock_instance.expect :iam_instance_profile, stub_iam_instance_profile
     @mock_resource.expect :instance, mock_instance, [Id]
 
     @mock_iam_resource.expect(
       :instance_profile,
-      stub_instance_profile(['Role']),
+      stub_instance_profile(nil),
       [InstanceProfile],
     )
 
-    assert AwsEc2Instance.new(Id, @mock_conn).has_roles?
+    refute AwsEc2Instance.new(Id, @mock_conn).has_roles?
   end
 end
