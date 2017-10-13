@@ -90,11 +90,11 @@ class AwsEc2Instance < Inspec.resource(1)
 
   def has_roles?
     instance_profile = instance.iam_instance_profile
+    roles = instance_profile.nil? ? nil : @iam_resource.instance_profile(
+      instance_profile.arn.gsub(%r{^.*\/}, ''),
+    ).roles
 
-    !instance_profile.nil? &&
-      !@iam_resource.instance_profile(
-        instance_profile.arn.gsub(%r{^.*\/}, ''),
-      ).roles.empty?
+    !roles.nil? && roles.size > 0
   end
 
   private
