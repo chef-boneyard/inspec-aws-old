@@ -68,7 +68,7 @@ The `be_running` matcher tests if the described EC2 instance state is `running`
 
     it { should be_running }
 
-### be_shutting_down_
+### be_shutting_down
 
 The `be_shutting_down` matcher tests if the described EC2 instance state is `shutting-down`
 
