@@ -58,7 +58,7 @@ This InSpec audit resource has the following special matchers. For a full list o
 
 ### be_pending
 
-The `pending` matcher tests if the described EC2 instance state is `pending`
+The `be_pending` matcher tests if the described EC2 instance state is `pending`
 
     it { should be_pending }
 
