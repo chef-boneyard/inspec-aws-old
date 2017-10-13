@@ -26,18 +26,20 @@ An `aws_iam_user` resource block declares a user by name, and then lists tests t
 
 The following examples show how to use this InSpec audit resource.
 
-### Ensure a user does not exist
+### Test that a user does not exist
 
     describe aws_iam_user(name: 'gone') do
       it { should_not exist }
     end
 
-### Ensure that a user has multi-factor authentication enabled
+### Test that a user has multi-factor authentication enabled
+
     describe aws_iam_user(name: 'test_user') do
       it { should have_mfa_enabled }
     end
 
-### Ensure that a service user does not have a password
+### Test that a service user does not have a password
+
     describe aws_iam_user(name: 'test_user') do
       it { should have_console_password }
     end
