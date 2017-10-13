@@ -40,8 +40,12 @@ The following examples show how to use this InSpec audit resource.
 
 ### Test that all users that have a console password have Multi-Factor Authentication enabled
 
-    describe aws_iam_users.where(has_console_password?: true) do
-      it { should have_mfa_enabled }
+    console_users_without_mfa = aws_iam_users
+                                .where(has_console_password?: true)
+                                .where(has_mfa_enabled?: false)
+
+    describe console_users_without_mfa do
+      it { should_not exist }
     end
 
 <br>
