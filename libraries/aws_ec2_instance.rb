@@ -99,9 +99,7 @@ class AwsEc2Instance < Inspec.resource(1)
       roles = nil
     end
 
-    # rubocop:disable Style/ZeroLengthPredicate
-    roles && roles.size > 0
-    # rubocop:enable Style/ZeroLengthPredicate
+    roles && !roles.empty?
   end
 
   private

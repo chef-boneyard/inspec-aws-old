@@ -74,7 +74,7 @@ class TestEc2 < Minitest::Test
     @mock_resource.expect :instance, mock_instance, [Id]
 
     mock_roles = Minitest::Mock.new
-    mock_roles.expect :size, 0
+    mock_roles.expect :empty?, true
 
     @mock_iam_resource.expect(
       :instance_profile,
@@ -91,7 +91,7 @@ class TestEc2 < Minitest::Test
     @mock_resource.expect :instance, mock_instance, [Id]
 
     mock_roles = Minitest::Mock.new
-    mock_roles.expect :size, 2
+    mock_roles.expect :empty?, false
 
     @mock_iam_resource.expect(
       :instance_profile,
