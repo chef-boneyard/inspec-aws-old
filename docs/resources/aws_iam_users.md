@@ -4,7 +4,7 @@ title: About the aws_iam_users Resource
 
 # aws_iam_users
 
-Use the `aws_iam_userss` InSpec audit resource to test properties of a all or multiple users.
+Use the `aws_iam_users` InSpec audit resource to test properties of a all or multiple users.
 
 To test properties of a single user, use the `aws_iam_user` resource.
 
