@@ -58,42 +58,42 @@ This InSpec audit resource has the following special matchers. For a full list o
 
 ### be_pending
 
-The `be_pending` matcher tests if the described EC2 instance state is `pending`
+The `be_pending` matcher tests if the described EC2 instance state is `pending`. This indicates that an instance is provisioning and is normally temporary.
 
     it { should be_pending }
 
 ### be_running
 
-The `be_running` matcher tests if the described EC2 instance state is `running`
+The `be_running` matcher tests if the described EC2 instance state is `running`. This indicates the instance is fully operational from AWS's perspective.
 
     it { should be_running }
 
 ### be_shutting_down
 
-The `be_shutting_down` matcher tests if the described EC2 instance state is `shutting-down`
+The `be_shutting_down` matcher tests if the described EC2 instance state is `shutting-down`.  This indicates the instance has received a termination command and is in the process of being permanently halted and deprovisioned.  This state should be temporary.
 
     it { should be_shutting_down }
 
 ### be_stopped
 
-The `be_stopped` matcher tests if the described EC2 instance state is `stopped`
+The `be_stopped` matcher tests if the described EC2 instance state is `stopped`.  This indicates that the instance is suspended and may be started again.  
 
     it { should be_stopped }
 
 ### be_stopping
 
-The `be_stopping` matcher tests if the described EC2 instance state is `stopping`
+The `be_stopping` matcher tests if the described EC2 instance state is `stopping`. This indicates that an AWS stop command has been issued, which will suspend the instance in an OS-unaware manner.  This state should be temporary.
 
     it { should be_stopping }
 
 ### be_terminated
 
-The `be_terminated` matcher tests if the described EC2 instance state is `terminated`
+The `be_terminated` matcher tests if the described EC2 instance state is `terminated`.  This indicates the instance is permanently halted and will be removed from the instance listing in a short period.  This state should be temporary.
 
     it { should be_terminated }
 
 ### be_unknown
 
-The `be_unknown` matcher tests if the described EC2 instance state is `unknown`
+The `be_unknown` matcher tests if the described EC2 instance state is `unknown`.  This indicates an error condition in the AWS management system, and should be temporary.
 
     it { should be_unknown }
