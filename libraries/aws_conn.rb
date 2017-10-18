@@ -2,7 +2,10 @@
 
 class AWSConnection
   def initialize
-    require 'aws-sdk'
+    require 'aws-sdk-core'
+    require 'aws-sdk-iam'
+    require 'aws-sdk-ec2'
+
     opts = {
       region: ENV['AWS_REGION'] || ENV['AWS_DEFAULT_REGION'],
       credentials: Aws::Credentials.new(
