@@ -1,6 +1,6 @@
 # author: Chris Redekop
 
-require 'aws-sdk'
+require 'aws-sdk-iam'
 require 'helper'
 
 require 'aws_iam_access_key'
