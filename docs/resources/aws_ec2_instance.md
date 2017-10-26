@@ -10,7 +10,7 @@ Use the `aws_ec2_instance` InSpec audit resource to test properties of a single 
 
 ## Syntax
 
-An `aws_ec2_instance` resource block declares a tests for a single AWS EC2 instance by name or id.
+An `aws_ec2_instance` resource block declares the tests for a single AWS EC2 instance by either name or id.
 
     describe aws_ec2_instance('i-01a2349e94458a507') do
       it { should exist }
