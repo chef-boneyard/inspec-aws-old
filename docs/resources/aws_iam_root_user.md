@@ -4,7 +4,7 @@ title: About the aws_iam_root_user Resource
 
 # aws_iam_root_user
 
-Use the `aws_iam_root_user` InSpec audit resource to test properties of the root user (owner of the accout).
+Use the `aws_iam_root_user` InSpec audit resource to test properties of the root user (owner of the account).
 
 To test properties of all or multiple users, use the `aws_iam_users` resource.
 

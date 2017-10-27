@@ -4,13 +4,13 @@ title: About the aws_iam_password_policy Resource
 
 # aws_iam_password_policy
 
-Use the `aws_iam_password_policy` InSpec audit resource to test properties of the AWS IAM Password Policy
+Use the `aws_iam_password_policy` InSpec audit resource to test properties of the AWS IAM Password Policy.
 
 <br>
 
 ## Syntax
 
-An `aws_iam_password_policy` resource block takes no parameters, but uses several matchers
+An `aws_iam_password_policy` resource block takes no parameters, but uses several matchers.
 
     describe aws_iam_password_policy do
       its('requires_lowercase_characters?') { should be true }

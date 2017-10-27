@@ -10,7 +10,7 @@ Use the `aws_iam_access_key` InSpec audit resource to test properties of a singl
 
 ## Syntax
 
-An `aws_iam_access_key` resource block declares a tests for a single AWS IAM access key by username and id.
+An `aws_iam_access_key` resource block declares the tests for a single AWS IAM access key by username and id.
 
     describe aws_iam_access_key(username: 'username', id: 'access-key-id') do
       it { should exist }
@@ -51,6 +51,6 @@ This InSpec audit resource has the following special matchers. For a full list o
 
 ### be_active
 
-The `be_active` matcher tests if the described IAM access key is active
+The `be_active` matcher tests if the described IAM access key is active.
 
   it { should be_active }
