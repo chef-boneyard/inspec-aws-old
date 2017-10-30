@@ -8,16 +8,23 @@ class AwsIamAccessKeys < Inspec.resource(1)
   '
 
   # Constructor.  Args are reserved for row fetch filtering.
-  def initialize
+  def initialize(filter_criteria = {})
+    @table = AccessKeyProvider.create.fetch(filter_criteria)
   end
 
   # Underlying FilterTable implementation.
   filter = FilterTable.create
   filter.add_accessor(:where)
-  filter.connect(self, :load_access_key_data)
+        .add_accessor(:entries)
+        .add(:exists?) { |x| !x.entries.empty? }
+  filter.connect(self, :access_key_data)
 
-  def load_access_key_data
-    []
+  def access_key_data
+    @table
+  end
+
+  def to_s
+    'IAM Access Keys'
   end
 
   # Internal support class.  This is used to fetch
@@ -32,6 +39,7 @@ class AwsIamAccessKeys < Inspec.resource(1)
     class AwsUserIterator < AccessKeyProvider
       def fetch(filter_criteria)
         raise 'unimplemented concrete method'
+        # Separate API call aws iam get-access-key-last-used --access-key-id ...
       end
     end
 
@@ -43,12 +51,16 @@ class AwsIamAccessKeys < Inspec.resource(1)
       @selected_implementation = klass
     end
 
+    def self.reset
+      @selected_implementation = DEFAULT_PROVIDER
+    end
+
     def self.create
       @selected_implementation.new
     end
 
     def fetch(_filter_criteria)
-      raise 'Unimplemented abstract method'
+      raise 'Unimplemented abstract method - internal error.'
     end
   end
 end

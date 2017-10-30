@@ -8,7 +8,14 @@ require 'aws_iam_access_keys'
 #==========================================================#
 
 class AwsIamAccessKeysConstructorTest < Minitest::Test
+  # Reset provider back to the implementation default prior
+  # to each test.  Tests must explicitly select an alternate.
+  def setup
+    AwsIamAccessKeys::AccessKeyProvider.reset
+  end
+
   def test_bare_constructor_does_not_explode
+    AwsIamAccessKeys::AccessKeyProvider.select(AlwaysEmptyMAKP)
     AwsIamAccessKeys.new
   end
 end
@@ -21,12 +28,13 @@ class AwsIamAccessKeysFilterTest < Minitest::Test
   # Reset provider back to the implementation default prior
   # to each test.  Tests must explicitly select an alternate.
   def setup
-    AwsIamAccessKeys::AccessKeyProvider.select(AwsIamAccessKeys::AccessKeyProvider::DEFAULT_PROVIDER)
+    AwsIamAccessKeys::AccessKeyProvider.reset
   end
 
   def test_filter_methods_should_exist
+    AwsIamAccessKeys::AccessKeyProvider.select(AlwaysEmptyMAKP)
     resource = AwsIamAccessKeys.new
-    [:where, :exists].each do |meth|
+    [:where, :'exists?'].each do |meth|
       assert_respond_to(resource, meth)
     end
   end
@@ -34,19 +42,19 @@ class AwsIamAccessKeysFilterTest < Minitest::Test
   def test_filter_method_where_should_be_chainable
     AwsIamAccessKeys::AccessKeyProvider.select(AlwaysEmptyMAKP)
     resource = AwsIamAccessKeys.new
-    assert_kind_of(AwsIamAccessKeys, resource.where)
+    assert_respond_to(resource.where, :where)
   end
 
   def test_filter_method_exists_should_probe_empty_when_empty
     AwsIamAccessKeys::AccessKeyProvider.select(AlwaysEmptyMAKP)
     resource = AwsIamAccessKeys.new
-    refute(resource.exists)
+    refute(resource.exists?)
   end
 
   def test_filter_method_exists_should_probe_present_when_present
     AwsIamAccessKeys::AccessKeyProvider.select(BasicMAKP)
     resource = AwsIamAccessKeys.new
-    assert(resource.exists)
+    assert(resource.exists?)
   end
 end
 
@@ -58,21 +66,21 @@ end
 # outside this file.
 
 class AlwaysEmptyMAKP < AwsIamAccessKeys::AccessKeyProvider
-  def fetch
+  def fetch(_filter_criteria)
     []
   end
 end
 
 class BasicMAKP < AwsIamAccessKeys::AccessKeyProvider
-  def fetch
+  def fetch(_filter_criteria)
     [
       {
         username: 'bob',
         access_key_id: 'AKIA1234567890ABCDEF',
         created_date: '2017-10-27T17:58:00Z',
-        # last_used_date: Time.now,  Seperate API call aws iam get-access-key-last-used --access-key-id ...
+        # last_used_date: requires separate API call
         status: 'Active',
-      }
+      },
     ]
   end
 end
