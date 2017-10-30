@@ -59,6 +59,72 @@ class AwsIamAccessKeysFilterTest < Minitest::Test
 end
 
 #==========================================================#
+#                Filter Criteria Tests                     #
+#==========================================================#
+
+class AwsIamAccessKeysFilterCriteriaTest < Minitest::Test
+  def setup
+    # Here we always want no rseults.
+    AwsIamAccessKeys::AccessKeyProvider.select(AlwaysEmptyMAKP)
+    @valued_criteria = {
+      username: 'bob',
+      id: 'AKIA1234567890ABCDEF',
+      access_key_id: 'AKIA1234567890ABCDEF',
+  }
+    
+  end
+
+  def test_criteria_when_used_in_constructor_with_value
+    @valued_criteria.each do |criterion, value|
+      AwsIamAccessKeys.new(criterion => value)
+    end
+  end
+
+  def test_criteria_when_used_in_where_with_value
+    @valued_criteria.each do |criterion, value|
+      AwsIamAccessKeys.new.where(criterion => value)
+    end
+  end
+
+  # Negative cases
+  def test_criteria_when_used_in_constructor_with_bad_criterion
+    assert_raises(RuntimeError) do
+      AwsIamAccessKeys.new(nope: 'some_val')
+    end
+  end
+
+  def test_criteria_when_used_in_where_with_bad_criterion
+    assert_raises(RuntimeError) do
+      AwsIamAccessKeys.new(nope: 'some_val')
+    end
+  end
+
+  # Identity criterion is allowed based on regex
+  def test_identity_criterion_when_used_in_constructor_positive
+    AwsIamAccessKeys.new('AKIA1234567890ABCDEF')
+  end
+
+  # Permitted by FilterTable?
+  def test_identity_criterion_when_used_in_where_positive
+    AwsIamAccessKeys.new.where('AKIA1234567890ABCDEF')
+  end
+
+  def test_identity_criterion_when_used_in_constructor_negative
+    assert_raises(RuntimeError) do
+      AwsIamAccessKeys.new('NopeAKIA1234567890ABCDEF')
+    end
+  end
+
+  # Permitted by FilterTable?
+  def test_identity_criterion_when_used_in_where_negative
+    skip # Not sure Filtertable can do this
+    assert_raises(RuntimeError) do
+      AwsIamAccessKeys.new.where('NopeAKIA1234567890ABCDEF')
+    end
+  end
+end
+
+#==========================================================#
 #                 Mock Support Classes                     #
 #==========================================================#
 
