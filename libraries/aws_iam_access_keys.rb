@@ -7,6 +7,16 @@ class AwsIamAccessKeys < Inspec.resource(1)
     end
   '
 
+  # Constructor.  Args are reserved for row fetch filtering.
   def initialize
+  end
+
+  # Underlying FilterTable implementation.
+  filter = FilterTable.create
+  filter.add_accessor(:where)
+  filter.connect(self, :load_access_key_data)
+
+  def load_access_key_data
+    []
   end
 end
