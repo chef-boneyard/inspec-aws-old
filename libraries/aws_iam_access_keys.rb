@@ -7,9 +7,36 @@ class AwsIamAccessKeys < Inspec.resource(1)
     end
   '
 
+  VALUED_CRITERIA = [
+    :username,
+    :id,
+    :access_key_id,
+  ].freeze
+
   # Constructor.  Args are reserved for row fetch filtering.
   def initialize(filter_criteria = {})
+    filter_criteria = validate_filter_criteria(filter_criteria)
     @table = AccessKeyProvider.create.fetch(filter_criteria)
+  end
+
+  def validate_filter_criteria(criteria)
+    # Allow passing a scalar string, the Access Key ID.
+    criteria = { access_key_id: criteria } if criteria.kind_of? String
+    raise "Unrecognized criteria for fetching Access Keys.  Use 'criteria: value' format." unless criteria.kind_of? Hash
+  
+    # id and access_key_id are aliases; standardize on access_key_id
+    criteria[:access_key_id] = criteria.delete(:id) if criteria.key?(:id)
+    if (criteria[:access_key_id] and criteria[:access_key_id] !~ /^AKIA[0-9A-Z]{16}$/) then
+      raise "Incorrect format for Access Key ID - expected AKIA followed by 16 letters or numbers"
+    end
+
+    criteria.keys.each do |criterion| 
+      unless VALUED_CRITERIA.include?(criterion)
+        raise "Unrecognized filter criterion for aws_iam_access_keys, '#{criterion}'.  Valid choices are #{VALUED_CRITERIA.join(', ')}."
+      end
+    end
+
+    criteria
   end
 
   # Underlying FilterTable implementation.
@@ -30,8 +57,9 @@ class AwsIamAccessKeys < Inspec.resource(1)
   # Internal support class.  This is used to fetch
   # the users and access keys.  We have an abstract
   # class with a concrete AWS implementation provided here;
-  # a mock implementation is also provided in the unit tests.
+  # a few mock implementations are also provided in the unit tests.
   class AccessKeyProvider
+
     # Implementation of AccessKeyProvider which operates by looping over
     # all users, then fetching their access keys.
     # TODO: An alternate, more scalable implementation could be made
