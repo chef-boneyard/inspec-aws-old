@@ -4,8 +4,8 @@ access_key_user = attribute(
   description: 'Name of IAM user access_key_user')
 
 access_key_id = attribute(
-    'access_key_arn',
-    default: 'default.access_key_user',
+    'access_key_id',
+    default: 'AKIA1234567890AZFAKE',
     description: 'Access Key ID of access key of IAM user access_key_user')
 
 describe aws_iam_access_key(username: 'not-a-user', 'id': 'not-an-id') do
@@ -17,12 +17,30 @@ describe aws_iam_access_key(username: access_key_user, 'id': access_key_id) do
   # TODO - check last used, created, other key metadata
 end
 
-describe aws_iam_access_keys do
-  it { should exist }
+control 'IAM Access Keys' do
+  title 'Fetch all'
+  describe aws_iam_access_keys do
+    it { should exist }
+  end
 end
 
-describe aws_iam_access_keys.where(username: access_key_user) do
-  its('length') { should be 1 }
-  it { should include access_key_id }
-  its('first.id') { should be access_key_id } 
+
+control 'IAM Access Keys' do
+  title 'Client-side filtering'
+  describe aws_iam_access_keys.where(username: access_key_user) do
+    its('entries.length') { should be 1 }
+    its('access_key_ids.first') { should eq access_key_id } 
+  end
+end
+
+control 'AKS3' do
+  title 'Fetch-time filtering'
+  describe aws_iam_access_keys(username: access_key_user) do
+    its('entries.length') { should be 1 }
+    its('access_key_ids.first') { should eq access_key_id } 
+  end
+
+  describe aws_iam_access_keys(username: 'i-dont-exist-presumably') do
+    it { should_not exist }
+  end
 end

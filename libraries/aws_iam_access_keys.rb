@@ -44,6 +44,7 @@ class AwsIamAccessKeys < Inspec.resource(1)
   filter.add_accessor(:where)
         .add_accessor(:entries)
         .add(:exists?) { |x| !x.entries.empty? }
+        .add(:access_key_ids, field: :access_key_id) 
   filter.connect(self, :access_key_data)
 
   def access_key_data
@@ -65,9 +66,40 @@ class AwsIamAccessKeys < Inspec.resource(1)
     # TODO: An alternate, more scalable implementation could be made
     # using the Credential Report.
     class AwsUserIterator < AccessKeyProvider
-      def fetch(filter_criteria)
-        raise 'unimplemented concrete method'
-        # Separate API call aws iam get-access-key-last-used --access-key-id ...
+      def fetch(criteria)
+        iam_client = AWSConnection.new.iam_client
+        usernames = []
+        if criteria.key?(:username)
+          usernames.push criteria[:username]
+        else
+          # TODO: pagination check and resume
+          usernames = iam_client.list_users.users.map { |u| u.user_name }
+        end
+
+        access_key_data = []
+        usernames.each do |username|
+          begin
+            metadata = iam_client.list_access_keys(user_name: username).access_key_metadata
+            access_key_data.concat(
+              metadata.map do |metadata|
+                {
+                  access_key_id: metadata.access_key_id,
+                  id: metadata.access_key_id,
+                  username: username,
+                  status: metadata.status,
+                  create_date: metadata.create_date,
+                  # Synthetics
+                  active: metadata.status == 'Active',
+                  create_age: Time.now - metadata.create_date,
+                  # Separate API call aws iam get-access-key-last-used --access-key-id ...
+                }
+              end
+            )
+          rescue Aws::IAM::Errors::NoSuchEntity => exception
+            # Swallow - a miss on search results should return an empty table
+          end
+        end
+        access_key_data
       end
     end
 
