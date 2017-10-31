@@ -70,8 +70,7 @@ class AwsIamAccessKeysFilterCriteriaTest < Minitest::Test
       username: 'bob',
       id: 'AKIA1234567890ABCDEF',
       access_key_id: 'AKIA1234567890ABCDEF',
-  }
-    
+    }
   end
 
   def test_criteria_when_used_in_constructor_with_value
@@ -116,12 +115,11 @@ class AwsIamAccessKeysFilterCriteriaTest < Minitest::Test
   end
 
   # Permitted by FilterTable?
-  def test_identity_criterion_when_used_in_where_negative
-    skip # Not sure Filtertable can do this
-    assert_raises(RuntimeError) do
-      AwsIamAccessKeys.new.where('NopeAKIA1234567890ABCDEF')
-    end
-  end
+  # def test_identity_criterion_when_used_in_where_negative
+  #    assert_raises(RuntimeError) do
+  #     AwsIamAccessKeys.new.where('NopeAKIA1234567890ABCDEF')
+  #   end
+  # end
 end
 
 #==========================================================#
