@@ -6,7 +6,9 @@ title: About the aws_iam_access_keys Resource
 
 Use the `aws_iam_access_keys` InSpec audit resource to test properties of all or multiple IAM Access Keys.
 
-To test properties of a Access Key, use the `aws_iam_access_key` resource.
+To test properties of a Access Key, use the `aws_iam_access_key` resource.  You may also test properties of the access keys of a particular user using the `aws_iam_user` resource.
+
+Access Keys are tightly coupled to the AWS User resources.  This resource is best used when you need so perform audits of all keys, or keys specified by criteria that don't relate to any particular user.  
 
 <br>
 
@@ -19,8 +21,13 @@ An `aws_iam_access_keys` resource block uses an optional filter to select a grou
       it { should_not exist }
     end
 
-    # Don't let fred have access keys, using filter
+    # Don't let fred have access keys, using filter argument syntax
     describe aws_iam_access_keys.where(username: 'fred') do
+      it { should_not exist }
+    end  
+
+    # Don't let fred have access keys, using filter block syntax (most flexible)
+    describe aws_iam_access_keys.where { username == 'fred' } do
       it { should_not exist }
     end    
 
@@ -83,12 +90,49 @@ An integer, representing how old the access key is.
       it { should_not exist }
     end
 
+### ever_used
+
+A true / false value that indicates whether the Access Key has ever been used, based on the last_used_date.  `never_used` is also available.
+
+    # Check to see if a particular key has ever been used
+    describe aws_iam_access_keys.where { ever_used } do
+      its('access_key_ids') { should include('AKIA1234567890ABCDEF')}
+    end
+
+
 ### inactive
 
 A true / false value that indicates whether the Access Key has been marked Inactive in the AWS console.  `active` is also available.
 
     # Don't leave inactive keys laying around
     describe aws_iam_access_keys.where { inactive } do
+      it { should_not exist }
+    end
+
+### last_used_date
+
+A DateTime, which identifies when the Access Key was last used.  If the key has never been used, this will be `nil`.  See also `ever_used`, `last_used_days_ago`, `last_used_hours_ago`, and `never_used`.
+
+    # No one should do anything on Mondays
+    describe aws_iam_access_keys.where { ever_used and last_used_date.monday? } do
+      it { should_not exist }
+    end
+
+### last_used_days_ago, last_used_hours_ago
+
+An integer, representing how long ago the key was last used.
+
+    # Don't allow keys that sit unused for more than 90 days
+    describe aws_iam_access_keys.where { last_used_days_ago > 90 } do
+      it { should_not exist }
+    end
+
+### never_used
+
+A true / false value that indicates whether the Access Key has never been used, based on the last_used_date.  `ever_used` is also available.
+
+    # Don't allow unused keys to lay around
+    describe aws_iam_access_keys.where { never_used } do
       it { should_not exist }
     end
 
