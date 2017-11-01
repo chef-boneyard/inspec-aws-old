@@ -131,6 +131,9 @@ class AwsIamAccessKeysPropertiesTest < Minitest::Test
     AwsIamAccessKeys::AccessKeyProvider.select(AlwaysEmptyMAKP)
   end
 
+  #----------------------------------------------------------# 
+  #    created_date / created_days_ago / created_hours_ago   #
+  #----------------------------------------------------------# 
   def test_property_created_date
     AwsIamAccessKeys::AccessKeyProvider.select(BasicMAKP)
     probed = AwsIamAccessKeys.new
@@ -173,6 +176,38 @@ class AwsIamAccessKeysPropertiesTest < Minitest::Test
     block_filtered = AwsIamAccessKeys.new.where { created_hours_ago > 100 }
     assert_equal(2, block_filtered.entries.count)
   end
+
+  #----------------------------------------------------------# 
+  #                    active / inactive                     #
+  #----------------------------------------------------------# 
+  def test_property_active
+    AwsIamAccessKeys::AccessKeyProvider.select(BasicMAKP)
+    probed = AwsIamAccessKeys.new
+    assert_kind_of(TrueClass, probed.entries.first.active)
+    assert_equal(3, probed.entries.count)
+    
+    arg_filtered = AwsIamAccessKeys.new.where(active: true)
+    assert_equal(2, arg_filtered.entries.count)
+
+    block_filtered = AwsIamAccessKeys.new.where { active }
+    assert_equal(2, block_filtered.entries.count)
+    assert block_filtered.access_key_ids.first.end_with?('BOB')
+  end
+
+  def test_property_inactive
+    AwsIamAccessKeys::AccessKeyProvider.select(BasicMAKP)
+    probed = AwsIamAccessKeys.new
+    assert_kind_of(FalseClass, probed.entries.first.inactive)
+    assert_equal(3, probed.entries.count)
+    
+    arg_filtered = AwsIamAccessKeys.new.where(inactive: true)
+    assert_equal(1, arg_filtered.entries.count)
+
+    block_filtered = AwsIamAccessKeys.new.where { inactive }
+    assert_equal(1, block_filtered.entries.count)
+    assert block_filtered.access_key_ids.first.end_with?('ROBIN')
+  end
+
 end
 #==========================================================#
 #                 Mock Support Classes                     #
@@ -198,6 +233,8 @@ class BasicMAKP < AwsIamAccessKeys::AccessKeyProvider
         created_days_ago: 4,
         created_hours_ago: 102,
         status: 'Active',
+        active: true,
+        inactive: false,        
       },
       {
         username: 'sally',
@@ -207,6 +244,8 @@ class BasicMAKP < AwsIamAccessKeys::AccessKeyProvider
         created_days_ago: 9,
         created_hours_ago: 222,
         status: 'Active',
+        active: true,
+        inactive: false,        
       },
       {
         username: 'robin',
@@ -216,6 +255,8 @@ class BasicMAKP < AwsIamAccessKeys::AccessKeyProvider
         created_days_ago: 1,
         created_hours_ago: 12,
         status: 'Inactive',
+        active: false,
+        inactive: true,        
       },
     ]
   end

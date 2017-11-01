@@ -27,9 +27,16 @@ end
 
 control 'IAM Access Keys' do
   title 'Client-side filtering'
-  describe aws_iam_access_keys.where(username: access_key_user) do
+  all_keys = aws_iam_access_keys
+  describe all_keys.where(username: access_key_user) do
     its('entries.length') { should be 1 }
     its('access_key_ids.first') { should eq access_key_id } 
+  end
+  describe all_keys.where(created_days_ago: 0) do
+    it { should exist }
+  end
+  describe all_keys.where { active } do
+    it { should exist }
   end
 end
 

@@ -55,7 +55,16 @@ This matcher causes the control to pass if the filter returned at least one resu
     end   
 
 ## Filter Criteria
- 
+
+### active
+
+A true / false value that indicates whether the Access Key is currently Active (the normal state) in the AWS console.  `inactive` is also available.
+
+    # Check whether a particular key is enabled
+    describe aws_iam_access_keys.where { active } do
+      its('access_key_ids') { should include('AKIA1234567890ABCDEF')}
+    end
+
 ### created_date
 
 A DateTime, which identifies when the Access Key was created.  See also `created_days_ago` and `created_hours_ago`.
@@ -71,6 +80,15 @@ An integer, representing how old the access key is.
 
     # Don't allow keys that are older than 90 days
     describe aws_iam_access_keys.where { created_days_ago > 90 } do
+      it { should_not exist }
+    end
+
+### inactive
+
+A true / false value that indicates whether the Access Key has been marked Inactive in the AWS console.  `active` is also available.
+
+    # Don't leave inactive keys laying around
+    describe aws_iam_access_keys.where { inactive } do
       it { should_not exist }
     end
 
