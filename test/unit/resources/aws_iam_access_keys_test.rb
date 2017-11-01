@@ -123,6 +123,58 @@ class AwsIamAccessKeysFilterCriteriaTest < Minitest::Test
 end
 
 #==========================================================#
+#                    Property Tests                        #
+#==========================================================#
+class AwsIamAccessKeysPropertiesTest < Minitest::Test
+  def setup
+    # Reset back to empty each time.
+    AwsIamAccessKeys::AccessKeyProvider.select(AlwaysEmptyMAKP)
+  end
+
+  def test_property_created_date
+    AwsIamAccessKeys::AccessKeyProvider.select(BasicMAKP)
+    probed = AwsIamAccessKeys.new
+    assert_kind_of(DateTime, probed.entries.first.created_date)
+    assert_equal(3, probed.entries.count)
+    
+    arg_filtered = AwsIamAccessKeys.new.where(created_date: DateTime.parse('2017-10-27T17:58:00Z'))
+    assert_equal(1, arg_filtered.entries.count)
+    assert arg_filtered.access_key_ids.first.end_with?('BOB')
+
+    block_filtered = AwsIamAccessKeys.new.where { created_date.friday? }
+    assert_equal(1, block_filtered.entries.count)
+    assert block_filtered.access_key_ids.first.end_with?('BOB')
+  end
+
+  def test_property_created_days_ago
+    AwsIamAccessKeys::AccessKeyProvider.select(BasicMAKP)
+    probed = AwsIamAccessKeys.new
+    assert_kind_of(Integer, probed.entries.first.created_days_ago)
+    assert_equal(3, probed.entries.count)
+    
+    arg_filtered = AwsIamAccessKeys.new.where(created_days_ago: 9)
+    assert_equal(1, arg_filtered.entries.count)
+    assert arg_filtered.access_key_ids.first.end_with?('SALLY')
+
+    block_filtered = AwsIamAccessKeys.new.where { created_days_ago > 2 }
+    assert_equal(2, block_filtered.entries.count)
+  end
+
+  def test_property_created_hours_ago
+    AwsIamAccessKeys::AccessKeyProvider.select(BasicMAKP)
+    probed = AwsIamAccessKeys.new
+    assert_kind_of(Integer, probed.entries.first.created_hours_ago)
+    assert_equal(3, probed.entries.count)
+    
+    arg_filtered = AwsIamAccessKeys.new.where(created_hours_ago: 222)
+    assert_equal(1, arg_filtered.entries.count)
+    assert arg_filtered.access_key_ids.first.end_with?('SALLY')
+
+    block_filtered = AwsIamAccessKeys.new.where { created_hours_ago > 100 }
+    assert_equal(2, block_filtered.entries.count)
+  end
+end
+#==========================================================#
 #                 Mock Support Classes                     #
 #==========================================================#
 
@@ -140,10 +192,30 @@ class BasicMAKP < AwsIamAccessKeys::AccessKeyProvider
     [
       {
         username: 'bob',
-        access_key_id: 'AKIA1234567890ABCDEF',
-        created_date: '2017-10-27T17:58:00Z',
-        # last_used_date: requires separate API call
+        access_key_id: 'AKIA1234567890123BOB',
+        id: 'AKIA1234567890123BOB',
+        created_date: DateTime.parse('2017-10-27T17:58:00Z'),
+        created_days_ago: 4,
+        created_hours_ago: 102,
         status: 'Active',
+      },
+      {
+        username: 'sally',
+        access_key_id: 'AKIA12345678901SALLY',
+        id: 'AKIA12345678901SALLY',
+        created_date: DateTime.parse('2017-10-22T17:58:00Z'),
+        created_days_ago: 9,
+        created_hours_ago: 222,
+        status: 'Active',
+      },
+      {
+        username: 'robin',
+        access_key_id: 'AKIA12345678901ROBIN',
+        id: 'AKIA12345678901ROBIN',
+        created_date: DateTime.parse('2017-10-31T17:58:00Z'),
+        created_days_ago: 1,
+        created_hours_ago: 12,
+        status: 'Inactive',
       },
     ]
   end

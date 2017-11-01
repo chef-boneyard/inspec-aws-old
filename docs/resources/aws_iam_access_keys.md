@@ -55,6 +55,24 @@ This matcher causes the control to pass if the filter returned at least one resu
     end   
 
 ## Filter Criteria
+ 
+### created_date
+
+A DateTime, which identifies when the Access Key was created.  See also `created_days_ago` and `created_hours_ago`.
+
+    # Don't permit creating keys on Tuesday
+    describe aws_iam_access_keys.where { created_date.tuesday? } do
+      it { should_not exist }
+    end
+
+### created_days_ago, created_hours_ago
+
+An integer, representing how old the access key is.
+
+    # Don't allow keys that are older than 90 days
+    describe aws_iam_access_keys.where { created_days_ago > 90 } do
+      it { should_not exist }
+    end
 
 ### username
 
