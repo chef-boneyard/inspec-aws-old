@@ -98,33 +98,19 @@ class AwsIamAccessKeys < Inspec.resource(1)
         usernames.each do |username|
           begin
             user_keys = iam_client.list_access_keys(user_name: username)
-                                 .access_key_metadata
+                                  .access_key_metadata
             user_keys = user_keys.map do |metadata|
               {
                 access_key_id: metadata.access_key_id,
                 username: username,
                 status: metadata.status,
-                create_date: metadata.create_date, # DateTime.parse(metadata.create_date),  
+                create_date: metadata.create_date, # DateTime.parse(metadata.create_date),
               }
             end
+
             # Synthetics
             user_keys.each do |key_info|
-              key_info[:id] = key_info[:access_key_id]
-              key_info[:active] = key_info[:status] == 'Active'
-              key_info[:inactive] = key_info[:status] != 'Active'
-              key_info[:created_hours_ago] = ((Time.now - key_info[:create_date]) / (60*60)).to_i
-              key_info[:created_days_ago] = (key_info[:created_hours_ago] / 24).to_i
-
-              # Last used is a separate API call              
-              last_used = iam_client.get_access_key_last_used(access_key_id: key_info[:access_key_id])
-                                    .access_key_last_used.last_used_date
-              key_info[:ever_used] = !last_used.nil?
-              key_info[:never_used] = last_used.nil?
-              key_info[:last_used_time] = last_used
-              if (last_used)
-                key_info[:last_used_hours_ago] = ((Time.now - last_used) / (60*60)).to_i
-                key_info[:last_used_days_ago] = (key_info[:last_used_hours_ago]/24).to_i
-              end
+              add_synthetic_fields(key_info)
             end
             access_key_data.concat(user_keys)
           rescue Aws::IAM::Errors::NoSuchEntity # rubocop:disable Lint/HandleExceptions
@@ -132,6 +118,25 @@ class AwsIamAccessKeys < Inspec.resource(1)
           end
         end
         access_key_data
+      end
+
+      def add_synthetic_fields(key_info)
+        key_info[:id] = key_info[:access_key_id]
+        key_info[:active] = key_info[:status] == 'Active'
+        key_info[:inactive] = key_info[:status] != 'Active'
+        key_info[:created_hours_ago] = ((Time.now - key_info[:create_date]) / (60*60)).to_i
+        key_info[:created_days_ago] = (key_info[:created_hours_ago] / 24).to_i
+
+        # Last used is a separate API call
+        last_used =
+          iam_client.get_access_key_last_used(access_key_id: key_info[:access_key_id])
+                    .access_key_last_used.last_used_date
+        key_info[:ever_used] = !last_used.nil?
+        key_info[:never_used] = last_used.nil?
+        key_info[:last_used_time] = last_used
+        return unless last_used
+        key_info[:last_used_hours_ago] = ((Time.now - last_used) / (60*60)).to_i
+        key_info[:last_used_days_ago] = (key_info[:last_used_hours_ago]/24).to_i
       end
     end
 
