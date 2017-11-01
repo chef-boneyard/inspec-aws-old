@@ -11,6 +11,7 @@ class AwsIamAccessKeys < Inspec.resource(1)
     :username,
     :id,
     :access_key_id,
+    :created_date,
   ].freeze
 
   # Constructor.  Args are reserved for row fetch filtering.
@@ -52,6 +53,10 @@ class AwsIamAccessKeys < Inspec.resource(1)
         .add_accessor(:entries)
         .add(:exists?) { |x| !x.entries.empty? }
         .add(:access_key_ids, field: :access_key_id)
+        .add(:created_date, field: :created_date)
+        .add(:created_days_ago, field: :created_days_ago)
+        .add(:created_hours_ago, field: :created_hours_ago)
+        .add(:usernames, field: :username)
   filter.connect(self, :access_key_data)
 
   def access_key_data
@@ -85,22 +90,25 @@ class AwsIamAccessKeys < Inspec.resource(1)
         access_key_data = []
         usernames.each do |username|
           begin
-            response = iam_client.list_access_keys(user_name: username)
+            user_keys = iam_client.list_access_keys(user_name: username)
                                  .access_key_metadata
-            response = response.map do |metadata|
+            user_keys = user_keys.map do |metadata|
               {
                 access_key_id: metadata.access_key_id,
-                id: metadata.access_key_id,
                 username: username,
                 status: metadata.status,
-                create_date: metadata.create_date,
-                # Synthetics
-                active: metadata.status == 'Active',
-                create_age: Time.now - metadata.create_date,
-                # Last used is a separate API call
+                create_date: metadata.create_date, # DateTime.parse(metadata.create_date),  
               }
             end
-            access_key_data.concat(response)
+            # Synthetics
+            user_keys.each do |key_info|
+              key_info[:id] = key_info[:access_key_id]
+              key_info[:active] = key_info[:status] == 'Active'
+              key_info[:created_hours_ago] = ((Time.now - key_info[:create_date]) / (60*60)).to_i
+              key_info[:created_days_ago] = (key_info[:created_hours_ago] / 24).to_i
+              # Last used is a separate API call              
+            end
+            access_key_data.concat(user_keys)
           rescue Aws::IAM::Errors::NoSuchEntity # rubocop:disable Lint/HandleExceptions
             # Swallow - a miss on search results should return an empty table
           end
