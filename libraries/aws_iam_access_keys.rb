@@ -57,6 +57,8 @@ class AwsIamAccessKeys < Inspec.resource(1)
         .add(:created_days_ago, field: :created_days_ago)
         .add(:created_hours_ago, field: :created_hours_ago)
         .add(:usernames, field: :username)
+        .add(:active, field: :active)
+        .add(:inactive, field: :inactive)
   filter.connect(self, :access_key_data)
 
   def access_key_data
@@ -104,6 +106,7 @@ class AwsIamAccessKeys < Inspec.resource(1)
             user_keys.each do |key_info|
               key_info[:id] = key_info[:access_key_id]
               key_info[:active] = key_info[:status] == 'Active'
+              key_info[:inactive] = key_info[:status] != 'Active'
               key_info[:created_hours_ago] = ((Time.now - key_info[:create_date]) / (60*60)).to_i
               key_info[:created_days_ago] = (key_info[:created_hours_ago] / 24).to_i
               # Last used is a separate API call              
