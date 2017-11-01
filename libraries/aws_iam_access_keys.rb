@@ -59,6 +59,11 @@ class AwsIamAccessKeys < Inspec.resource(1)
         .add(:usernames, field: :username)
         .add(:active, field: :active)
         .add(:inactive, field: :inactive)
+        .add(:last_used_date, field: :last_used_date)
+        .add(:last_used_hours_ago, field: :last_used_hours_ago)
+        .add(:last_used_days_ago,  field: :last_used_days_ago)
+        .add(:ever_used,           field: :ever_used)
+        .add(:never_used,          field: :never_used)
   filter.connect(self, :access_key_data)
 
   def access_key_data
@@ -109,7 +114,17 @@ class AwsIamAccessKeys < Inspec.resource(1)
               key_info[:inactive] = key_info[:status] != 'Active'
               key_info[:created_hours_ago] = ((Time.now - key_info[:create_date]) / (60*60)).to_i
               key_info[:created_days_ago] = (key_info[:created_hours_ago] / 24).to_i
+
               # Last used is a separate API call              
+              last_used = iam_client.get_access_key_last_used(access_key_id: key_info[:access_key_id])
+                                    .access_key_last_used.last_used_date
+              key_info[:ever_used] = !last_used.nil?
+              key_info[:never_used] = last_used.nil?
+              key_info[:last_used_time] = last_used
+              if (last_used)
+                key_info[:last_used_hours_ago] = ((Time.now - last_used) / (60*60)).to_i
+                key_info[:last_used_days_ago] = (key_info[:last_used_hours_ago]/24).to_i
+              end
             end
             access_key_data.concat(user_keys)
           rescue Aws::IAM::Errors::NoSuchEntity # rubocop:disable Lint/HandleExceptions
