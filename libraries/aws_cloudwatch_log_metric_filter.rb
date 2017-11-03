@@ -29,8 +29,22 @@ EOX
     :pattern,
   ].freeze
 
+  attr_reader :found, :filter_name, :log_group_name, :pattern, :metric_name, :metric_namespace
+  
   def initialize(resource_params)
     resource_params = validate_resource_params(resource_params)
+    results = run_lmf_search(resource_params)
+    if results.count > 1
+      raise 'More than one result was returned, but aws_cloudwatch_log_metric_filter '\
+            'can only handle an individual AWS resource.  Consider passing more resource '\
+            'parameters to narrow down the search.'
+    else 
+      unpack_search_results(results)
+    end
+  end
+
+  def exists?
+    found
   end
 
   private
@@ -49,6 +63,38 @@ EOX
         )
       end
     end
+    resource_params
+  end
+
+  def run_lmf_search(criteria)
+    # get a backend    
+    backend = AwsCloudwatchLogMetricFilter::Backend.create()
+    # Perform query with remote filtering    
+    aws_results = backend.describe_metric_filters(criteria)
+    # Then perform local filtering
+    if criteria.key?(:pattern)
+      aws_results.select! {|lmf| lmf.filter_pattern == criteria[:pattern]}
+    end
+    # Finally remap to an array of single-level hash
+    aws_results.map do |lmf|
+      {
+        filter_name: lmf.filter_name,
+        log_group_name: lmf.log_group_name,
+        pattern: lmf.filter_pattern,
+        # AWS SDK returns an array of metric transformations
+        # but only allows one (mandatory) entry, let's flatten that
+        metric_name: lmf.metric_transformations.first.metric_name,
+        metric_namespace: lmf.metric_transformations.first.metric_namespace,
+      }
+    end
+  end
+
+  def unpack_search_results(results)
+    return if results.empty?
+    @found = true
+    [:filter_name, :log_group_name, :pattern, :metric_name, :metric_namespace].each do |field|
+      instance_variable_set(:"@#{field}", results.first[field])
+    end
   end
 
   class Backend
@@ -56,6 +102,7 @@ EOX
     #                    API Definition
     #=====================================================#
     [
+      :describe_metric_filters
     ].each do |method|
       define_method(:method) do |*_args|
         raise "Unimplemented abstract method #{method} - internal error" 
@@ -66,10 +113,8 @@ EOX
     #                 Concrete Implementation
     #=====================================================#
     # Uses the cloudwatch API to really talk to AWS
-    class AwsClientApi
+    class AwsClientApi < Backend
     end
-
-    
 
     #=====================================================#
     #                   Factory Interface
