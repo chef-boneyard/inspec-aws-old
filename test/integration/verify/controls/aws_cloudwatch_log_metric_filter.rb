@@ -24,7 +24,7 @@ lmf_lg_2_name = attribute(
 
 lmf_1_metric_1_name = attribute(
   'lmf_1_metric_1_name',
-  default: 'default.lmf_lg_1_metric_1_name',
+  default: 'default.lmf_1_metric_1_name',
   description: 'Name of a Cloudwatch Metric',
 )
 
@@ -33,14 +33,14 @@ describe aws_cloudwatch_log_metric_filter(
   log_group_name: lmf_lg_1_name,
 ) do
   it { should exist }
-  its('pattern') { should be 'kitteh'}
-  its('metric_name') { should be lmf_lg_1_metric_1_name }
+  its('pattern') { should cmp 'kitteh'}
+  its('metric_name') { should cmp lmf_1_metric_1_name }
 end
 
 describe aws_cloudwatch_log_metric_filter(
   pattern: 'kittehcat',
 ) do
   it { should exist }
-  its('log_group_name') { should be lmf_lg_2_name }
-  its('filter_name') { should be lmf_2_name }
+  its('log_group_name') { should cmp lmf_lg_2_name }
+  its('filter_name') { should cmp lmf_2_name }
 end

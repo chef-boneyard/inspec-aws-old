@@ -114,6 +114,17 @@ EOX
     #=====================================================#
     # Uses the cloudwatch API to really talk to AWS
     class AwsClientApi < Backend
+      def describe_metric_filters(criteria)
+        cwl_client = AWSConnection.new.cloudwatch_logs_client
+        query = {}
+        query[:filter_name_prefix] = criteria[:filter_name] if criteria[:filter_name]
+        query[:log_group_name] = criteria[:log_group_name] if criteria[:log_group_name]
+        # 'pattern' is not available as a remote filter, 
+        # we filter it after the fact locally
+        # TODO: handle pagination?  Max 50/page.  Maybe you want a plural resource?
+        aws_response = cwl_client.describe_metric_filters(query)
+        aws_response.metric_filters
+      end
     end
 
     #=====================================================#
