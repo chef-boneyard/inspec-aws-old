@@ -22,7 +22,7 @@ class AwsCWLMFConstructor < Minitest::Test
       :filter_name,
       :pattern,
       :log_group_name,
-    ].each do | resource_param |
+    ].each do |resource_param|
       AwsCloudwatchLogMetricFilter.new(resource_param => 'some_val')
     end
   end
@@ -37,7 +37,7 @@ end
 #=============================================================================#
 class AwsCWLMFSearch < Minitest::Test
   def setup
-    # Reset to the Basic kit each time 
+    # Reset to the Basic kit each time
     AwsCloudwatchLogMetricFilter::Backend.select(AwsMockCWLMFBackend::Basic)
   end
 
@@ -58,9 +58,9 @@ class AwsCWLMFSearch < Minitest::Test
   end
 
   def test_using_log_group_name_resulting_in_duplicates
-    assert_raises(RuntimeError) do 
+    assert_raises(RuntimeError) do
       AwsCloudwatchLogMetricFilter.new(
-        log_group_name: 'test-log-group-01'
+        log_group_name: 'test-log-group-01',
       )
     end
   end
@@ -72,14 +72,13 @@ class AwsCWLMFSearch < Minitest::Test
     )
     assert lmf.exists?
   end
-
 end
 #=============================================================================#
 #                            Property Tests                                   #
 #=============================================================================#
-class AwsCWLMFSearch < Minitest::Test
+class AwsCWLMFProperties < Minitest::Test
   def setup
-    # Reset to the Basic kit each time 
+    # Reset to the Basic kit each time
     AwsCloudwatchLogMetricFilter::Backend.select(AwsMockCWLMFBackend::Basic)
   end
 
@@ -104,9 +103,9 @@ class AwsMockCWLMFBackend
     end
   end
   class Basic < AwsCloudwatchLogMetricFilter::Backend
-    def describe_metric_filters(criteria)
+    def describe_metric_filters(criteria) # rubocop:disable Metrics/MethodLength
       everything = [
-        OpenStruct::new({
+        OpenStruct.new({
           filter_name: 'test-01',
           filter_pattern: 'ERROR',
           log_group_name: 'test-log-group-01',
@@ -114,21 +113,21 @@ class AwsMockCWLMFBackend
             OpenStruct.new({
               metric_name: 'alpha',
               metric_namespace: 'awesome_metrics',
-            })
-          ]
+            }),
+          ],
         }),
-        OpenStruct::new({
-          filter_name: 'test-01', # Intentional duplicate 
+        OpenStruct.new({
+          filter_name: 'test-01', # Intentional duplicate
           filter_pattern: 'ERROR',
           log_group_name: 'test-log-group-02',
           metric_transformations: [
             OpenStruct.new({
               metric_name: 'beta',
               metric_namespace: 'awesome_metrics',
-            })
-          ]
+            }),
+          ],
         }),
-        OpenStruct::new({
+        OpenStruct.new({
           filter_name: 'test-03',
           filter_pattern: 'INFO',
           log_group_name: 'test-log-group-01',
@@ -136,8 +135,8 @@ class AwsMockCWLMFBackend
             OpenStruct.new({
               metric_name: 'gamma',
               metric_namespace: 'awesome_metrics',
-            })
-          ]
+            }),
+          ],
         }),
       ]
       selection = everything
@@ -145,7 +144,7 @@ class AwsMockCWLMFBackend
       # - which notably does not include the 'pattern' criteria
       [:log_group_name, :filter_name].each do |remote_filter|
         next unless criteria.key?(remote_filter)
-        selection.select! {|lmf| lmf[remote_filter] == criteria[remote_filter]}
+        selection.select! { |lmf| lmf[remote_filter] == criteria[remote_filter] }
       end
       selection
     end
