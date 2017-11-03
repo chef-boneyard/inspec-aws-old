@@ -23,6 +23,33 @@ class AwsCloudwatchLogMetricFilter < Inspec.resource(1)
   end
 EOX
 
+  RESOURCE_PARAMS = [
+    :filter_name,
+    :log_group_name,
+    :pattern,
+  ].freeze
+
+  def initialize(resource_params)
+    resource_params = validate_resource_params(resource_params)
+  end
+
+  private
+  def validate_resource_params(resource_params)
+    unless resource_params.is_a? Hash
+      raise ArgumentError.new(
+        'Unrecognized format for aws_cloudwatch_log_metric_filter parameters ' \
+        " - use (param: 'value') format "
+      )
+    end
+    resource_params.keys.each do |param_name|
+      unless RESOURCE_PARAMS.include?(param_name)
+        raise ArgumentError.new(
+          "Unrecognized parameter '#{param_name}' for aws_cloudwatch_log_metric_filter." \
+          " Expected one of #{RESOURCE_PARAMS.join(', ')}."
+        )
+      end
+    end
+  end
 
   class Backend
     #=====================================================#
