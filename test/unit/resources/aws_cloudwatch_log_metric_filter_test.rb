@@ -77,6 +77,22 @@ end
 #=============================================================================#
 #                            Property Tests                                   #
 #=============================================================================#
+class AwsCWLMFSearch < Minitest::Test
+  def setup
+    # Reset to the Basic kit each time 
+    AwsCloudwatchLogMetricFilter::Backend.select(AwsMockCWLMFBackend::Basic)
+  end
+
+  def test_property_values
+    lmf = AwsCloudwatchLogMetricFilter.new(
+      log_group_name: 'test-log-group-01',
+      filter_name: 'test-01',
+    )
+    assert_equal('ERROR', lmf.pattern)
+    assert_equal('alpha', lmf.metric_name)
+    assert_equal('awesome_metrics', lmf.metric_namespace)
+  end
+end
 
 #=============================================================================#
 #                 Support Classes - Mock Data Providers                       #
@@ -124,7 +140,6 @@ class AwsMockCWLMFBackend
           ]
         }),
       ]
-      #  byebug  
       selection = everything
       # Here we filter on anything the AWS SDK lets us filter on remotely
       # - which notably does not include the 'pattern' criteria
