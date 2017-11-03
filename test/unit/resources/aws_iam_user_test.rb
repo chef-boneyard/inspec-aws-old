@@ -13,6 +13,28 @@ class AwsIamUserTest < Minitest::Test
     @mock_user = { name: Username }
   end
 
+  def test_that_exists_returns_true_if_user_exists
+    @mock_user_provider.expect :user, @mock_user, [Username]
+    @mock_dets_provider.expect :exists?, true
+    @mock_dets_prov_ini.expect :create, @mock_dets_provider, [@mock_user]
+    assert AwsIamUser.new(
+      @mock_user,
+      @mock_user_provider,
+      @mock_dets_prov_ini,
+    ).exists?
+  end
+
+  def test_that_exists_returns_false_if_user_does_not_exist
+    @mock_user_provider.expect :user, @mock_user, [Username]
+    @mock_dets_provider.expect :exists?, false
+    @mock_dets_prov_ini.expect :create, @mock_dets_provider, [@mock_user]
+    refute AwsIamUser.new(
+      @mock_user,
+      @mock_user_provider,
+      @mock_dets_prov_ini,
+    ).exists?
+  end
+
   def test_that_mfa_enable_returns_true_if_mfa_enabled
     @mock_user_provider.expect :user, @mock_user, [Username]
     @mock_dets_provider.expect :has_mfa_enabled?, true
