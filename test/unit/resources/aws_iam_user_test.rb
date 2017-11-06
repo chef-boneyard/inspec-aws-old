@@ -3,6 +3,7 @@ require 'aws-sdk'
 require 'helper'
 require 'aws_iam_user'
 
+# rubocop:disable Metrics/ClassLength
 class AwsIamUserTest < Minitest::Test
   Username = 'test'.freeze
 
