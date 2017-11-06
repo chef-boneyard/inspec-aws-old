@@ -26,7 +26,9 @@ class AwsIamUsers < Inspec.resource(1)
   # little other opportunity for server-side filtering.
 
   def collect_user_details
-    raise "Not implemented"
+    backend = Backend.create
+    aws_users_response = backend.list_users
+    aws_users_response.users.map { |u| u.to_h }
   end
 
   def to_s
