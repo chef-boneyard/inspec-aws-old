@@ -84,7 +84,7 @@ resource "aws_cloudwatch_log_group" "lmf_lg_2" {
 
 resource "aws_cloudwatch_log_metric_filter" "lmf_1" {
   name           = "${terraform.env}_lmf"
-  pattern        = "kitteh"
+  pattern        = "testpattern01"
   log_group_name = "${aws_cloudwatch_log_group.lmf_lg_1.name}"
 
   metric_transformation {
@@ -96,7 +96,7 @@ resource "aws_cloudwatch_log_metric_filter" "lmf_1" {
 
 resource "aws_cloudwatch_log_metric_filter" "lmf_2" {
   name           = "${terraform.env}_lmf"
-  pattern        = "kittehcat"
+  pattern        = "testpattern02"
   log_group_name = "${aws_cloudwatch_log_group.lmf_lg_2.name}"
 
   metric_transformation {

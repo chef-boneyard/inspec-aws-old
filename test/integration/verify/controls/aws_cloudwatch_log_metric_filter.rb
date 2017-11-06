@@ -33,12 +33,12 @@ describe aws_cloudwatch_log_metric_filter(
   log_group_name: lmf_lg_1_name,
 ) do
   it { should exist }
-  its('pattern') { should cmp 'kitteh'}
+  its('pattern') { should cmp 'testpattern01'}
   its('metric_name') { should cmp lmf_1_metric_1_name }
 end
 
 describe aws_cloudwatch_log_metric_filter(
-  pattern: 'kittehcat',
+  pattern: 'testpattern02',
 ) do
   it { should exist }
   its('log_group_name') { should cmp lmf_lg_2_name }
