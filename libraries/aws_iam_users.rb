@@ -21,44 +21,57 @@ class AwsIamUsers < Inspec.resource(1)
         .add(:exists?) { |x| !x.entries.empty? }
   filter.connect(self, :collect_user_details)
 
-  def initialize(
-    aws_user_provider = AwsIam::UserProvider.new,
-    aws_user_details_provider_ini = AwsIam::UserDetailsProviderInitializer.new,
-    user_factory = AwsIamUserFactory.new
-  )
-    @user_provider = aws_user_provider
-    @aws_user_details_provider_ini = aws_user_details_provider_ini
-    @user_factory = user_factory
-  end
+  # No resource params => no overridden constructor
+  # AWS API only offers filtering on path prefix; 
+  # little other opportunity for server-side filtering.
 
   def collect_user_details
-    @users_cache ||= @user_provider.list_users unless @user_provider.nil?
-    @users_cache.map do |aws_user|
-      details_provider = @aws_user_details_provider_ini.create(aws_user)
-      {
-        name: details_provider.name,
-        has_mfa_enabled?: details_provider.has_mfa_enabled?,
-        has_console_password?: details_provider.has_console_password?,
-        access_keys: details_provider.access_keys,
-      }
-    end
-  end
-
-  def users
-    users = []
-    users ||= @user_provider.list_users unless @user_provider.nil?
-    users.map { |user|
-      @user_factory.create_user(user)
-    }
+    raise "Not implemented"
   end
 
   def to_s
     'IAM Users'
   end
 
-  class AwsIamUserFactory
-    def create_user(user)
-      AwsIamUser.new(user: user)
+  #===========================================================================#
+  #                        Backend Implementation
+  #===========================================================================#
+  class Backend
+    #=====================================================#
+    #                    API Definition
+    #=====================================================#
+    [
+      :list_users,
+    ].each do |method|
+      define_method(:method) do |*_args|
+        raise "Unimplemented abstract method #{method} - internal error"
+      end
+    end
+
+    #=====================================================#
+    #                 Concrete Implementation
+    #=====================================================#
+    # Uses AWS API to really talk to AWS
+    class AwsClientApi < Backend
+      def list_users(criteria)
+        raise "AWS backend not implemented"
+      end
+    end
+
+    #=====================================================#
+    #                   Factory Interface
+    #=====================================================#
+    # TODO: move this to a mix-in
+    DEFAULT_BACKEND = AwsClientApi
+    @selected_backend = DEFAULT_BACKEND
+
+    def self.create
+      @selected_backend.new
+    end
+
+    def self.select(klass)
+      @selected_backend = klass
     end
   end
+
 end
