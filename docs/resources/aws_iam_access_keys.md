@@ -4,11 +4,12 @@ title: About the aws_iam_access_keys Resource
 
 # aws_iam_access_keys
 
-Use the `aws_iam_access_keys` InSpec audit resource to test properties of all or multiple IAM Access Keys.
+Use the `aws_iam_access_keys` InSpec audit resource to test properties of some or all IAM Access Keys.
 
-To test properties of a Access Key, use the `aws_iam_access_key` resource.  You may also test properties of the access keys of a particular user using the `aws_iam_user` resource.
+To test properties of a single Access Key, use the `aws_iam_access_key` resource instead.  
+To test properties of an individual user's access keys, use the `aws_iam_user` resource.
 
-Access Keys are tightly coupled to the AWS User resources.  This resource is best used when you need so perform audits of all keys, or keys specified by criteria that don't relate to any particular user.  
+Access Keys are closely related to AWS User resources.  Use this resource to perform audits of all keys or of keys specified by criteria unrelated to any particular user.  
 
 <br>
 
@@ -49,7 +50,7 @@ The following examples show how to use this InSpec audit resource.
 
 ### exists
 
-This matcher causes the control to pass if the filter returned at least one result. You can negate the meaning using should_not (that is, you expect no matches).
+The control will pass if the filter returns at least one result. Use should_not if you expect zero matches.
 
     # Sally should have at least one access key
     describe aws_iam_access_keys.where(username: 'sally') do
@@ -65,7 +66,7 @@ This matcher causes the control to pass if the filter returned at least one resu
 
 ### active
 
-A true / false value that indicates whether the Access Key is currently Active (the normal state) in the AWS console.  `inactive` is also available.
+A true / false value indicating if an Access Key is currently "Active" (the normal state) in the AWS console.  See also: `inactive`.
 
     # Check whether a particular key is enabled
     describe aws_iam_access_keys.where { active } do
@@ -74,10 +75,10 @@ A true / false value that indicates whether the Access Key is currently Active (
 
 ### created_date
 
-A DateTime, which identifies when the Access Key was created.  See also `created_days_ago` and `created_hours_ago`.
+A DateTime identifying when the Access Key was created.  See also `created_days_ago` and `created_hours_ago`.
 
-    # Don't permit creating keys on Tuesday
-    describe aws_iam_access_keys.where { created_date.tuesday? } do
+    # Detect keys older than 2017
+    describe aws_iam_access_keys.where { created_date < DateTime.parse('2017-01-01') } do
       it { should_not exist }
     end
 
@@ -92,7 +93,7 @@ An integer, representing how old the access key is.
 
 ### ever_used
 
-A true / false value that indicates whether the Access Key has ever been used, based on the last_used_date.  `never_used` is also available.
+A true / false value indicating if the Access Key has ever been used, based on the last_used_date. See also: `never_used`.
 
     # Check to see if a particular key has ever been used
     describe aws_iam_access_keys.where { ever_used } do
@@ -102,7 +103,7 @@ A true / false value that indicates whether the Access Key has ever been used, b
 
 ### inactive
 
-A true / false value that indicates whether the Access Key has been marked Inactive in the AWS console.  `active` is also available.
+A true / false value indicating if the Access Key has been marked Inactive in the AWS console. See also: `active`.
 
     # Don't leave inactive keys laying around
     describe aws_iam_access_keys.where { inactive } do
@@ -111,7 +112,7 @@ A true / false value that indicates whether the Access Key has been marked Inact
 
 ### last_used_date
 
-A DateTime, which identifies when the Access Key was last used.  If the key has never been used, this will be `nil`.  See also `ever_used`, `last_used_days_ago`, `last_used_hours_ago`, and `never_used`.
+A DateTime identifying when the Access Key was last used. Returns nil if the key has never been used. See also: `ever_used`, `last_used_days_ago`, `last_used_hours_ago`, and `never_used`.
 
     # No one should do anything on Mondays
     describe aws_iam_access_keys.where { ever_used and last_used_date.monday? } do
@@ -120,7 +121,7 @@ A DateTime, which identifies when the Access Key was last used.  If the key has 
 
 ### last_used_days_ago, last_used_hours_ago
 
-An integer, representing how long ago the key was last used.
+An integer representing when the key was last used. See also: `ever_used`, `last_used_date`, and `never_used`.
 
     # Don't allow keys that sit unused for more than 90 days
     describe aws_iam_access_keys.where { last_used_days_ago > 90 } do
@@ -129,7 +130,7 @@ An integer, representing how long ago the key was last used.
 
 ### never_used
 
-A true / false value that indicates whether the Access Key has never been used, based on the last_used_date.  `ever_used` is also available.
+A true / false value indicating if the Access Key has never been used, based on the last_used_date. See also: `ever_used`.
 
     # Don't allow unused keys to lay around
     describe aws_iam_access_keys.where { never_used } do
@@ -138,7 +139,7 @@ A true / false value that indicates whether the Access Key has never been used, 
 
 ### username
 
-Looks for access keys owned by the named user.  Each user may have zero, one, or two access keys.
+Searches for access keys owned by the named user. Each user may have zero, one, or two access keys.
 
     describe aws_iam_access_keys(username: 'bob') do
       it { should exist }
