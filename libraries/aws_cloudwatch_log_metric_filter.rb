@@ -36,7 +36,7 @@ EOX
     results = run_lmf_search(resource_params)
     if results.count > 1
       raise 'More than one result was returned, but aws_cloudwatch_log_metric_filter '\
-            'can only handle an individual AWS resource.  Consider passing more resource '\
+            'can only handle a single AWS resource.  Consider passing more resource '\
             'parameters to narrow down the search.'
     else
       unpack_search_results(results)
