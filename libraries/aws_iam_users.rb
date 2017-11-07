@@ -19,21 +19,46 @@ class AwsIamUsers < Inspec.resource(1)
   filter.add_accessor(:where)
         .add_accessor(:entries)
         .add(:exists?) { |x| !x.entries.empty? }
+        .add(:has_mfa_enabled?, field: :has_mfa_enabled)
+        .add(:has_console_password?, field: :has_console_password)
+        .add(:user_name, field: :user_name)
   filter.connect(self, :collect_user_details)
 
   # No resource params => no overridden constructor
-  # AWS API only offers filtering on path prefix; 
+  # AWS API only offers filtering on path prefix;
   # little other opportunity for server-side filtering.
 
   def collect_user_details
     backend = Backend.create
-    aws_users_response = backend.list_users
-    aws_users_response.users.map { |u| u.to_h }
+    users = backend.list_users.users.map { |u| u.to_h }
+
+    # TODO - lazy columns - https://github.com/chef/inspec-aws/issues/100
+    users.each do |user|
+      begin
+        aws_login_profile = backend.get_login_profile(user_name: user[:user_name])
+        user[:has_console_password] = aws_login_profile.created_date.nil?
+      rescue Aws::IAM::Errors::NoSuchEntity
+        user[:has_console_password] = false
+      end
+
+      begin
+        aws_mfa_devices = backend.list_mfa_devices(user_name: user[:user_name])
+        user[:has_mfa_enabled] = !aws_mfa_devices.mfa_devices.empty?
+      rescue Aws::IAM::Errors::NoSuchEntity
+        user[:has_mfa_devices] = false
+      end
+
+    end
+    users
   end
 
   def to_s
     'IAM Users'
   end
+
+  # Entry cooker.  Needs discussion.
+  # def users
+  # end
 
   #===========================================================================#
   #                        Backend Implementation
@@ -43,6 +68,8 @@ class AwsIamUsers < Inspec.resource(1)
     #                    API Definition
     #=====================================================#
     [
+      :get_login_profile,
+      :list_mfa_devices,
       :list_users,
     ].each do |method|
       define_method(:method) do |*_args|
@@ -56,7 +83,7 @@ class AwsIamUsers < Inspec.resource(1)
     # Uses AWS API to really talk to AWS
     class AwsClientApi < Backend
       def list_users(criteria)
-        raise "AWS backend not implemented"
+        raise 'AWS backend not implemented'
       end
     end
 
@@ -75,5 +102,4 @@ class AwsIamUsers < Inspec.resource(1)
       @selected_backend = klass
     end
   end
-
 end

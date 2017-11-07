@@ -25,31 +25,75 @@ class AwsIamUsersTestFilterCriteria < Minitest::Test
     AwsIamUsers::Backend.select(Maiusb::Empty)
   end
 
+  #------------------------------------------#
+  #                 Open Filter
+  #------------------------------------------#
   def test_users_empty_result_when_no_users_no_criteria
-    users = AwsIamUsers.new.where { }
+    users = AwsIamUsers.new.where {}
     assert users.entries.empty?
   end
 
   def test_users_all_returned_when_some_users_no_criteria
     AwsIamUsers::Backend.select(Maiusb::Basic)
-    users = AwsIamUsers.new.where { }
+    users = AwsIamUsers.new.where {}
     assert(3, users.entries.count)
   end
 
+  #------------------------------------------#
+  #           has_mfa_enabled?
+  #------------------------------------------#
+  def test_users_criteria_has_mfa_enabled
+    AwsIamUsers::Backend.select(Maiusb::Basic)
+    users = AwsIamUsers.new.where { has_mfa_enabled }
+    assert(1, users.entries.count)
+    assert_includes users.entries.map{ |u| u[:user_name] }, 'carol'
+    refute_includes users.entries.map{ |u| u[:user_name] }, 'alice'
+  end
+
+  #------------------------------------------#
+  #           has_console_password?
+  #------------------------------------------#
+  def test_users_criteria_has_console_password?
+    AwsIamUsers::Backend.select(Maiusb::Basic)
+    users = AwsIamUsers.new.where { has_console_password }
+    assert(2, users.entries.count)
+    assert_includes users.entries.map{ |u| u[:user_name] }, 'carol'
+    refute_includes users.entries.map{ |u| u[:user_name] }, 'alice'
+  end
 end
 
 #=============================================================================#
 #                        Test Fixture Classes
 #=============================================================================#
 module Maiusb
+
+  # --------------------------------
+  #       Empty - No users
+  # --------------------------------
   class Empty < AwsIamUsers::Backend
     def list_users
       OpenStruct.new({
         users: []
       })
     end
+
+    def get_login_profile(criteria)
+      raise Aws::IAM::Errors::NoSuchEntity.new("No login profile for #{criteria[:user_name]}", 'Nope')
+    end
+
+    def list_mfa_devices(_criteria)
+      OpenStruct.new({
+        mfa_devices: []
+      })
+    end
   end
 
+  # --------------------------------
+  #      Basic - 3 Users
+  # --------------------------------
+  # Alice has no password or MFA device
+  # Bob has a password but no MFA device
+  # Carol has a password and MFA device
   class Basic < AwsIamUsers::Backend
     # arn, path, user_id omitted
     def list_users
@@ -72,6 +116,37 @@ module Maiusb
           }),
         ]
       })
+    end
+
+    def get_login_profile(criteria)
+      if ['bob', 'carol'].include?(criteria[:user_name])
+        OpenStruct.new({
+          login_profile: OpenStruct.new({
+            user_name: criteria[:user_name],
+            created_date: DateTime.parse('2017-10-10T16:19:30Z')
+          })
+        })
+      else
+        raise Aws::IAM::Errors::NoSuchEntity.new("No login profile for #{criteria[:user_name]}", 'Nope')
+      end
+    end
+
+    def list_mfa_devices(criteria)
+      if ['carol'].include?(criteria[:user_name])
+        OpenStruct.new({
+          mfa_devices: [
+            OpenStruct.new({
+              user_name: criteria[:user_name],
+              serial_number: '1234567890',
+              enable_date: DateTime.parse('2017-10-10T16:19:30Z'),
+            })
+          ]
+        })
+      else
+        OpenStruct.new({
+          mfa_devices: []
+        })
+      end
     end
   end
 end
