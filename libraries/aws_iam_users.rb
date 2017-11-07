@@ -83,7 +83,16 @@ class AwsIamUsers < Inspec.resource(1)
     # Uses AWS API to really talk to AWS
     class AwsClientApi < Backend
       def list_users(criteria)
-        raise 'AWS backend not implemented'
+        @aws_iam_client ||= AwsConnection.new.iam_client
+        @aws_iam_client.list_users(criteria)
+      end
+      def get_login_profile
+        @aws_iam_client ||= AwsConnection.new.iam_client
+        @aws_iam_client.get_login_profile(criteria)
+      end
+      def list_mfa_devices
+        @aws_iam_client ||= AwsConnection.new.iam_client
+        @aws_iam_client.list_mfa_devices(criteria)
       end
     end
 
