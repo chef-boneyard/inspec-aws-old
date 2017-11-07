@@ -74,7 +74,35 @@ end
 #=============================================================================#
 #                                Properties
 #=============================================================================#
-  
+
+class AwsCWAConstructor < Minitest::Test
+  def setup
+    AwsCloudwatchAlarm::Backend.select(AwsMCWAB::Basic)
+  end
+
+  #---------------------------------------
+  #       alarm_actions
+  #---------------------------------------
+  def test_prop_actions_empty
+    alarm = AwsCloudwatchAlarm.new(
+      metric_name: 'metric-02',
+      metric_namespace: 'metric-namespace-02'
+    )
+    assert_kind_of Array, alarm.alarm_actions
+    assert_empty alarm.alarm_actions
+  end
+
+  def test_prop_actions_hit
+    alarm = AwsCloudwatchAlarm.new(
+      metric_name: 'metric-01',
+      metric_namespace: 'metric-namespace-01'
+    )
+    assert_kind_of Array, alarm.alarm_actions    
+    refute_empty alarm.alarm_actions
+    assert_kind_of String, alarm.alarm_actions.first
+  end  
+end
+
 #=============================================================================#
 #                               Test Fixtures
 #=============================================================================#
@@ -112,6 +140,13 @@ module AwsMCWAB
             alarm_name: 'alarm-03',
             metric_name: 'metric-02',
             namespace: 'metric-namespace-01',
+            statistic: 'SampleCount',
+            alarm_actions: []
+          }),
+          OpenStruct.new({
+            alarm_name: 'alarm-04',
+            metric_name: 'metric-02',
+            namespace: 'metric-namespace-02',
             statistic: 'SampleCount',
             alarm_actions: []
           }),
