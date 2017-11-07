@@ -12,13 +12,17 @@ class AwsCloudwatchAlarm < Inspec.resource(1)
   end
   EOD
 
-  attr_reader :exists, :metric_name, :metric_namespace
+  attr_reader :exists, :alarm_name, :metric_name, :metric_namespace, :alarm_actions
   def initialize(opts)
     # Validates and sets instance variables
     validate_resource_params(opts)
+    search
   end
 
+  alias_method :exists?, :exists
+
   private
+
   def validate_resource_params(raw_params)
     unless raw_params.kind_of? Hash      
       raise ArgumentError, "Resource params should be passed using \"key: 'value'\" format."
@@ -33,6 +37,24 @@ class AwsCloudwatchAlarm < Inspec.resource(1)
     # Any leftovers are unwelcome
     unless raw_params.empty?
       raise ArgumentError, "Unrecognized resource param '#{raw_params.keys.first}'"
+    end
+  end
+
+  def search
+    aws_alarms = Backend.create.describe_alarms_for_metric(
+      metric_name: @metric_name,
+      namespace: @metric_namespace,
+    )
+    if aws_alarms.metric_alarms.empty?
+      @exists = false
+    elsif aws_alarms.metric_alarms.count > 1
+      alarms = aws_alarms.metric_alarms.map(&:alarm_name)
+      raise RuntimeError, "More than one Cloudwatch Alarm was matched. Try using " \
+        "more specific resource parameters. Alarms matched: #{alarms.join(', ')}"
+    else
+      @alarm_actions = aws_alarms.metric_alarms.first.alarm_actions
+      @alarm_name = aws_alarms.metric_alarms.first.alarm_name
+      @exists = true
     end
   end
 
