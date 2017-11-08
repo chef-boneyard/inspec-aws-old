@@ -12,7 +12,7 @@ class AwsCloudwatchAlarm < Inspec.resource(1)
   end
   EOD
 
-  attr_reader :exists, :alarm_name, :metric_name, :metric_namespace, :alarm_actions
+  attr_reader :alarm_name, :metric_name, :metric_namespace, :alarm_actions
   def initialize(opts)
     # Validates and sets instance variables
     validate_resource_params(opts)
