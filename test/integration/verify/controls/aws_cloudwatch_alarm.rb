@@ -3,10 +3,19 @@ alarm_01 = attribute(
   default: 'default.cloudwatch_alarm',
   description: 'Name of Cloudwatch Alarm')
 
-  # TODO: this is likely to be a multiple hit
+metric_01_name = attribute(
+  'lmf_1_metric_1_name',
+  default: 'default.lmf_1_metric_1_name',
+  description: 'A test metric name')
+
+metric_01_namespace = attribute(
+    'lmf_1_metric_1_namespace',
+    default: 'default.lmf_1_metric_1_namespace',
+    description: 'A test metric namespace')
+
   describe aws_cloudwatch_alarm(
-    metric_name: 'CPUUtilization',
-    metric_namespace: 'AWS/EC2',
+    metric_name: metric_01_name,
+    metric_namespace: metric_01_namespace,
   ) do
     it { should exist }
   end
