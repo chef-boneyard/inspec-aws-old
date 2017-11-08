@@ -75,8 +75,8 @@ class AwsCloudwatchAlarm < Inspec.resource(1)
     #=====================================================#
     # Uses the cloudwatch API to really talk to AWS
     class AwsClientApi < Backend
-      def describe_metric_filters(criteria)
-        raise 'Unimplemented'
+      def describe_alarms_for_metric(criteria)
+        AWSConnection.new.cloudwatch_client.describe_alarms_for_metric(criteria)
       end
     end
 

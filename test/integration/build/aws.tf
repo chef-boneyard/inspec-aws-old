@@ -126,6 +126,23 @@ output "lmf_lg_2_name" {
   value = "${aws_cloudwatch_log_group.lmf_lg_2.name}"
 }
 
+resource "aws_cloudwatch_metric_alarm" "alarm_1" {
+  alarm_name                = "${terraform.env}-test-alarm-01"
+  comparison_operator       = "GreaterThanOrEqualToThreshold"
+  evaluation_periods        = "2"
+  metric_name               = "CPUUtilization"
+  namespace                 = "AWS/EC2"
+  period                    = "120"
+  statistic                 = "Average"
+  threshold                 = "80"
+  alarm_description         = "This metric monitors ec2 cpu utilization"
+  insufficient_data_actions = []
+}
+
+output "cloudwatch_alarm_01" {
+  value = "${terraform.env}-test-alarm-01"
+}
+
 output "mfa_not_enabled_user" {
   value = "${aws_iam_user.mfa_not_enabled_user.name}"
 }
