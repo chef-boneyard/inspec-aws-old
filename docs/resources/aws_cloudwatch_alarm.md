@@ -65,4 +65,12 @@ The control will pass if a Cloudwatch Alarm could be found. Use should_not if yo
 
 ### alarm_actions
 
-TODO
+`alarm_actions` returns a list of strings.  Each string is the ARN of an action that will be taken should the alarm be triggered.  
+
+    # Ensure that the alarm has at least one action
+    describe aws_cloudwatch_alarm(
+      metric: 'bed-metric',
+      metric_namespace: 'my-metric-namespace',
+    ) do 
+      its('alarm_actions') { should_not be_empty }
+    end
