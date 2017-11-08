@@ -14,8 +14,9 @@ class AwsCloudwatchAlarm < Inspec.resource(1)
 
   attr_reader :alarm_name, :metric_name, :metric_namespace, :alarm_actions
   def initialize(opts)
-    # Validates and sets instance variables
-    validate_resource_params(opts)
+    validate_resource_params(opts).each do |param, value|
+      instance_variable_set("@#{param}", value)
+    end
     search
   end
 
@@ -30,16 +31,19 @@ class AwsCloudwatchAlarm < Inspec.resource(1)
       raise ArgumentError, "Resource params should be passed using \"key: 'value'\" format."
     end
 
+    validated_params = {}
     # Currently you must specify exactly metric_name and metric_namespace
     [:metric_name, :metric_namespace].each do |param|
       raise ArgumentError, "Missing resource param #{param}" unless raw_params.key?(param)
-      instance_variable_set(:"@#{param}", raw_params.delete(param))
+      validated_params[param] = raw_params.delete(param)
     end
 
     # Any leftovers are unwelcome
-    unless raw_params.empty? # rubocop:disable Style/GuardClause
+    unless raw_params.empty?
       raise ArgumentError, "Unrecognized resource param '#{raw_params.keys.first}'"
     end
+
+    validated_params
   end
 
   def search
