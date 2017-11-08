@@ -19,12 +19,14 @@ class AwsCloudwatchAlarm < Inspec.resource(1)
     search
   end
 
-  alias_method :exists?, :exists
+  def exists?
+    @exists
+  end
 
   private
 
   def validate_resource_params(raw_params)
-    unless raw_params.kind_of? Hash      
+    unless raw_params.is_a? Hash
       raise ArgumentError, "Resource params should be passed using \"key: 'value'\" format."
     end
 
@@ -35,7 +37,7 @@ class AwsCloudwatchAlarm < Inspec.resource(1)
     end
 
     # Any leftovers are unwelcome
-    unless raw_params.empty?
+    unless raw_params.empty? # rubocop:disable Style/GuardClause
       raise ArgumentError, "Unrecognized resource param '#{raw_params.keys.first}'"
     end
   end
@@ -49,7 +51,7 @@ class AwsCloudwatchAlarm < Inspec.resource(1)
       @exists = false
     elsif aws_alarms.metric_alarms.count > 1
       alarms = aws_alarms.metric_alarms.map(&:alarm_name)
-      raise RuntimeError, "More than one Cloudwatch Alarm was matched. Try using " \
+      raise 'More than one Cloudwatch Alarm was matched. Try using ' \
         "more specific resource parameters. Alarms matched: #{alarms.join(', ')}"
     else
       @alarm_actions = aws_alarms.metric_alarms.first.alarm_actions
@@ -63,7 +65,7 @@ class AwsCloudwatchAlarm < Inspec.resource(1)
     #                    API Definition
     #=====================================================#
     [
-      :describe_alarms_for_metric
+      :describe_alarms_for_metric,
     ].each do |method|
       define_method(:method) do |*_args|
         raise "Unimplemented abstract method #{method} - internal error"

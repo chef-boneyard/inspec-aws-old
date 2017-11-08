@@ -35,7 +35,7 @@ class AwsCWAConstructor < Minitest::Test
   end
 
   def test_constructor_reject_unknown_resource_params
-    assert_raises(ArgumentError) { AwsCloudwatchAlarm.new(beep: 'boop') }    
+    assert_raises(ArgumentError) { AwsCloudwatchAlarm.new(beep: 'boop') }
   end
 end
 
@@ -43,7 +43,7 @@ end
 #                               Search / Recall
 #=============================================================================#
 
-class AwsCWAConstructor < Minitest::Test
+class AwsCWARecall < Minitest::Test
   def setup
     AwsCloudwatchAlarm::Backend.select(AwsMCWAB::Basic)
   end
@@ -55,17 +55,17 @@ class AwsCWAConstructor < Minitest::Test
 
   def test_recall_match_single_result_works
     alarm = AwsCloudwatchAlarm.new(
-      metric_name: 'metric-01', 
-      metric_namespace: 'metric-namespace-01'
+      metric_name: 'metric-01',
+      metric_namespace: 'metric-namespace-01',
     )
     assert alarm.exists?
   end
 
   def test_recall_multiple_result_raises
     assert_raises(RuntimeError) do
-      alarm = AwsCloudwatchAlarm.new(
+      AwsCloudwatchAlarm.new(
         metric_name: 'metric-02',
-        metric_namespace: 'metric-namespace-01'
+        metric_namespace: 'metric-namespace-01',
       )
     end
   end
@@ -75,7 +75,7 @@ end
 #                                Properties
 #=============================================================================#
 
-class AwsCWAConstructor < Minitest::Test
+class AwsCWAProperties < Minitest::Test
   def setup
     AwsCloudwatchAlarm::Backend.select(AwsMCWAB::Basic)
   end
@@ -86,7 +86,7 @@ class AwsCWAConstructor < Minitest::Test
   def test_prop_actions_empty
     alarm = AwsCloudwatchAlarm.new(
       metric_name: 'metric-02',
-      metric_namespace: 'metric-namespace-02'
+      metric_namespace: 'metric-namespace-02',
     )
     assert_kind_of Array, alarm.alarm_actions
     assert_empty alarm.alarm_actions
@@ -95,12 +95,12 @@ class AwsCWAConstructor < Minitest::Test
   def test_prop_actions_hit
     alarm = AwsCloudwatchAlarm.new(
       metric_name: 'metric-01',
-      metric_namespace: 'metric-namespace-01'
+      metric_namespace: 'metric-namespace-01',
     )
-    assert_kind_of Array, alarm.alarm_actions    
+    assert_kind_of Array, alarm.alarm_actions
     refute_empty alarm.alarm_actions
     assert_kind_of String, alarm.alarm_actions.first
-  end  
+  end
 end
 
 #=============================================================================#
@@ -109,12 +109,17 @@ end
 
 module AwsMCWAB
   class Empty < AwsCloudwatchAlarm::Backend
+    def describe_alarms_for_metric(_criteria)
+      OpenStruct.new({
+        metric_alarms: [],
+      })
+    end
   end
 
   class Basic < AwsCloudwatchAlarm::Backend
     def describe_alarms_for_metric(criteria)
       OpenStruct.new({
-        metric_alarms: [
+        metric_alarms: [ # rubocop:disable Metrics/BlockLength
           # Each one here is an alarm that is subscribed to the given metric
           # Each has an enormous number of properties, most omitted here
           # http://docs.aws.amazon.com/sdkforruby/api/Aws/CloudWatch/Client.html#describe_alarms_for_metric-instance_method
@@ -124,8 +129,8 @@ module AwsMCWAB
             namespace: 'metric-namespace-01',
             statistic: 'SampleCount',
             alarm_actions: [
-              'arn::::' # TODO - get SNS ARN format
-            ]
+              'arn::::' # TODO: get SNS ARN format
+            ],
           }),
           OpenStruct.new({
             # Alarm 02 and 03 both watch metric-01, metric-namespace-01
@@ -133,7 +138,7 @@ module AwsMCWAB
             metric_name: 'metric-02',
             namespace: 'metric-namespace-01',
             statistic: 'SampleCount',
-            alarm_actions: []
+            alarm_actions: [],
           }),
           OpenStruct.new({
             # Alarm 02 and 03 both watch metric-02, metric-namespace-01
@@ -141,21 +146,21 @@ module AwsMCWAB
             metric_name: 'metric-02',
             namespace: 'metric-namespace-01',
             statistic: 'SampleCount',
-            alarm_actions: []
+            alarm_actions: [],
           }),
           OpenStruct.new({
             alarm_name: 'alarm-04',
             metric_name: 'metric-02',
             namespace: 'metric-namespace-02',
             statistic: 'SampleCount',
-            alarm_actions: []
+            alarm_actions: [],
           }),
         ].select do |alarm|
           criteria.keys.all? do |criterion|
             criterion = 'namespace' if criterion == 'metric_namespace'
             alarm[criterion] == criteria[criterion]
           end
-        end
+        end,
       })
     end
   end
