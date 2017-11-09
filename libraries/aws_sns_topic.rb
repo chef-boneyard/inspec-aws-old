@@ -8,7 +8,38 @@ class AwsSnsTopic < Inspec.resource(1)
     end
   "
 
-  def initialize(opts)
+  attr_reader :arn
+
+  def initialize(raw_params)
+    validated_params = validate_params(raw_params)
+  end
+
+  private
+
+  def validate_params(raw_params)
+    # Allow passing ARN as a scalar string, not in a hash
+    raw_params = { arn: raw_params } if raw_params.is_a?(String)
+
+    # Remove all expected params from the raw param hash
+    validated_params = {}    
+    [
+      :arn,
+    ].each do |expected_param|
+      validated_params[expected_param] = raw_params.delete(expected_param) if raw_params.key?(expected_param)
+    end
+
+    # Any leftovers are unwelcome
+    unless raw_params.empty?
+      raise ArgumentError, "Unrecognized resource param '#{raw_params.keys.first}'"
+    end
+
+    # Validate the ARN
+    unless validated_params[:arn] =~ /^arn:aws:sns:(\*|[\w\-]+):\d{12}?:[\S]+$/
+      raise ArgumentError, 'Malformed ARN for SNS topics.  Expected an ARN of the form ' \
+                           "'arn:aws:sns:REGION:ACCOUNT-ID:TOPIC-NAME'"
+    end
+
+    validated_params
   end
 
   class Backend
