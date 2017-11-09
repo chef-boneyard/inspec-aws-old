@@ -29,7 +29,7 @@ class AwsSnsTopic < Inspec.resource(1)
     raw_params = { arn: raw_params } if raw_params.is_a?(String)
 
     # Remove all expected params from the raw param hash
-    validated_params = {}    
+    validated_params = {}
     [
       :arn,
     ].each do |expected_param|
@@ -51,15 +51,13 @@ class AwsSnsTopic < Inspec.resource(1)
   end
 
   def search
-    begin
-      aws_response = AwsSnsTopic::Backend.create.get_topic_attributes(topic_arn: @arn).attributes
-      @exists = true
-      
-      # The response has a plain hash with CamelCase plain string keys and string values
-      @confirmed_subscription_count = aws_response['SubscriptionsConfirmed'].to_i
-    rescue Aws::SNS::Errors::NotFound
-      @exists = false
-    end
+    aws_response = AwsSnsTopic::Backend.create.get_topic_attributes(topic_arn: @arn).attributes
+    @exists = true
+
+    # The response has a plain hash with CamelCase plain string keys and string values
+    @confirmed_subscription_count = aws_response['SubscriptionsConfirmed'].to_i
+  rescue Aws::SNS::Errors::NotFound
+    @exists = false
   end
 
   class Backend
@@ -98,5 +96,5 @@ class AwsSnsTopic < Inspec.resource(1)
     def self.select(klass)
       @selected_backend = klass
     end
-  end  
+  end
 end

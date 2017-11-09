@@ -14,7 +14,7 @@ class AWSConnection
     Aws.config.update(opts)
   end
 
-  def sns_client 
+  def sns_client
     @sns_client ||= Aws::SNS::Client.new
   end
 
