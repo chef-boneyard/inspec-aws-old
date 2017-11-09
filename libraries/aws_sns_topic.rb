@@ -4,7 +4,7 @@ class AwsSnsTopic < Inspec.resource(1)
   example "
     describe aws_sns_topic('arn:aws:sns:us-east-1:123456789012:some-topic') do
       it { should exist }
-      its('confirmed_subscriber_count') { should_not be_zero }
+      its('confirmed_subscription_count') { should_not be_zero }
     end
   "
 

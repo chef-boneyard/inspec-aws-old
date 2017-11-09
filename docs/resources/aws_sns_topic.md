@@ -10,11 +10,17 @@ Use the `aws_sns_topic` InSpec audit resource to test properties of a single AWS
 
 ## Syntax
 
-  # Ensure that a topic exists and has at least one subscriber
+  # Ensure that a topic exists and has at least one subscription
   describe aws_sns_topic('arn:aws:sns:*::my-topic-name') do
     it { should exist }
-    its('confirmed_subscriber_count') { should_not be_zero }
+    its('confirmed_subscription_count') { should_not be_zero }
   end
+
+  # You may also use has syntax to pass the ARN
+  describe aws_sns_topic(arn: 'arn:aws:sns:*::my-topic-name') do
+    it { should exist }
+  end
+  
 
 ## Resource Parameters
 
@@ -42,11 +48,11 @@ Indicates that the ARN provided was found.  Use should_not to test for SNS topic
 
 ## Properties
 
-### confirmed_subscriber_count
+### confirmed_subscription_count
 
-An integer indicating how many subscribers are currently active.
+An integer indicating how many subscriptions are currently active.
 
     # Make sure someone is listening
     describe aws_sns_topic('arn:aws:sns:*::my-topic-name') do
-      its('confirmed_subscriber_count') { should_not be_zero}
+      its('confirmed_subscription_count') { should_not be_zero}
     end
