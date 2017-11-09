@@ -31,15 +31,4 @@ control 'SNS Topics' do
     its('confirmed_subscription_count') { should be_zero }
   end
 
-  # Cross-region search
-  all_region_arn = [arn_prefix, '*', account, topic].join(':')
-  describe aws_sns_topic(all_region_arn) do
-    it { should exist }
-  end
-
-  # Omit account (default to account used by InSpec connection)
-  omit_account_arn = [arn_prefix, region, '', topic].join(':')
-  describe aws_sns_topic(omit_account_arn) do
-    it { should exist }
-  end
 end

@@ -36,17 +36,10 @@ class AwsSnsTopicConstructorTest < Minitest::Test
       'arn::::::', # Too many colons
       'arn:aws::us-east-1:123456789012:some-topic', # Omits SNS service
       'arn::sns:us-east-1:123456789012:some-topic', # Omits partition
+      'arn:aws:sns:*:123456789012:some-topic',  # All-region - not permitted for lookup
+      'arn:aws:sns:us-east-1::some-topic',      # Default account - not permitted for lookup
     ].each do |example|
       assert_raises(ArgumentError) { AwsSnsTopic.new(arn: example) }
-    end
-  end
-
-  def test_constructor_accepts_arn_variants_as_hash
-    [
-      'arn:aws:sns:*:123456789012:some-topic',  # All-region
-      'arn:aws:sns:us-east-1::some-topic', # Default account
-    ].each do |variant|
-      AwsSnsTopic.new(arn: variant)
     end
   end
 end
@@ -103,7 +96,7 @@ module AwsMSNB
 
   class Miss < AwsSnsTopic::Backend
     def get_topic_attributes(criteria)
-      raise Aws::IAM::Errors::NoSuchEntity.new("No SNS topic for #{criteria[:topic_arn]}", 'Nope')
+      raise Aws::SNS::Errors::NotFound.new("No SNS topic for #{criteria[:topic_arn]}", 'Nope')
     end
   end
 

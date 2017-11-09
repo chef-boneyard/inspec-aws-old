@@ -26,7 +26,7 @@ Use the `aws_sns_topic` InSpec audit resource to test properties of a single AWS
 
 ### ARN
 
-This resource expects a single parameter which should uniquely identify the SNS Topic, an ARN.  Amazon Resource Names for SNS have the format `arn:aws:sns:region:account-id:topicname`.  Region may be replaced with '*' to match any region, and account-id may be omitted to use the account currently being accessed by InSpec.
+This resource expects a single parameter which should uniquely identify the SNS Topic, an ARN.  Amazon Resource Names for SNS have the format `arn:aws:sns:region:account-id:topicname`.  AWS requires you to use a fully-specified ARN when looking up an SNS topic; you cannot omit the account ID or use a wildcard region.
 
 See also the (AWS documentation on ARNs)[http://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html].
 

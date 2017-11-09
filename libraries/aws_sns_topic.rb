@@ -1,3 +1,5 @@
+require 'aws_conn'
+
 class AwsSnsTopic < Inspec.resource(1)
   name 'aws_sns_topic'
   desc 'Verifies settings for an SNS Topic'
@@ -40,7 +42,7 @@ class AwsSnsTopic < Inspec.resource(1)
     end
 
     # Validate the ARN
-    unless validated_params[:arn] =~ /^arn:aws:sns:(\*|[\w\-]+):\d{12}?:[\S]+$/
+    unless validated_params[:arn] =~ /^arn:aws:sns:[\w\-]+:\d{12}:[\S]+$/
       raise ArgumentError, 'Malformed ARN for SNS topics.  Expected an ARN of the form ' \
                            "'arn:aws:sns:REGION:ACCOUNT-ID:TOPIC-NAME'"
     end
@@ -50,12 +52,12 @@ class AwsSnsTopic < Inspec.resource(1)
 
   def search
     begin
-      aws_response = AwsSnsTopic::Backend.create.get_topic_attributes(arn: @arn).attributes
+      aws_response = AwsSnsTopic::Backend.create.get_topic_attributes(topic_arn: @arn).attributes
       @exists = true
       
-      # The response has a plain hash with CamelCase plain string keys
-      @confirmed_subscription_count = aws_response['SubscriptionsConfirmed']
-    rescue Aws::IAM::Errors::NoSuchEntity
+      # The response has a plain hash with CamelCase plain string keys and string values
+      @confirmed_subscription_count = aws_response['SubscriptionsConfirmed'].to_i
+    rescue Aws::SNS::Errors::NotFound
       @exists = false
     end
   end
@@ -78,7 +80,7 @@ class AwsSnsTopic < Inspec.resource(1)
     # Uses the SDK API to really talk to AWS
     class AwsClientApi < Backend
       def get_topic_attributes(criteria)
-        raise 'TODO'
+        AWSConnection.new.sns_client.get_topic_attributes(criteria)
       end
     end
 
