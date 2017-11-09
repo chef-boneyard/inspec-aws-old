@@ -8,7 +8,7 @@ class AwsSnsTopic < Inspec.resource(1)
     end
   "
 
-  attr_reader :arn
+  attr_reader :arn, :confirmed_subscription_count
 
   def initialize(raw_params)
     validated_params = validate_params(raw_params)
@@ -51,8 +51,10 @@ class AwsSnsTopic < Inspec.resource(1)
   def search
     begin
       aws_response = AwsSnsTopic::Backend.create.get_topic_attributes(arn: @arn).attributes
-      # The response has a plain hash with CamelCase plain string keys
       @exists = true
+      
+      # The response has a plain hash with CamelCase plain string keys
+      @confirmed_subscription_count = aws_response['SubscriptionsConfirmed']
     rescue Aws::IAM::Errors::NoSuchEntity
       @exists = false
     end

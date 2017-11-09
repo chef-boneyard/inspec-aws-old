@@ -72,6 +72,30 @@ class AwsSnsTopicRecallTest < Minitest::Test
 end
 
 #=============================================================================#
+#                                Properties
+#=============================================================================#
+
+class AwsSnsTopicPropertiesTest < Minitest::Test
+  # No setup here - each test needs to explicitly declare
+  # what they want from the backend.
+
+  #---------------------------------------
+  #       confirmed_subscription_count
+  #---------------------------------------
+  def test_prop_conf_sub_count_zero
+    AwsSnsTopic::Backend.select(AwsMSNB::NoSubscriptions)
+    topic = AwsSnsTopic.new('arn:aws:sns:us-east-1:123456789012:does-not-matter')
+    assert_equal(0, topic.confirmed_subscription_count)
+  end
+
+  def test_prop_conf_sub_count_zero
+    AwsSnsTopic::Backend.select(AwsMSNB::OneSubscription)
+    topic = AwsSnsTopic.new('arn:aws:sns:us-east-1:123456789012:does-not-matter')
+    assert_equal(1, topic.confirmed_subscription_count)
+  end
+end
+
+#=============================================================================#
 #                               Test Fixtures
 #=============================================================================#
 
