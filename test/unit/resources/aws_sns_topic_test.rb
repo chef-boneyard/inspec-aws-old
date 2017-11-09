@@ -51,6 +51,25 @@ class AwsSnsTopicConstructorTest < Minitest::Test
   end
 end
 
+#=============================================================================#
+#                               Search / Recall
+#=============================================================================#
+class AwsSnsTopicRecallTest < Minitest::Test
+  # No setup here - each test needs to explicitly declare
+  # what they want from the backend.
+
+  def test_recall_no_match_is_no_exception
+    AwsSnsTopic::Backend.select(AwsMSNB::Miss)
+    topic = AwsSnsTopic.new('arn:aws:sns:us-east-1:123456789012:nope')
+    refute topic.exists?
+  end
+
+  def test_recall_match_single_result_works
+    AwsSnsTopic::Backend.select(AwsMSNB::NoSubscriptions)    
+    topic = AwsSnsTopic.new('arn:aws:sns:us-east-1:123456789012:does-not-matter')
+    assert topic.exists?
+  end
+end
 
 #=============================================================================#
 #                               Test Fixtures

@@ -12,6 +12,12 @@ class AwsSnsTopic < Inspec.resource(1)
 
   def initialize(raw_params)
     validated_params = validate_params(raw_params)
+    @arn = validated_params[:arn]
+    search
+  end
+
+  def exists?
+    @exists
   end
 
   private
@@ -40,6 +46,16 @@ class AwsSnsTopic < Inspec.resource(1)
     end
 
     validated_params
+  end
+
+  def search
+    begin
+      aws_response = AwsSnsTopic::Backend.create.get_topic_attributes(arn: @arn).attributes
+      # The response has a plain hash with CamelCase plain string keys
+      @exists = true
+    rescue Aws::IAM::Errors::NoSuchEntity
+      @exists = false
+    end
   end
 
   class Backend
