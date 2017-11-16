@@ -4,7 +4,7 @@ title: About the aws_sns_topic Resource
 
 # aws_sns_topic
 
-Use the `aws_sns_topic` InSpec audit resource to test properties of a single AWS Simple Notification Service Topic.  SNS topics are like channels for events; some resources will place items in the SNS topic, while other resources will _subscribe_ to receive notifications when new items have appeared.
+Use the `aws_sns_topic` InSpec audit resource to test properties of a single AWS Simple Notification Service Topic.  SNS topics are channels for related events.  AWS resources will place events in the SNS topic, while other AWS resources will _subscribe_ to receive notifications when new events have appeared.
 
 <br>
 
@@ -26,7 +26,7 @@ Use the `aws_sns_topic` InSpec audit resource to test properties of a single AWS
 
 ### ARN
 
-This resource expects a single parameter which should uniquely identify the SNS Topic, an ARN.  Amazon Resource Names for SNS have the format `arn:aws:sns:region:account-id:topicname`.  AWS requires you to use a fully-specified ARN when looking up an SNS topic; you cannot omit the account ID or use a wildcard region.
+This resource expects a single parameter that uniquely identifes the SNS Topic, an ARN. Amazon Resource Names for SNS topics have the format `arn:aws:sns:region:account-id:topicname`.  AWS requires a fully-specified ARN for looking up an SNS topic.  The account ID and region are required.  Wildcards are not permitted.
 
 See also the (AWS documentation on ARNs)[http://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html].
 
@@ -50,7 +50,7 @@ Indicates that the ARN provided was found.  Use should_not to test for SNS topic
 
 ### confirmed_subscription_count
 
-An integer indicating how many subscriptions are currently active.
+An integer indicating the number of currently active subscriptions.
 
     # Make sure someone is listening
     describe aws_sns_topic('arn:aws:sns:*::my-topic-name') do
