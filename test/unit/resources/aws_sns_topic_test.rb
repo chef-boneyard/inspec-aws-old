@@ -1,4 +1,3 @@
-require 'ostruct'
 require 'helper'
 require 'aws_sns_topic'
 
