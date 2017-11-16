@@ -9,7 +9,6 @@ class AwsSnsTopic < Inspec.resource(1)
   "
 
   include AwsResourceMixin
-
   attr_reader :arn, :confirmed_subscription_count
 
   def exists?
@@ -19,28 +18,17 @@ class AwsSnsTopic < Inspec.resource(1)
   private
 
   def validate_params(raw_params)
-    # Allow passing ARN as a scalar string, not in a hash
-    raw_params = { arn: raw_params } if raw_params.is_a?(String)
-
-    # Remove all expected params from the raw param hash
-    validated_params = {}
-    [
-      :arn,
-    ].each do |expected_param|
-      validated_params[expected_param] = raw_params.delete(expected_param) if raw_params.key?(expected_param)
-    end
-
-    # Any leftovers are unwelcome
-    unless raw_params.empty?
-      raise ArgumentError, "Unrecognized resource param '#{raw_params.keys.first}'"
-    end
-
+    validated_params = check_resource_param_names(
+      raw_params: raw_params, 
+      allowed_params: [ :arn ],
+      allowed_scalar_name: :arn, 
+      allowed_scalar_type: String
+    )
     # Validate the ARN
     unless validated_params[:arn] =~ /^arn:aws:sns:[\w\-]+:\d{12}:[\S]+$/
       raise ArgumentError, 'Malformed ARN for SNS topics.  Expected an ARN of the form ' \
                            "'arn:aws:sns:REGION:ACCOUNT-ID:TOPIC-NAME'"
     end
-
     validated_params
   end
 
