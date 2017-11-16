@@ -16,13 +16,7 @@ Encoding:
 HashSyntax:
   Enabled: true
 LineLength:
-<<<<<<< HEAD
   Enabled: false
-=======
-  Enabled: true
-  IgnoreCopDirectives: true
-  Max: 100
->>>>>>> Rubocop whinges, other minor cleanup
 EmptyLinesAroundBlockBody:
   Enabled: false
 MethodLength:
