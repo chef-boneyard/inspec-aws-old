@@ -1,5 +1,3 @@
-require 'aws_conn'
-
 class AwsSnsTopic < Inspec.resource(1)
   name 'aws_sns_topic'
   desc 'Verifies settings for an SNS Topic'
