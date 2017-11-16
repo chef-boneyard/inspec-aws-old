@@ -29,22 +29,17 @@ EOX
     :pattern,
   ].freeze
 
-  attr_reader :found, :filter_name, :log_group_name, :pattern, :metric_name, :metric_namespace
+  attr_reader :filter_name, :log_group_name, :pattern, :metric_name, :metric_namespace
 
   def initialize(resource_params)
-    resource_params = validate_resource_params(resource_params)
-    results = run_lmf_search(resource_params)
-    if results.count > 1
-      raise 'More than one result was returned, but aws_cloudwatch_log_metric_filter '\
-            'can only handle a single AWS resource.  Consider passing more resource '\
-            'parameters to narrow down the search.'
-    else
-      unpack_search_results(results)
+    validate_resource_params(resource_params).each do |param, value|
+      instance_variable_set("@#{param}", value)
     end
+    fetch
   end
 
   def exists?
-    found
+    @exists
   end
 
   private
@@ -69,34 +64,40 @@ EOX
     resource_params
   end
 
-  def run_lmf_search(criteria)
+  def fetch
     # get a backend
     backend = AwsCloudwatchLogMetricFilter::Backend.create
-    # Perform query with remote filtering
-    aws_results = backend.describe_metric_filters(criteria)
-    # Then perform local filtering
-    if criteria.key?(:pattern)
-      aws_results.select! { |lmf| lmf.filter_pattern == criteria[:pattern] }
-    end
-    # Finally remap to an array of single-level hash
-    aws_results.map do |lmf|
-      {
-        filter_name: lmf.filter_name,
-        log_group_name: lmf.log_group_name,
-        pattern: lmf.filter_pattern,
-        # AWS SDK returns an array of metric transformations
-        # but only allows one (mandatory) entry, let's flatten that
-        metric_name: lmf.metric_transformations.first.metric_name,
-        metric_namespace: lmf.metric_transformations.first.metric_namespace,
-      }
-    end
-  end
 
-  def unpack_search_results(results)
-    return if results.empty?
-    @found = true
-    [:filter_name, :log_group_name, :pattern, :metric_name, :metric_namespace].each do |field|
-      instance_variable_set(:"@#{field}", results.first[field])
+    # Perform query with remote filtering
+    aws_search_criteria = {}
+    aws_search_criteria[:filter_name] = filter_name if filter_name
+    aws_search_criteria[:log_group_name] = log_group_name if log_group_name
+    aws_results = backend.describe_metric_filters(aws_search_criteria)
+
+    # Then perform local filtering
+    if pattern
+      aws_results.select! { |lmf| lmf.filter_pattern == pattern }
+    end
+
+    # Check result count.  We're a singular resource and can tolerate
+    # 0 or 1 results, not multiple.
+    if aws_results.count > 1
+      raise 'More than one result was returned, but aws_cloudwatch_log_metric_filter '\
+            'can only handle a single AWS resource.  Consider passing more resource '\
+            'parameters to narrow down the search.'
+    elsif aws_results.empty?
+      @exists = false
+    else
+      @exists = true
+      # Unpack the funny-shaped object we got back from AWS into our instance vars
+      lmf = aws_results.first
+      @filter_name = lmf.filter_name
+      @log_group_name = lmf.log_group_name
+      @pattern = lmf.filter_pattern # Note inconsistent name
+      # AWS SDK returns an array of metric transformations
+      # but only allows one (mandatory) entry, let's flatten that
+      @metric_name = lmf.metric_transformations.first.metric_name
+      @metric_namespace = lmf.metric_transformations.first.metric_namespace
     end
   end
 
