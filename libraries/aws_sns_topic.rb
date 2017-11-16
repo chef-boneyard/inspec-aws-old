@@ -8,13 +8,9 @@ class AwsSnsTopic < Inspec.resource(1)
     end
   "
 
-  attr_reader :arn, :confirmed_subscription_count
+  include AwsResourceMixin
 
-  def initialize(raw_params)
-    validated_params = validate_params(raw_params)
-    @arn = validated_params[:arn]
-    search
-  end
+  attr_reader :arn, :confirmed_subscription_count
 
   def exists?
     @exists
@@ -48,7 +44,7 @@ class AwsSnsTopic < Inspec.resource(1)
     validated_params
   end
 
-  def search
+  def fetch_from_aws
     aws_response = AwsSnsTopic::Backend.create.get_topic_attributes(topic_arn: @arn).attributes
     @exists = true
 

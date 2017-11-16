@@ -7,7 +7,4 @@ require 'json'
 require 'ostruct'
 
 require 'inspec/resource'
-
-
-# Needed for exception classes, etc
-require 'aws-sdk'
+require_relative '../../lib/inspec/aws'
