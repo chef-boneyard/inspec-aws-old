@@ -89,7 +89,7 @@ The name of the LMF within the log_group.
       log_group_name: 'app-log-group',
       pattern: 'KERBLEWIE',
     ) do
-      its('filter_name') { should be('kaboom_lmf') }
+      its('filter_name') { should cmp 'kaboom_lmf' }
     end
 
 ### log_group_name
@@ -100,7 +100,7 @@ The name of the log group that the LMF is watching.
     describe aws_cloudwatch_log_metric_filter(
       filter_name: 'error-watcher',
     ) do
-      its('log_group_name') { should be('app-log-group') }
+      its('log_group_name') { should cmp 'app-log-group' }
     end
 
 ### metric_name, metric_namespace
@@ -112,8 +112,8 @@ The name and namespace of the Cloudwatch Metric that will be updated when the LM
       filter_name: 'my-filter',
       log_group_name: 'my-log-group',
     ) do
-      its('metric_name') { should be 'MyMetric' }
-      its('metric_namespace') { should be 'MyFantasticMetrics' }
+      its('metric_name') { should cmp 'MyMetric' }
+      its('metric_namespace') { should cmp 'MyFantasticMetrics' }
     end
 
 ### pattern
@@ -125,6 +125,6 @@ The pattern used to match entries from the logs in the log group.
       filter_name: 'error-watcher',
       log_group_name: 'app-log-group',
     ) do
-      its('pattern') { should be('ERROR') }
+      its('pattern') { should cmp 'ERROR' }
     end
 
