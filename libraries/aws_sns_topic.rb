@@ -11,10 +11,6 @@ class AwsSnsTopic < Inspec.resource(1)
   include AwsResourceMixin
   attr_reader :arn, :confirmed_subscription_count
 
-  def exists?
-    @exists
-  end
-
   private
 
   def validate_params(raw_params)

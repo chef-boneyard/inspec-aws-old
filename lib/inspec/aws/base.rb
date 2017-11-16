@@ -32,4 +32,9 @@ module AwsResourceMixin
 
     recognized_params
   end
+
+  def exists?
+    @exists
+  end
+  
 end
