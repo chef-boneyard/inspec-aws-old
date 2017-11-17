@@ -107,16 +107,15 @@ class AwsIamUserTest < Minitest::Test
   end
 
   def test_that_has_policies_returns_true
-    @mock_user_provider.expect(
-      :user,
-      { has_policies?: true },
-      [Username],
-    )
+    @mock_user_provider.expect :user, @mock_user, [Username]
+    @mock_dets_provider.expect :has_policies?, true
+    @mock_dets_prov_ini.expect :create, @mock_dets_provider, [@mock_user]
 
     assert (
       AwsIamUser.new(
-        { name: Username },
+        @mock_user,
         @mock_user_provider,
+        @mock_dets_prov_ini,
       ).has_policies?
     )
 

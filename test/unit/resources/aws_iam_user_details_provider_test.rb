@@ -82,4 +82,36 @@ class AwsIamUserDetailsProviderTest < Minitest::Test
     provider = AwsIam::UserDetailsProvider.new(@mock_iam_resource_user)
     assert_equal [access_key], provider.access_keys
   end
+
+  def test_policies_returns_policy
+    policy = Object.new
+
+    @mock_iam_resource_user.expect :policies, [policy]
+
+    provider = AwsIam::UserDetailsProvider.new(@mock_iam_resource_user)
+    assert provider.has_policies?
+  end
+  
+  def test_policies_returns_no_policy
+    @mock_iam_resource_user.expect :policies, []
+
+    provider = AwsIam::UserDetailsProvider.new(@mock_iam_resource_user)
+    refute provider.has_policies?
+  end
+  
+  def test_policies_returns_attached_policies
+    policy = Object.new
+
+    @mock_iam_resource_user.expect :attached_policies, [policy]
+
+    provider = AwsIam::UserDetailsProvider.new(@mock_iam_resource_user)
+    assert provider.has_attached_policies?
+  end
+  
+  def test_policies_returns_no_attached_policies
+    @mock_iam_resource_user.expect :attached_policies, []
+
+    provider = AwsIam::UserDetailsProvider.new(@mock_iam_resource_user)
+    refute provider.has_attached_policies?
+  end
 end

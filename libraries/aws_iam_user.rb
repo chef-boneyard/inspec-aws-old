@@ -37,11 +37,11 @@ class AwsIamUser < Inspec.resource(1)
   end
 
   def has_policies?
-    @user[:has_policies?]
+    @aws_user_details_provider.has_policies?
   end
 
   def has_attached_policies?
-    @user[:has_attached_policies?]
+    @aws_user_details_provider.has_attached_policies?
   end
 
   def access_keys

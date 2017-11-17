@@ -28,6 +28,14 @@ module AwsIam
     def access_keys
       @aws_user.access_keys
     end
+
+    def has_policies?
+      !@aws_user.policies.first.nil?
+    end
+
+    def has_attached_policies?
+      !@aws_user.attached_policies.first.nil?
+    end
   end
 
   class UserDetailsProviderInitializer
