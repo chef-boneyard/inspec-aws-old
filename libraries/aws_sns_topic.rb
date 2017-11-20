@@ -38,10 +38,6 @@ class AwsSnsTopic < Inspec.resource(1)
     @exists = false
   end
 
-  class BackendFactory
-    extend AwsBackendFactoryMixin
-  end
-
   # Uses the SDK API to really talk to AWS
   class Backend
     class AwsClientApi
