@@ -29,7 +29,7 @@ class AwsSnsTopic < Inspec.resource(1)
   end
 
   def fetch_from_aws
-    aws_response = AwsSnsTopic::Backend.create.get_topic_attributes(topic_arn: @arn).attributes
+    aws_response = AwsSnsTopic::BackendFactory.create.get_topic_attributes(topic_arn: @arn).attributes
     @exists = true
 
     # The response has a plain hash with CamelCase plain string keys and string values
@@ -38,41 +38,18 @@ class AwsSnsTopic < Inspec.resource(1)
     @exists = false
   end
 
-  class Backend
-    #=====================================================#
-    #                    API Definition
-    #=====================================================#
-    [
-      :get_topic_attributes,
-    ].each do |method|
-      define_method(:method) do |*_args|
-        raise "Unimplemented abstract method #{method} - internal error"
-      end
-    end
+  class BackendFactory
+    extend AwsBackendFactoryMixin
+  end
 
-    #=====================================================#
-    #                 Concrete Implementation
-    #=====================================================#
-    # Uses the SDK API to really talk to AWS
-    class AwsClientApi < Backend
+  # Uses the SDK API to really talk to AWS
+  class Backend
+    class AwsClientApi
+      BackendFactory.set_default_backend(self)
+
       def get_topic_attributes(criteria)
         AWSConnection.new.sns_client.get_topic_attributes(criteria)
       end
-    end
-
-    #=====================================================#
-    #                   Factory Interface
-    #=====================================================#
-    # TODO: move this to a mix-in
-    DEFAULT_BACKEND = AwsClientApi
-    @selected_backend = DEFAULT_BACKEND
-
-    def self.create
-      @selected_backend.new
-    end
-
-    def self.select(klass)
-      @selected_backend = klass
     end
   end
 end
