@@ -15,10 +15,10 @@ class AwsSnsTopic < Inspec.resource(1)
 
   def validate_params(raw_params)
     validated_params = check_resource_param_names(
-      raw_params: raw_params, 
-      allowed_params: [ :arn ],
-      allowed_scalar_name: :arn, 
-      allowed_scalar_type: String
+      raw_params: raw_params,
+      allowed_params: [:arn],
+      allowed_scalar_name: :arn,
+      allowed_scalar_type: String,
     )
     # Validate the ARN
     unless validated_params[:arn] =~ /^arn:aws:sns:[\w\-]+:\d{12}:[\S]+$/

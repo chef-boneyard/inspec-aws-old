@@ -1,5 +1,4 @@
 module AwsResourceMixin
-
   def initialize(resource_params)
     validate_params(resource_params).each do |param, value|
       instance_variable_set(:"@#{param}", value)
@@ -12,7 +11,7 @@ module AwsResourceMixin
     if allowed_scalar_name && !raw_params.is_a?(Hash)
       value_seen = raw_params
       if value_seen.is_a?(allowed_scalar_type)
-        raw_params = { allowed_scalar_name => value_seen } 
+        raw_params = { allowed_scalar_name => value_seen }
       else
         raise ArgumentError, 'If you pass a single value to the resource, it must ' \
                              "be a #{allowed_scalar_type}, not an #{value_seen.class}."
@@ -24,7 +23,7 @@ module AwsResourceMixin
     allowed_params.each do |expected_param|
       recognized_params[expected_param] = raw_params.delete(expected_param) if raw_params.key?(expected_param)
     end
-    
+
     # Any leftovers are unwelcome
     unless raw_params.empty?
       raise ArgumentError, "Unrecognized resource param '#{raw_params.keys.first}'. Expected parameters: #{allowed_params.join(', ')}"
@@ -36,19 +35,18 @@ module AwsResourceMixin
   def exists?
     @exists
   end
-  
-  # This sets up a class, AwsSomeResource::BackendFactory, that 
-  # provides a mechanism to create and use backends without 
-  # having to know which is selected.  This is mainly used for 
+
+  # This sets up a class, AwsSomeResource::BackendFactory, that
+  # provides a mechanism to create and use backends without
+  # having to know which is selected.  This is mainly used for
   # unit testing.
   def self.included(base)
-    # Create a new class, whose body is simply to extend the 
+    # Create a new class, whose body is simply to extend the
     # backend factory mixin
     resource_backend_factory_class = Class.new(Object) do
-      extend AwsBackendFactoryMixin    
+      extend AwsBackendFactoryMixin
     end
     # Name that class
     base.const_set('BackendFactory', resource_backend_factory_class)
   end
-
 end
