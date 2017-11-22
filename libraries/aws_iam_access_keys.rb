@@ -128,6 +128,7 @@ class AwsIamAccessKeys < Inspec.resource(1)
         key_info[:created_days_ago] = (key_info[:created_hours_ago] / 24).to_i
 
         # Last used is a separate API call
+        iam_client = AWSConnection.new.iam_client
         last_used =
           iam_client.get_access_key_last_used(access_key_id: key_info[:access_key_id])
                     .access_key_last_used.last_used_date
