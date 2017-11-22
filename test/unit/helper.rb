@@ -4,5 +4,7 @@ require 'minitest/pride'
 
 require 'inspec/resource'
 
-# Needed for exception classes, etc
-require 'aws-sdk'
+require 'aws-sdk-cloudwatch'
+require 'aws-sdk-sns'
+require 'aws-sdk-ec2'
+require 'aws-sdk-iam'

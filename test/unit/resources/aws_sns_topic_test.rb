@@ -22,13 +22,13 @@ class AwsSnsTopicConstructorTest < Minitest::Test
   end
 
   def test_constructor_accepts_arn_as_hash
-    AwsSnsTopic.new(arn: 'arn:aws:sns:us-east-1:123456789012:some-topic')    
+    AwsSnsTopic.new(arn: 'arn:aws:sns:us-east-1:123456789012:some-topic')
   end
-  
+
   def test_constructor_rejects_unrecognized_resource_params
     assert_raises(ArgumentError) { AwsSnsTopic.new(beep: 'boop') }
   end
-    
+
   def test_constructor_rejects_non_arn_formats
     [
       'not-even-like-an-arn',
@@ -58,7 +58,7 @@ class AwsSnsTopicRecallTest < Minitest::Test
   end
 
   def test_recall_match_single_result_works
-    AwsSnsTopic::Backend.select(AwsMSNB::NoSubscriptions)    
+    AwsSnsTopic::Backend.select(AwsMSNB::NoSubscriptions)
     topic = AwsSnsTopic.new('arn:aws:sns:us-east-1:123456789012:does-not-matter')
     assert topic.exists?
   end
@@ -104,7 +104,7 @@ module AwsMSNB
     def get_topic_attributes(_criteria)
       OpenStruct.new({
         attributes: { # Note that this is a plain hash, odd for AWS SDK
-          # Many other attributes available, see 
+          # Many other attributes available, see
           # http://docs.aws.amazon.com/sdkforruby/api/Aws/SNS/Types/GetTopicAttributesResponse.html
           "SubscriptionsConfirmed" => 0
         }
@@ -116,7 +116,7 @@ module AwsMSNB
     def get_topic_attributes(_criteria)
       OpenStruct.new({
         attributes: { # Note that this is a plain hash, odd for AWS SDK
-          # Many other attributes available, see 
+          # Many other attributes available, see
           # http://docs.aws.amazon.com/sdkforruby/api/Aws/SNS/Types/GetTopicAttributesResponse.html
           "SubscriptionsConfirmed" => 1
         }

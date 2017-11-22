@@ -1,5 +1,5 @@
 # author: Simon Varlow
-require 'aws-sdk'
+
 require 'helper'
 require 'aws_iam_user'
 

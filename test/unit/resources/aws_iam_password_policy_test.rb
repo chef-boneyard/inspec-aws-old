@@ -1,6 +1,6 @@
+
 require 'helper'
 require 'aws_iam_password_policy'
-require 'aws-sdk'
 require 'json'
 
 class AwsIamPasswordPolicyTest < Minitest::Test
