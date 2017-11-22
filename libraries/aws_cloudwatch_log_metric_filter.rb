@@ -1,5 +1,3 @@
-require 'aws_conn'
-
 class AwsCloudwatchLogMetricFilter < Inspec.resource(1)
   name 'aws_cloudwatch_log_metric_filter'
   desc 'Verifies individual Cloudwatch Log Metric Filters'
