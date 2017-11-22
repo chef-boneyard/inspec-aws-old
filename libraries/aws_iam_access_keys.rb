@@ -120,7 +120,7 @@ class AwsIamAccessKeys < Inspec.resource(1)
         access_key_data
       end
 
-      def add_synthetic_fields(key_info)
+      def add_synthetic_fields(key_info) # rubocop:disable Metrics/AbcSize
         key_info[:id] = key_info[:access_key_id]
         key_info[:active] = key_info[:status] == 'Active'
         key_info[:inactive] = key_info[:status] != 'Active'
