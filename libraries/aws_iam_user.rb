@@ -34,6 +34,11 @@ class AwsIamUser < Inspec.resource(1)
       end
     end
 
+    # This is lifted directly from resource_mixin.rb; delete after PR 121 merges    
+    def exists?
+      @exists
+    end
+
     # Remove all expected params from the raw param hash
     validated_params = {}
     allowed_params.each do |expected_param|
@@ -99,7 +104,19 @@ class AwsIamUser < Inspec.resource(1)
   end
 
   def fetch_from_aws
-    # TODO
+    backend = BackendFactory.create
+    unless @aws_user_struct
+      begin
+        @aws_user_struct = backend.get_user(username: username)
+      rescue Aws::IAM::Errors::NoSuchEntityException
+        @exists = false
+        return
+      end
+    end
+    
+    @exists = true
+    # TODO - extract properties from aws_user_struct, 
+    # possibly make more API calls
   end
 
   # This class may be deleted once PR 121 is merged.
@@ -115,7 +132,7 @@ class AwsIamUser < Inspec.resource(1)
 
   class Backend
     # Expected methods:
-    #
+    # get_user(username: String) => aws_user_struct
     class AwsClientApi
       BackendFactory.select(self) # TODO: correct to set_default_backend when 121 merges
 
