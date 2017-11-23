@@ -48,7 +48,9 @@ class AwsIamUser < Inspec.resource(1)
     validated_params
   end
 
-  attr_reader :username, :has_mfa_enabled?, :has_console_password?, :access_keys
+  attr_reader :username, :has_mfa_enabled, :has_console_password, :access_keys
+  alias has_mfa_enabled? has_mfa_enabled
+  alias has_console_password? has_console_password
 
   private
 
@@ -60,13 +62,13 @@ class AwsIamUser < Inspec.resource(1)
       allowed_scalar_type: String,
     )
     # If someone passed :name, rename it to :username
-    if validated_params.key?[:name]
+    if validated_params.key?(:name)
       warn "[DEPRECATION] - Resource parameter ':name' is deprecated on the aws_iam_user resource.  Use ':username' instead."      
       validated_params[:username] = validated_params.delete(:name) 
     end
 
     # If someone passed :user, rename it to :aws_user_struct    
-    if validated_params.key?[:user]      
+    if validated_params.key?(:user)      
       warn "[DEPRECATION] - Resource parameter ':user' is deprecated on the aws_iam_user resource.  Use ':aws_user_struct' instead."      
       validated_params[:aws_user_struct] = validated_params.delete(:user)
     end
@@ -96,24 +98,26 @@ class AwsIamUser < Inspec.resource(1)
     "IAM User #{username}"
   end
 
+  def fetch_from_aws
+    # TODO
+  end
+
   # This class may be deleted once PR 121 is merged.
   class BackendFactory
-    def create
+    def self.create
       @selected_backend.new
     end
   
-    def select(klass)
+    def self.select(klass)
       @selected_backend = klass
     end
-  
-    alias set_default_backend select
   end
 
   class Backend
     # Expected methods:
     #
     class AwsClientApi
-      BackendFactory.set_default_backend(self)
+      BackendFactory.select(self) # TODO: correct to set_default_backend when 121 merges
 
       # TODO: API and implementation 
     end
