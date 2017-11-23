@@ -69,6 +69,33 @@ class AwsIamUserConstructorTest < Minitest::Test
   def test_rejects_unrecognized_params
     assert_raises(ArgumentError) { AwsIamUser.new(shoe_size: 9) }
   end
+end
+
+#=============================================================================#
+#                               Search / Recall
+#=============================================================================#
+class AwsIamUserRecallTest < Minitest::Test
+  def setup
+    AwsIamUser::BackendFactory.select(MAIUB::JustBob)
+  end
+
+  def test_search_miss_is_not_an_exception
+    user = AwsIamUser.new('tommy')
+    refute user.exists?
+  end
+
+  def test_search_hit_via_scalar_works
+    user = AwsIamUser.new('bob')
+    assert user.exists?
+    assert_equal('bob', user.username)
+  end
+
+  def test_search_hit_via_hash_works
+    user = AwsIamUser.new(username: 'bob')
+    assert user.exists?
+    assert_equal('bob', user.username)    
+  end
+end
 
   # def test_that_mfa_enable_returns_true_if_mfa_enabled
   #   @mock_user_provider.expect :user, @mock_user, [Username]
@@ -154,7 +181,6 @@ class AwsIamUserConstructorTest < Minitest::Test
   #   ).to_s
   #   assert_equal expected, test
   # end
-end
 
 #=============================================================================#
 #                               Test Fixtures
@@ -162,5 +188,17 @@ end
 
 module MAIUB
   class JustBob < AwsIamUser::Backend
+    def get_user(criteria)
+      raise Aws::IAM::Errors::NoSuchEntityException.new(nil, nil) unless criteria[:username] == 'bob'
+      OpenStruct.new({
+        user: OpenStruct.new({
+          arn: "arn:aws:iam::123456789012:user/bob", 
+          create_date: Time.parse("2012-09-21T23:03:13Z"), 
+          path: "/", 
+          user_id: "AKIAIOSFODNN7EXAMPLE", 
+          user_name: "bob", 
+        }), 
+      })
+    end
   end
 end
