@@ -37,4 +37,38 @@ class AwsIamRootUserTest < Minitest::Test
 
     assert_equal false, AwsIamRootUser.new(@mock_conn).has_mfa_enabled?
   end
+
+  def test_has_hardware_mfa_devices_returns_true_when_no_virtual_mfa_for_root
+    test_virtual_mfa_devices = OpenStruct.new(
+      virtual_mfa_devices: [
+        { 'serial_number' => 'arn:aws:iam::123456789012:mfa/TestUser' },
+        { 'serial_number' => 'arn:aws:iam::123456789012:mfa/TestUser' },
+      ],
+    )
+    @mock_client.expect :list_virtual_mfa_devices, test_virtual_mfa_devices
+
+    assert_equal true, AwsIamRootUser.new(@mock_conn).has_hardware_mfa_enabled?
+  end
+
+  def test_has_hardware_mfa_devices_returns_false_when_virtual_mfa_for_root
+    test_virtual_mfa_devices = OpenStruct.new(
+      virtual_mfa_devices: [
+        { 'serial_number' => 'arn:aws:iam::123456789012:mfa/' },
+        { 'serial_number' =>
+          'arn:aws:iam::123456789012:mfa/root-account-mfa-device' },
+      ],
+    )
+    @mock_client.expect :list_virtual_mfa_devices, test_virtual_mfa_devices
+
+    assert_equal false, AwsIamRootUser.new(@mock_conn).has_hardware_mfa_enabled?
+  end
+
+  def test_has_hardware_mfa_devices_returns_true_when_no_virtual_mfa_devices
+    test_virtual_mfa_devices = OpenStruct.new(
+      virtual_mfa_devices: [],
+    )
+    @mock_client.expect :list_virtual_mfa_devices, test_virtual_mfa_devices
+
+    assert_equal true, AwsIamRootUser.new(@mock_conn).has_hardware_mfa_enabled?
+  end
 end
