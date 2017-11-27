@@ -84,9 +84,6 @@ class AwsIamUser < Inspec.resource(1)
   #   @aws_user_details_provider.has_mfa_enabled?
   # end
 
-  # def has_console_password?
-  #   @aws_user_details_provider.has_console_password?
-  # end
 
   # def access_keys
   #   @aws_user_details_provider.access_keys.map { |access_key|
@@ -107,7 +104,7 @@ class AwsIamUser < Inspec.resource(1)
     backend = BackendFactory.create
     unless @aws_user_struct
       begin
-        @aws_user_struct = backend.get_user(username: username)
+        @aws_user_struct = backend.get_user(user_name: username)
       rescue Aws::IAM::Errors::NoSuchEntityException
         @exists = false
         return
@@ -115,6 +112,15 @@ class AwsIamUser < Inspec.resource(1)
     end
     
     @exists = true
+ 
+    begin
+      login_profile = backend.get_login_profile(user_name: username)
+      @has_console_password = true
+      # Password age also available here      
+    rescue Aws::IAM::Errors::NoSuchEntityException
+      @has_console_password = false
+    end
+
     # TODO - extract properties from aws_user_struct, 
     # possibly make more API calls
   end
@@ -132,7 +138,8 @@ class AwsIamUser < Inspec.resource(1)
 
   class Backend
     # Expected methods:
-    # get_user(username: String) => aws_user_struct
+    # get_user(user_name: String) => aws_user_struct
+    # get_login_profile(user_name: String) => login profile struct (password info hash)
     class AwsClientApi
       BackendFactory.select(self) # TODO: correct to set_default_backend when 121 merges
 

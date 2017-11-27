@@ -17,7 +17,7 @@ class AwsIamUserConstructorTest < Minitest::Test
 >>>>>>> Add constructor tests
 
   def setup
-    AwsIamUser::BackendFactory.select(MAIUB::JustBob)
+    AwsIamUser::BackendFactory.select(MAIUB::Three)
   end
 
 <<<<<<< HEAD
@@ -59,11 +59,11 @@ class AwsIamUserConstructorTest < Minitest::Test
   end
 
   def test_accepts_username_as_scalar
-    AwsIamUser.new('bob')
+    AwsIamUser.new('erin')
   end
 
   def test_accepts_username_as_hash
-    AwsIamUser.new(username: 'bob')
+    AwsIamUser.new(username: 'erin')
   end
 
   def test_rejects_unrecognized_params
@@ -76,7 +76,7 @@ end
 #=============================================================================#
 class AwsIamUserRecallTest < Minitest::Test
   def setup
-    AwsIamUser::BackendFactory.select(MAIUB::JustBob)
+    AwsIamUser::BackendFactory.select(MAIUB::Three)
   end
 
   def test_search_miss_is_not_an_exception
@@ -85,15 +85,15 @@ class AwsIamUserRecallTest < Minitest::Test
   end
 
   def test_search_hit_via_scalar_works
-    user = AwsIamUser.new('bob')
+    user = AwsIamUser.new('erin')
     assert user.exists?
-    assert_equal('bob', user.username)
+    assert_equal('erin', user.username)
   end
 
   def test_search_hit_via_hash_works
-    user = AwsIamUser.new(username: 'bob')
+    user = AwsIamUser.new(username: 'erin')
     assert user.exists?
-    assert_equal('bob', user.username)    
+    assert_equal('erin', user.username)    
   end
 end
 
@@ -197,21 +197,6 @@ end
 #=============================================================================#
 
 module MAIUB
-  class JustBob < AwsIamUser::Backend
-    def get_user(criteria)
-      raise Aws::IAM::Errors::NoSuchEntityException.new(nil, nil) unless criteria[:username] == 'bob'
-      OpenStruct.new({
-        user: OpenStruct.new({
-          arn: "arn:aws:iam::123456789012:user/bob", 
-          create_date: Time.parse("2012-09-21T23:03:13Z"), 
-          path: "/", 
-          user_id: "AKIAIOSFODNN7EXAMPLE", 
-          user_name: "bob", 
-        }), 
-      })
-    end
-  end
-
   class Three < AwsIamUser::Backend
     def get_user(criteria)
       people = {
@@ -235,16 +220,39 @@ module MAIUB
         }),
         'jared' => OpenStruct.new({
           user: OpenStruct.new({
-            arn: "arn:aws:iam::123456789012:user/leslie", 
+            arn: "arn:aws:iam::123456789012:user/jared", 
             create_date: Time.parse("2017-09-21T23:03:13Z"), 
             path: "/", 
             user_id: "AKIAIOSFODNN7EXAERIN", 
-            user_name: "lelsie", 
+            user_name: "jared", 
           }),
         }),
       }
-      raise Aws::IAM::Errors::NoSuchEntityException.new(nil, nil) unless people.key?(criteria[:username])
-      people[criteria[:username]]
+      raise Aws::IAM::Errors::NoSuchEntityException.new(nil, nil) unless people.key?(criteria[:user_name])
+      people[criteria[:user_name]]
+    end
+
+    def get_login_profile(criteria)
+      # Leslie has no password
+      # Jared's is expired
+      people = {
+        'erin' => OpenStruct.new({
+          login_profile: OpenStruct.new({
+            user_name: 'erin',
+            password_reset_required: false,
+            create_date: Time.parse("2016-09-21T23:03:13Z"),
+          }),
+        }),
+        'jared' => OpenStruct.new({
+          login_profile: OpenStruct.new({
+            user_name: 'jared',
+            password_reset_required: true,
+            create_date: Time.parse("2017-09-21T23:03:13Z"),
+          }),
+        }),
+      }
+      raise Aws::IAM::Errors::NoSuchEntityException.new(nil, nil) unless people.key?(criteria[:user_name])
+      people[criteria[:user_name]]
     end
   end
 
