@@ -34,7 +34,7 @@ class AwsIamUser < Inspec.resource(1)
       end
     end
 
-    # This is lifted directly from resource_mixin.rb; delete after PR 121 merges    
+    # This is lifted directly from resource_mixin.rb; delete after PR 121 merges
     def exists?
       @exists
     end
@@ -68,31 +68,20 @@ class AwsIamUser < Inspec.resource(1)
     )
     # If someone passed :name, rename it to :username
     if validated_params.key?(:name)
-      warn "[DEPRECATION] - Resource parameter ':name' is deprecated on the aws_iam_user resource.  Use ':username' instead."      
-      validated_params[:username] = validated_params.delete(:name) 
+      warn "[DEPRECATION] - Resource parameter ':name' is deprecated on the aws_iam_user resource.  Use ':username' instead."
+      validated_params[:username] = validated_params.delete(:name)
     end
 
-    # If someone passed :user, rename it to :aws_user_struct    
-    if validated_params.key?(:user)      
-      warn "[DEPRECATION] - Resource parameter ':user' is deprecated on the aws_iam_user resource.  Use ':aws_user_struct' instead."      
+    # If someone passed :user, rename it to :aws_user_struct
+    if validated_params.key?(:user)
+      warn "[DEPRECATION] - Resource parameter ':user' is deprecated on the aws_iam_user resource.  Use ':aws_user_struct' instead."
       validated_params[:aws_user_struct] = validated_params.delete(:user)
     end
     validated_params
   end
 
-  # def has_mfa_enabled?
-  #   @aws_user_details_provider.has_mfa_enabled?
-  # end
-
-
-  # def access_keys
-  #   @aws_user_details_provider.access_keys.map { |access_key|
-  #     @access_key_factory.create_access_key(access_key)
-  #   }
-  # end
-
   def name
-    warn "[DEPRECATION] - Property ':name' is deprecated on the aws_iam_user resource.  Use ':username' instead."      
+    warn "[DEPRECATION] - Property ':name' is deprecated on the aws_iam_user resource.  Use ':username' instead."
     username
   end
 
@@ -110,13 +99,14 @@ class AwsIamUser < Inspec.resource(1)
         return
       end
     end
-    
+    # TODO - extract properties from aws_user_struct?
+
     @exists = true
- 
+
     begin
-      login_profile = backend.get_login_profile(user_name: username)
+      _login_profile = backend.get_login_profile(user_name: username)
       @has_console_password = true
-      # Password age also available here      
+      # Password age also available here
     rescue Aws::IAM::Errors::NoSuchEntityException
       @has_console_password = false
     end
@@ -124,8 +114,9 @@ class AwsIamUser < Inspec.resource(1)
     mfa_info = backend.list_mfa_devices(user_name: username)
     @has_mfa_enabled = !mfa_info.mfa_devices.empty?
 
-    # TODO - extract properties from aws_user_struct
-    # possibly make more API calls
+    # TODO: consider returning Inspec AwsIamAccessKey objects
+    @access_keys = backend.list_access_keys(user_name: username).access_key_metadata
+
   end
 
   # This class may be deleted once PR 121 is merged.
@@ -133,7 +124,7 @@ class AwsIamUser < Inspec.resource(1)
     def self.create
       @selected_backend.new
     end
-  
+
     def self.select(klass)
       @selected_backend = klass
     end
@@ -147,7 +138,7 @@ class AwsIamUser < Inspec.resource(1)
     class AwsClientApi
       BackendFactory.select(self) # TODO: correct to set_default_backend when 121 merges
 
-      # TODO: API and implementation 
+      # TODO: API and implementation
     end
   end
 end

@@ -111,13 +111,15 @@ class AwsIamUserPropertiesTest < Minitest::Test
     keys = AwsIamUser.new(username: 'erin').access_keys
     assert_kind_of(Array, keys)
     assert_equal(keys.length, 2)
-    assert_kind_of(AwsIamAccessKey, keys.first)    
+    # We don't currently promise that the results 
+    # will be Inspec resource objects.
+    # assert_kind_of(AwsIamAccessKey, keys.first)    
   end
 
   def test_property_access_keys_negative
     keys = AwsIamUser.new(username: 'leslie').access_keys
     assert_kind_of(Array, keys)
-    assert(keys.empty)    
+    assert(keys.empty?)    
   end
 end
 
@@ -223,6 +225,41 @@ module MAIUB
               user_name: 'jared',
               serial_number: 'arn:blahblahblah',
               enable_date: Time.parse("2016-09-21T23:03:13Z"),
+            }),
+          ]
+        }),
+      }
+      people[criteria[:user_name]]
+    end
+    def list_access_keys(criteria)
+      # Erin has 2
+      # Leslie has none
+      # Jared has one
+      people = {
+        'erin' => OpenStruct.new({
+          access_key_metadata: [
+            OpenStruct.new({
+              user_name: 'erin',
+              access_key_id: 'AKIA111111111EXAMPLE',
+              create_date: Time.parse("2016-09-21T23:03:13Z"),
+              status: 'Active',
+            }),
+            OpenStruct.new({
+              user_name: 'erin',
+              access_key_id: 'AKIA222222222EXAMPLE',
+              create_date: Time.parse("2016-09-21T23:03:13Z"),
+              status: 'Active',
+            }),
+          ]
+        }),
+        'leslie' => OpenStruct.new({access_key_metadata: []}),
+        'jared' => OpenStruct.new({
+          access_key_metadata: [
+            OpenStruct.new({
+              user_name: 'jared',
+              access_key_id: 'AKIA3333333333EXAMPLE',
+              create_date: Time.parse("2017-10-21T23:03:13Z"),
+              status: 'Active',
             }),
           ]
         }),
