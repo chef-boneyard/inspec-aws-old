@@ -2,11 +2,6 @@
 require 'helper'
 require 'aws_iam_user'
 
-<<<<<<< HEAD
-# rubocop:disable Metrics/ClassLength
-class AwsIamUserTest < Minitest::Test
-  Username = 'test'.freeze
-=======
 # MAUIB = MockAwsIamUserBackend
 # Abbreviation not used outside this file
 
@@ -14,48 +9,13 @@ class AwsIamUserTest < Minitest::Test
 #                            Constructor Tests
 #=============================================================================#
 class AwsIamUserConstructorTest < Minitest::Test
->>>>>>> Add constructor tests
 
   def setup
     AwsIamUser::BackendFactory.select(MAIUB::Three)
   end
 
-<<<<<<< HEAD
-  def test_that_exists_returns_true_if_user_exists
-    @mock_user_provider.expect :user, @mock_user, [Username]
-    @mock_dets_provider.expect :exists?, true
-    @mock_dets_prov_ini.expect :create, @mock_dets_provider, [@mock_user]
-    assert AwsIamUser.new(
-      @mock_user,
-      @mock_user_provider,
-      @mock_dets_prov_ini,
-    ).exists?
-  end
-
-  def test_that_exists_returns_false_if_user_does_not_exist
-    @mock_user_provider.expect :user, @mock_user, [Username]
-    @mock_dets_provider.expect :exists?, false
-    @mock_dets_prov_ini.expect :create, @mock_dets_provider, [@mock_user]
-    refute AwsIamUser.new(
-      @mock_user,
-      @mock_user_provider,
-      @mock_dets_prov_ini,
-    ).exists?
-  end
-
-  def test_that_mfa_enable_returns_true_if_mfa_enabled
-    @mock_user_provider.expect :user, @mock_user, [Username]
-    @mock_dets_provider.expect :has_mfa_enabled?, true
-    @mock_dets_prov_ini.expect :create, @mock_dets_provider, [@mock_user]
-    assert AwsIamUser.new(
-      @mock_user,
-      @mock_user_provider,
-      @mock_dets_prov_ini,
-    ).has_mfa_enabled?
-=======
   def test_empty_params_throws_exception
     assert_raises(ArgumentError) { AwsIamUser.new }
->>>>>>> Add constructor tests
   end
 
   def test_accepts_username_as_scalar
