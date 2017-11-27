@@ -128,28 +128,22 @@ class AwsIamUserPropertiesTest < Minitest::Test
     assert_equal(false, user.has_console_password)
     assert_equal(false, user.has_console_password?)
   end
-  # def test_that_mfa_enable_returns_true_if_mfa_enabled
-  #   @mock_user_provider.expect :user, @mock_user, [Username]
-  #   @mock_dets_provider.expect :has_mfa_enabled?, true
-  #   @mock_dets_prov_ini.expect :create, @mock_dets_provider, [@mock_user]
-  #   assert AwsIamUser.new(
-  #     @mock_user,
-  #     @mock_user_provider,
-  #     @mock_dets_prov_ini,
-  #   ).has_mfa_enabled?
-  # end
 
-  # def test_that_mfa_enable_returns_false_if_mfa_is_not_enabled
-  #   @mock_user_provider.expect :user, @mock_user, [Username]
-  #   @mock_dets_provider.expect :has_mfa_enabled?, false
-  #   @mock_dets_prov_ini.expect :create, @mock_dets_provider, [@mock_user]
-  #   refute AwsIamUser.new(
-  #     @mock_user,
-  #     @mock_user_provider,
-  #     @mock_dets_prov_ini,
-  #   ).has_mfa_enabled?
-  # end
+  #-----------------------------------------------------#
+  # has_mfa_enabled property and predicate
+  #-----------------------------------------------------#
+  def test_property_mfa_positive
+    user = AwsIamUser.new(username: 'erin')
+    assert_equal(true, user.has_mfa_enabled)
+    assert_equal(true, user.has_mfa_enabled?)
+  end
 
+  def test_property_mfa_negative
+    user = AwsIamUser.new(username: 'leslie')
+    assert_equal(false, user.has_mfa_enabled)
+    assert_equal(false, user.has_mfa_enabled?)
+  end
+  
   # def test_that_access_keys_returns_aws_iam_access_key_resources
   #   stub_aws_access_key = Object.new
   #   stub_access_key_resource = Object.new
@@ -255,5 +249,4 @@ module MAIUB
       people[criteria[:user_name]]
     end
   end
-
 end
