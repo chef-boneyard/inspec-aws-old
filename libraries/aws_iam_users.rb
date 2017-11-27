@@ -30,9 +30,9 @@ class AwsIamUsers < Inspec.resource(1)
 
   def collect_user_details
     backend = Backend.create
-    users = backend.list_users.users.map { |u| u.to_h }
+    users = backend.list_users.users.map(&:to_h)
 
-    # TODO - lazy columns - https://github.com/chef/inspec-aws/issues/100
+    # TODO: lazy columns - https://github.com/chef/inspec-aws/issues/100
     users.each do |user|
       begin
         aws_login_profile = backend.get_login_profile(user_name: user[:user_name])
@@ -65,19 +65,6 @@ class AwsIamUsers < Inspec.resource(1)
   #===========================================================================#
   class Backend
     #=====================================================#
-    #                    API Definition
-    #=====================================================#
-    [
-      :get_login_profile,
-      :list_mfa_devices,
-      :list_users,
-    ].each do |method|
-      define_method(:method) do |*_args|
-        raise "Unimplemented abstract method #{method} - internal error"
-      end
-    end
-
-    #=====================================================#
     #                 Concrete Implementation
     #=====================================================#
     # Uses AWS API to really talk to AWS
@@ -86,10 +73,12 @@ class AwsIamUsers < Inspec.resource(1)
         @aws_iam_client ||= AwsConnection.new.iam_client
         @aws_iam_client.list_users(criteria)
       end
-      def get_login_profile
+
+      def get_login_profile # rubocop:disable Style/AccessorMethodName
         @aws_iam_client ||= AwsConnection.new.iam_client
         @aws_iam_client.get_login_profile(criteria)
       end
+
       def list_mfa_devices
         @aws_iam_client ||= AwsConnection.new.iam_client
         @aws_iam_client.list_mfa_devices(criteria)

@@ -34,11 +34,6 @@ class AwsIamUser < Inspec.resource(1)
       end
     end
 
-    # This is lifted directly from resource_mixin.rb; delete after PR 121 merges
-    def exists?
-      @exists
-    end
-
     # Remove all expected params from the raw param hash
     validated_params = {}
     allowed_params.each do |expected_param|
@@ -56,6 +51,11 @@ class AwsIamUser < Inspec.resource(1)
   attr_reader :username, :has_mfa_enabled, :has_console_password, :access_keys
   alias has_mfa_enabled? has_mfa_enabled
   alias has_console_password? has_console_password
+
+  # This is lifted directly from resource_mixin.rb; delete after PR 121 merges
+  def exists?
+    @exists
+  end
 
   private
 
@@ -99,7 +99,7 @@ class AwsIamUser < Inspec.resource(1)
         return
       end
     end
-    # TODO - extract properties from aws_user_struct?
+    # TODO: extract properties from aws_user_struct?
 
     @exists = true
 
@@ -116,7 +116,6 @@ class AwsIamUser < Inspec.resource(1)
 
     # TODO: consider returning Inspec AwsIamAccessKey objects
     @access_keys = backend.list_access_keys(user_name: username).access_key_metadata
-
   end
 
   # This class may be deleted once PR 121 is merged.
@@ -135,6 +134,7 @@ class AwsIamUser < Inspec.resource(1)
     # get_user(user_name: String) => aws_user_struct
     # get_login_profile(user_name: String) => login profile struct (password info hash)
     # list_mfa_devices(user_name: String) => MFA device response struct
+    # list_access_keys(user_name: String) => access_key metadata response
     class AwsClientApi
       BackendFactory.select(self) # TODO: correct to set_default_backend when 121 merges
 
