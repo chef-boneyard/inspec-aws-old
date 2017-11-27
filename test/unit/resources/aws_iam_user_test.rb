@@ -248,5 +248,37 @@ module MAIUB
       raise Aws::IAM::Errors::NoSuchEntityException.new(nil, nil) unless people.key?(criteria[:user_name])
       people[criteria[:user_name]]
     end
+    def list_mfa_devices(criteria)
+      # Erin has 2, one soft and one hw
+      # Leslie has none
+      # Jared has one soft
+      people = {
+        'erin' => OpenStruct.new({
+          mfa_devices: [
+            OpenStruct.new({
+              user_name: 'erin',
+              serial_number: 'arn:blahblahblah',
+              enable_date: Time.parse("2016-09-21T23:03:13Z"),
+            }),
+            OpenStruct.new({
+              user_name: 'erin',
+              serial_number: '1234567890',
+              enable_date: Time.parse("2016-09-21T23:03:13Z"),
+            }),
+          ]
+        }),
+        'leslie' => OpenStruct.new({mfa_devices: []}),
+        'jared' => OpenStruct.new({
+          mfa_devices: [
+            OpenStruct.new({
+              user_name: 'jared',
+              serial_number: 'arn:blahblahblah',
+              enable_date: Time.parse("2016-09-21T23:03:13Z"),
+            }),
+          ]
+        }),
+      }
+      people[criteria[:user_name]]
+    end
   end
 end

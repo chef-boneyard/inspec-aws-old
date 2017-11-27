@@ -121,7 +121,10 @@ class AwsIamUser < Inspec.resource(1)
       @has_console_password = false
     end
 
-    # TODO - extract properties from aws_user_struct, 
+    mfa_info = backend.list_mfa_devices(user_name: username)
+    @has_mfa_enabled = !mfa_info.mfa_devices.empty?
+
+    # TODO - extract properties from aws_user_struct
     # possibly make more API calls
   end
 
@@ -140,6 +143,7 @@ class AwsIamUser < Inspec.resource(1)
     # Expected methods:
     # get_user(user_name: String) => aws_user_struct
     # get_login_profile(user_name: String) => login profile struct (password info hash)
+    # list_mfa_devices(user_name: String) => MFA device response struct
     class AwsClientApi
       BackendFactory.select(self) # TODO: correct to set_default_backend when 121 merges
 
