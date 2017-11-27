@@ -97,6 +97,37 @@ class AwsIamUserRecallTest < Minitest::Test
   end
 end
 
+#=============================================================================#
+#                                Properties
+#=============================================================================#
+
+class AwsIamUserPropertiesTest < Minitest::Test
+  def setup
+    AwsIamUser::BackendFactory.select(MAIUB::Three)
+  end
+
+  #-----------------------------------------------------#
+  # username property
+  #-----------------------------------------------------#
+  def test_property_username_correct_on_hit
+    user = AwsIamUser.new(username: 'erin')
+    assert_equal('erin', user.username)
+  end
+
+  #-----------------------------------------------------#
+  # has_console_password property and predicate
+  #-----------------------------------------------------#
+  def test_property_password_positive
+    user = AwsIamUser.new(username: 'erin')
+    assert_equal(true, user.has_console_password)
+    assert_equal(true, user.has_console_password?)
+  end
+
+  def test_property_password_negative
+    user = AwsIamUser.new(username: 'leslie')
+    assert_equal(false, user.has_console_password)
+    assert_equal(false, user.has_console_password?)
+  end
   # def test_that_mfa_enable_returns_true_if_mfa_enabled
   #   @mock_user_provider.expect :user, @mock_user, [Username]
   #   @mock_dets_provider.expect :has_mfa_enabled?, true
@@ -117,28 +148,6 @@ end
   #     @mock_user_provider,
   #     @mock_dets_prov_ini,
   #   ).has_mfa_enabled?
-  # end
-
-  # def test_that_console_password_returns_true_if_console_password_set
-  #   @mock_user_provider.expect :user, @mock_user, [Username]
-  #   @mock_dets_provider.expect :has_console_password?, true
-  #   @mock_dets_prov_ini.expect :create, @mock_dets_provider, [@mock_user]
-  #   assert AwsIamUser.new(
-  #     @mock_user,
-  #     @mock_user_provider,
-  #     @mock_dets_prov_ini,
-  #   ).has_console_password?
-  # end
-
-  # def test_that_console_password_returns_false_if_console_password_not_set
-  #   @mock_user_provider.expect :user, @mock_user, [Username]
-  #   @mock_dets_provider.expect :has_console_password?, false
-  #   @mock_dets_prov_ini.expect :create, @mock_dets_provider, [@mock_user]
-  #   refute AwsIamUser.new(
-  #     @mock_user,
-  #     @mock_user_provider,
-  #     @mock_dets_prov_ini,
-  #   ).has_console_password?
   # end
 
   # def test_that_access_keys_returns_aws_iam_access_key_resources
@@ -167,6 +176,7 @@ end
 
   #   mock_access_key_factory.verify
   # end
+end
 
   # def test_to_s
   #   test_user = { name: Username, has_mfa_enabled?: true }
@@ -201,4 +211,41 @@ module MAIUB
       })
     end
   end
+
+  class Three < AwsIamUser::Backend
+    def get_user(criteria)
+      people = {
+        'erin' => OpenStruct.new({
+          user: OpenStruct.new({
+            arn: "arn:aws:iam::123456789012:user/erin", 
+            create_date: Time.parse("2016-09-21T23:03:13Z"), 
+            path: "/", 
+            user_id: "AKIAIOSFODNN7EXAERIN", 
+            user_name: "erin", 
+          }),
+        }),
+        'leslie' => OpenStruct.new({
+          user: OpenStruct.new({
+            arn: "arn:aws:iam::123456789012:user/leslie", 
+            create_date: Time.parse("2017-09-21T23:03:13Z"), 
+            path: "/", 
+            user_id: "AKIAIOSFODNN7EXAERIN", 
+            user_name: "leslie", 
+          }),
+        }),
+        'jared' => OpenStruct.new({
+          user: OpenStruct.new({
+            arn: "arn:aws:iam::123456789012:user/leslie", 
+            create_date: Time.parse("2017-09-21T23:03:13Z"), 
+            path: "/", 
+            user_id: "AKIAIOSFODNN7EXAERIN", 
+            user_name: "lelsie", 
+          }),
+        }),
+      }
+      raise Aws::IAM::Errors::NoSuchEntityException.new(nil, nil) unless people.key?(criteria[:username])
+      people[criteria[:username]]
+    end
+  end
+
 end
