@@ -144,32 +144,21 @@ class AwsIamUserPropertiesTest < Minitest::Test
     assert_equal(false, user.has_mfa_enabled?)
   end
   
-  # def test_that_access_keys_returns_aws_iam_access_key_resources
-  #   stub_aws_access_key = Object.new
-  #   stub_access_key_resource = Object.new
-  #   mock_access_key_factory = Minitest::Mock.new
+  #-----------------------------------------------------#
+  # access_keys property
+  #-----------------------------------------------------#
+  def test_property_access_keys_positive
+    keys = AwsIamUser.new(username: 'erin').access_keys
+    assert_kind_of(Array, keys)
+    assert_equal(keys.length, 2)
+    assert_kind_of(AwsIamAccessKey, keys.first)    
+  end
 
-  #   @mock_user_provider.expect :user, @mock_user, [Username]
-  #   @mock_dets_provider.expect :access_keys, [stub_aws_access_key]
-  #   @mock_dets_prov_ini.expect :create, @mock_dets_provider, [@mock_user]
-  #   mock_access_key_factory.expect(
-  #     :create_access_key,
-  #     stub_access_key_resource,
-  #     [stub_aws_access_key],
-  #   )
-
-  #   assert_equal(
-  #     stub_access_key_resource,
-  #     AwsIamUser.new(
-  #       @mock_user,
-  #       @mock_user_provider,
-  #       @mock_dets_prov_ini,
-  #       mock_access_key_factory,
-  #     ).access_keys[0],
-  #   )
-
-  #   mock_access_key_factory.verify
-  # end
+  def test_property_access_keys_negative
+    keys = AwsIamUser.new(username: 'leslie').access_keys
+    assert_kind_of(Array, keys)
+    assert(keys.empty)    
+  end
 end
 
   # def test_to_s
