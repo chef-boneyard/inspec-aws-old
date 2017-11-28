@@ -35,7 +35,7 @@ class AwsIamUsers < Inspec.resource(1)
     # TODO: lazy columns - https://github.com/chef/inspec-aws/issues/100
     users.each do |user|
       begin
-        aws_login_profile = backend.get_login_profile(user_name: user[:user_name])
+        _login_profile = backend.get_login_profile(user_name: user[:user_name])
         user[:has_console_password] = true
       rescue Aws::IAM::Errors::NoSuchEntity
         user[:has_console_password] = false
