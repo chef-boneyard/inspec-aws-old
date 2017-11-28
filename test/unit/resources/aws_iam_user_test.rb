@@ -123,20 +123,6 @@ class AwsIamUserPropertiesTest < Minitest::Test
   end
 end
 
-  # def test_to_s
-  #   test_user = { name: Username, has_mfa_enabled?: true }
-  #   @mock_user_provider.expect :user, test_user, [Username]
-  #   @mock_dets_provider.expect :name, Username
-  #   @mock_dets_prov_ini.expect :create, @mock_dets_provider, [test_user]
-  #   expected = "IAM User #{Username}"
-  #   test = AwsIamUser.new(
-  #     { name: Username },
-  #     @mock_user_provider,
-  #     @mock_dets_prov_ini,
-  #   ).to_s
-  #   assert_equal expected, test
-  # end
-
 #=============================================================================#
 #                               Test Fixtures
 #=============================================================================#
@@ -173,7 +159,7 @@ module MAIUB
           }),
         }),
       }
-      raise Aws::IAM::Errors::NoSuchEntityException.new(nil, nil) unless people.key?(criteria[:user_name])
+      raise Aws::IAM::Errors::NoSuchEntity.new(nil, nil) unless people.key?(criteria[:user_name])
       people[criteria[:user_name]]
     end
 
@@ -196,7 +182,7 @@ module MAIUB
           }),
         }),
       }
-      raise Aws::IAM::Errors::NoSuchEntityException.new(nil, nil) unless people.key?(criteria[:user_name])
+      raise Aws::IAM::Errors::NoSuchEntity.new(nil, nil) unless people.key?(criteria[:user_name])
       people[criteria[:user_name]]
     end
     def list_mfa_devices(criteria)

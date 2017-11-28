@@ -2,6 +2,7 @@
 # author: Steffanie Freeman
 # author: Simon Varlow
 # author: Chris Redekop
+require 'aws_conn'
 
 class AwsIamUser < Inspec.resource(1)
   name 'aws_iam_user'
@@ -57,6 +58,15 @@ class AwsIamUser < Inspec.resource(1)
     @exists
   end
 
+  def name
+    warn "[DEPRECATION] - Property ':name' is deprecated on the aws_iam_user resource.  Use ':username' instead."
+    username
+  end
+
+  def to_s
+    "IAM User #{username}"
+  end
+
   private
 
   def validate_params(raw_params)
@@ -80,21 +90,13 @@ class AwsIamUser < Inspec.resource(1)
     validated_params
   end
 
-  def name
-    warn "[DEPRECATION] - Property ':name' is deprecated on the aws_iam_user resource.  Use ':username' instead."
-    username
-  end
-
-  def to_s
-    "IAM User #{username}"
-  end
-
   def fetch_from_aws
     backend = BackendFactory.create
+    @aws_user_struct ||= nil # silence unitialized warning
     unless @aws_user_struct
       begin
         @aws_user_struct = backend.get_user(user_name: username)
-      rescue Aws::IAM::Errors::NoSuchEntityException
+      rescue Aws::IAM::Errors::NoSuchEntity
         @exists = false
         return
       end
@@ -107,7 +109,7 @@ class AwsIamUser < Inspec.resource(1)
       _login_profile = backend.get_login_profile(user_name: username)
       @has_console_password = true
       # Password age also available here
-    rescue Aws::IAM::Errors::NoSuchEntityException
+    rescue Aws::IAM::Errors::NoSuchEntity
       @has_console_password = false
     end
 
@@ -130,15 +132,24 @@ class AwsIamUser < Inspec.resource(1)
   end
 
   class Backend
-    # Expected methods:
-    # get_user(user_name: String) => aws_user_struct
-    # get_login_profile(user_name: String) => login profile struct (password info hash)
-    # list_mfa_devices(user_name: String) => MFA device response struct
-    # list_access_keys(user_name: String) => access_key metadata response
     class AwsClientApi
       BackendFactory.select(self) # TODO: correct to set_default_backend when 121 merges
 
-      # TODO: API and implementation
+      def get_user(criteria)
+        AWSConnection.new.iam_client.get_user(criteria)
+      end
+
+      def get_login_profile(criteria)
+        AWSConnection.new.iam_client.get_login_profile(criteria)
+      end
+
+      def list_mfa_devices(criteria)
+        AWSConnection.new.iam_client.list_mfa_devices(criteria)
+      end
+
+      def list_access_keys(criteria)
+        AWSConnection.new.iam_client.list_access_keys(criteria)
+      end
     end
   end
 end
