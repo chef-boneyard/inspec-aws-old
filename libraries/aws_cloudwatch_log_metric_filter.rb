@@ -23,7 +23,7 @@ EOX
 
   include AwsResourceMixin
   attr_reader :filter_name, :log_group_name, :pattern, :metric_name, :metric_namespace
-  
+
   private
 
   def validate_params(raw_params)
