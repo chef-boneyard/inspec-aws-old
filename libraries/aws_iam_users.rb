@@ -21,7 +21,7 @@ class AwsIamUsers < Inspec.resource(1)
         .add(:exists?) { |x| !x.entries.empty? }
         .add(:has_mfa_enabled?, field: :has_mfa_enabled)
         .add(:has_console_password?, field: :has_console_password)
-        .add(:user_name, field: :user_name)
+        .add(:username, field: :user_name)
   filter.connect(self, :collect_user_details)
 
   # No resource params => no overridden constructor
@@ -36,18 +36,19 @@ class AwsIamUsers < Inspec.resource(1)
     users.each do |user|
       begin
         aws_login_profile = backend.get_login_profile(user_name: user[:user_name])
-        user[:has_console_password] = aws_login_profile.created_date.nil?
+        user[:has_console_password] = true
       rescue Aws::IAM::Errors::NoSuchEntity
         user[:has_console_password] = false
       end
+      user[:has_console_password?] = user[:has_console_password]
 
       begin
         aws_mfa_devices = backend.list_mfa_devices(user_name: user[:user_name])
         user[:has_mfa_enabled] = !aws_mfa_devices.mfa_devices.empty?
       rescue Aws::IAM::Errors::NoSuchEntity
-        user[:has_mfa_devices] = false
+        user[:has_mfa_enabled] = false
       end
-
+      user[:has_mfa_enabled?] = user[:has_mfa_enabled]
     end
     users
   end
@@ -69,19 +70,17 @@ class AwsIamUsers < Inspec.resource(1)
     #=====================================================#
     # Uses AWS API to really talk to AWS
     class AwsClientApi < Backend
-      def list_users(criteria)
-        @aws_iam_client ||= AwsConnection.new.iam_client
-        @aws_iam_client.list_users(criteria)
+      # TODO: delegate this out
+      def list_users(query = {})
+        AWSConnection.new.iam_client.list_users(query)
       end
 
-      def get_login_profile # rubocop:disable Style/AccessorMethodName
-        @aws_iam_client ||= AwsConnection.new.iam_client
-        @aws_iam_client.get_login_profile(criteria)
+      def get_login_profile(query)
+        AWSConnection.new.iam_client.get_login_profile(query)
       end
 
-      def list_mfa_devices
-        @aws_iam_client ||= AwsConnection.new.iam_client
-        @aws_iam_client.list_mfa_devices(criteria)
+      def list_mfa_devices(query)
+        AWSConnection.new.iam_client.list_mfa_devices(query)
       end
     end
 
