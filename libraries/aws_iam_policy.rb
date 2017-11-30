@@ -17,6 +17,7 @@ class AwsIamPolicy < Inspec.resource(1)
   end
 
   def name 
+    raise "this policy does not exist" unless exists?
     @policy.policy_name 
   end
 
@@ -25,6 +26,7 @@ class AwsIamPolicy < Inspec.resource(1)
   end
 
   def attachment_count
+    raise "this policy does not exist" unless exists?
     @policy.attachment_count
   end
 end
