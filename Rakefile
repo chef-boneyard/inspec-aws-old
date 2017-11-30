@@ -44,12 +44,14 @@ namespace :test do
       attribute_file = File.join(integration_dir, '.attribute.yml')
       
       task :"setup:#{account}", :tf_workspace do |t, args|
+        tf_workspace = args[:tf_workspace] || ENV['INSPEC_TERRAFORM_ENV']
+        abort("You must either call the top-level test:aws:#{account} task, or set the INSPEC_TERRAFORM_ENV variable.") unless tf_workspace
         puts "----> Setup"
         abort("You must set the environment variable AWS_REGION") unless ENV['AWS_REGION']
         puts "----> Checking for required AWS profile..."
         sh("aws configure get aws_access_key_id --profile inspec-aws-test-#{account} > /dev/null")
         sh("cd #{integration_dir}/build/ && terraform init")
-        sh("cd #{integration_dir}/build/ && terraform workspace new #{args[:tf_workspace]}")
+        sh("cd #{integration_dir}/build/ && terraform workspace new #{tf_workspace}")
         sh("cd #{integration_dir}/build/ && AWS_PROFILE=inspec-aws-test-#{account} terraform plan")
         sh("cd #{integration_dir}/build/ && AWS_PROFILE=inspec-aws-test-#{account} terraform apply")
         sh("cd #{integration_dir}/build/ && AWS_PROFILE=inspec-aws-test-#{account} terraform output > #{attribute_file}")
@@ -65,10 +67,12 @@ namespace :test do
       end
       
       task :"cleanup:#{account}", :tf_workspace do |t, args|
+        tf_workspace = args[:tf_workspace] || ENV['INSPEC_TERRAFORM_ENV']
+        abort("You must either call the top-level test:aws:#{account} task, or set the INSPEC_TERRAFORM_ENV variable.") unless tf_workspace
         puts "----> Cleanup"
         sh("cd #{integration_dir}/build/ && AWS_PROFILE=inspec-aws-test-#{account} terraform destroy -force")
         sh("cd #{integration_dir}/build/ && terraform workspace select default")
-        sh("cd #{integration_dir}/build && terraform workspace delete #{args[:tf_workspace]}")
+        sh("cd #{integration_dir}/build && terraform workspace delete #{tf_workspace}")
       end
       
       task :"#{account}" do
