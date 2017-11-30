@@ -42,6 +42,33 @@ All tests (and test fixtures) that do not require such special handling are plac
 
 
 
+## Running the integration tests
+
+To run all AWS integration tests, run:
+
+ ```
+ bundle exec rake test:aws
+ ```
+
+To run the tests against one account only:
+
+ ```
+ bundle exec rake test:aws:defualt
+ ```
+
+ or
+
+ ```
+ bundle exec rake test:aws:minimal
+ ```
+ 
+Each account has separate tasks for setup, running the tests, and cleanup.  You may run them separately:
+
+```
+bundle exec rake test:aws:setup:defualt
+bundle exec rake test:aws:run:defualt
+bundle exec rake test:aws:cleanup:defualt
+```
 
 
 
