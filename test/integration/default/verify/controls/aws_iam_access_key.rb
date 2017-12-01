@@ -66,6 +66,8 @@ control 'IAM Access Keys - Client-side filtering' do
   end
 
   # This would presumably refer to your test-fixture-maker IAM user
+  # This test will fail if you have very recently setup your
+  # testing environment
   describe all_keys.where { ever_used }
                    .where { last_used_days_ago > 0 } do
     it { should exist }    

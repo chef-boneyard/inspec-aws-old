@@ -30,6 +30,10 @@ The "default" account's tests cover a superset of the "negative" account's tests
 
 All tests (and test fixtures) that do not require such special handling are placed in the "default" set.  That includes both positive and negative checks.
 
+Note that some tests will fail for the first day or two after you set up the accounts, due to the tests checking properties such as the last usage time of an access key, for example.  
+
+Additionally, the first time you run the tests, you will need to accept the user agreement in the AWS marketplace for the linux AMIs we use.  You'll need to do it 4 times, once for each of debian and centos on the two accounts.
+
 ### Creating the Default account
 
 1. Create an AWS account.  Make a note of the account email and root password in a secure secret storage system.
@@ -40,7 +44,10 @@ All tests (and test fixtures) that do not require such special handling are plac
 3. Using the aws command line tool, store the access key and secret key in a profile with a special name:
   `aws configure --profile inspec-aws-test-default`
 
+#### Test Fixtures for the Default Account
 
+
+### Creating the Minimal Account
 
 ## Running the integration tests
 
