@@ -56,13 +56,11 @@ output "iam_user_no_mfa_enabled" {
 
 #------------- Property - access_keys -------------#
 
-# TODO: test for user with no access key
-
 resource "aws_iam_user" "with_access_key" {
   name = "${terraform.env}.with_access_key"
 }
 
-resource "aws_iam_access_key" "access_key" {
+resource "aws_iam_access_key" "access_key_for_user" {
   user = "${aws_iam_user.with_access_key.name}"
   pgp_key = "${var.login_profile_pgp_key}"
 }
@@ -71,6 +69,22 @@ output "iam_user_with_access_key" {
   value = "${aws_iam_user.with_access_key.name}"
 }
 
-output "iam_access_key_id" { 
-  value = "${aws_iam_access_key.access_key.id}"
+resource "aws_iam_user" "without_access_key" {
+  name = "${terraform.env}.without_access_key"
+}
+
+output "iam_user_without_access_key" {
+  value = "${aws_iam_user.without_access_key.name}"
+}
+
+#======================================================#
+#                    IAM Access Keys
+#======================================================#
+
+output "iam_access_key_recall_hit" { 
+  value = "${aws_iam_access_key.access_key_for_user.id}"
+}
+
+output "iam_access_key_recall_miss" { 
+  value = "AKIAFAKEFAKEFAKEFAKE"
 }
