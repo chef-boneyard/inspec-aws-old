@@ -4,53 +4,6 @@ terraform {
 
 provider "aws" {}
 
-resource "aws_iam_role" "example" {
-  name = "${terraform.env}.example"
-
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": "sts:AssumeRole",
-      "Principal": {
-        "Service": "ec2.amazonaws.com"
-      },
-      "Effect": "Allow",
-      "Sid": ""
-    }
-  ]
-}
-EOF
-}
-
-resource "aws_iam_instance_profile" "example" {
-  name  = "${terraform.env}.example"
-  role = "${aws_iam_role.example.name}"
-}
-
-resource "aws_instance" "example" {
-  ami           = "ami-0d729a60"
-  instance_type = "t2.micro"
-  iam_instance_profile = "${aws_iam_instance_profile.example.name}"
-
-  tags {
-    Name = "${terraform.env}.Example"
-    X-Project = "inspec"
-  }
-}
-
-resource "aws_instance" "no_roles_instance" {
-  ami           = "ami-0d729a60"
-  instance_type = "t2.micro"
-
-  tags {
-    Name = "${terraform.env}.NoRoles"
-    X-Project = "inspec"
-  }
-}
-
-
 resource "aws_cloudwatch_log_group" "lmf_lg_1" {
   name = "${terraform.env}_lmf_lg_1"
 }
@@ -124,19 +77,6 @@ output "lmf_lg_1_name" {
 output "lmf_lg_2_name" {
   value = "${aws_cloudwatch_log_group.lmf_lg_2.name}"
 }
-
-output "example_ec2_name" {
-  value = "${aws_instance.example.tags.Name}"
-}
-
-output "example_ec2_id" {
-  value = "${aws_instance.example.id}"
-}
-
-output "no_roles_ec2_id" {
-  value = "${aws_instance.no_roles_instance.id}"
-}
-
 
 #===========================================================================#
 #                                   SNS

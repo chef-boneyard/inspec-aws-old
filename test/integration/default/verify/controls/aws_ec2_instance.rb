@@ -1,37 +1,78 @@
-example_ec2_id = attribute(
-  'example_ec2_id',
-  default: 'default.example_ec2_id',
-  description: 'ID of example ec2 instance')
 
-example_ec2_name = attribute(
-  'example_ec2_name',
-  default: 'default.Example',
-  description: 'Name of example ec2 instance')
-
-no_roles_ec2_id = attribute(
-  'no_roles_ec2_id',
-  default: 'default.no_roles_ec2_id',
-  description: 'ID of no-roles ec2 instance')
-
-describe aws_ec2_instance(name: example_ec2_name) do
-  it { should exist }
-  its('image_id') { should eq 'ami-0d729a60' }
-  its('instance_type') { should eq 't2.micro' }
+fixtures = {}
+[
+  'ec2_instance_recall_hit_id',
+  'ec2_instance_recall_hit_name',
+  'ec2_instance_recall_miss',
+  'ec2_instance_no_role_id',
+  'ec2_instance_has_role_id',
+  'ec2_instance_type_t2_micro_id',
+  'ec2_instance_type_t2_small_id',
+  'ec2_instance_centos_id',
+  'ec2_ami_id_centos',
+  'ec2_instance_debian_id',  
+  'ec2_ami_id_debian',
+].each do |fixture_name|
+  fixtures[fixture_name] = attribute(
+    fixture_name,
+    default: "default.#{fixture_name}",
+    description: 'See ../build/ec2.tf',
+  )
 end
 
-describe aws_ec2_instance(example_ec2_id) do
-  it { should exist }
-  its('image_id') { should eq 'ami-0d729a60' }
-  its('instance_type') { should eq 't2.micro' }
-  it { should have_roles }
+#-------------------  Recall / Miss -------------------#
+control "aws_ec_instance - Recall" do
+  describe aws_ec2_instance(fixtures['ec2_instance_recall_miss']) do
+    it { should_not exist }
+  end
+
+  # Recall by ID
+  describe aws_ec2_instance(fixtures['ec2_instance_recall_hit_id']) do
+    it { should exist }
+  end
+
+  # Recall by Name tag
+  describe aws_ec2_instance(name: fixtures['ec2_instance_recall_hit_name']) do
+    it { should exist }
+  end
 end
 
-describe aws_ec2_instance(no_roles_ec2_id) do
-  it { should exist }
-  it { should_not have_roles }
+# TODO: Most properties are untested.  Some to consider including:
+#   security_groups
+#   state
+#   vpc_id
+#   tags
+
+
+#----------------- has_role property ------------------#
+control "aws_ec2_instance - has_role property" do
+
+  describe aws_ec2_instance(fixtures['ec2_instance_has_role_id']) do
+    it { should have_roles } # TODO: this is a misnomer, you may have only one role attached
+  end
+
+  describe aws_ec2_instance(fixtures['ec2_instance_no_role_id']) do  
+    it { should_not have_roles } # TODO: this is a misnomer, you may have only one role attached
+  end
 end
 
-# must use a real EC2 instance name, as the SDK will first check to see if it's well formed before sending requests
-describe aws_ec2_instance('i-06b4bc106e0d03dfd') do
-  it { should_not exist }
+#----------------- instance_type property ------------------#
+control "aws_ec2_instance - instance_type property" do
+  describe aws_ec2_instance(fixtures['ec2_instance_type_t2_micro_id']) do
+    its('instance_type') { should eq 't2.micro' }
+  end
+  describe aws_ec2_instance(fixtures['ec2_instance_type_t2_small_id']) do
+    its('instance_type') { should eq 't2.small' }
+  end
+end
+
+#-------------------- image_id property --------------------#
+control "aws_ec2_instance - image_id property" do
+  describe aws_ec2_instance(fixtures['ec2_instance_centos_id']) do
+    its('image_id') { should eq fixtures['ec2_ami_id_centos'] }
+  end
+  
+  describe aws_ec2_instance(fixtures['ec2_instance_debian_id']) do
+    its('image_id') { should eq fixtures['ec2_ami_id_debian'] }
+  end
 end
