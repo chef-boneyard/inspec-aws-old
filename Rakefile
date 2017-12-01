@@ -54,13 +54,16 @@ namespace :test do
         sh("cd #{integration_dir}/build/ && terraform workspace new #{tf_workspace}")
         sh("cd #{integration_dir}/build/ && AWS_PROFILE=inspec-aws-test-#{account} terraform plan")
         sh("cd #{integration_dir}/build/ && AWS_PROFILE=inspec-aws-test-#{account} terraform apply")
+        Rake::Task["test:aws:dump_attrs:#{account}"].execute
+      end
+      
+      task :"dump_attrs:#{account}" do
         sh("cd #{integration_dir}/build/ && AWS_PROFILE=inspec-aws-test-#{account} terraform output > #{attribute_file}")
-        
         raw_output = File.read(attribute_file)
         yaml_output = raw_output.gsub(" = ", " : ")
         File.open(attribute_file, "w") {|file| file.puts yaml_output}
       end
-      
+
       task :"run:#{account}" do
         puts "----> Run"
         sh("AWS_PROFILE=inspec-aws-test-#{account} bundle exec inspec exec #{integration_dir}/verify --attrs #{attribute_file}")
