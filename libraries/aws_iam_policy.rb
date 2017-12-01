@@ -1,6 +1,8 @@
 # Authors: Simon Valow
 # Authors: Chris Redekop
 
+require 'aws_conn'
+
 class AwsIamPolicy < Inspec.resource(1)
   name 'aws_iam_policy'
   desc 'Used to retrieve AWS IAM Policy'
@@ -12,7 +14,7 @@ class AwsIamPolicy < Inspec.resource(1)
     end
   "
 
-  def initialize(opts, conn = AWConnection.new)
+  def initialize(opts, conn = AWSConnection.new)
     @policy = conn.iam_resource.policy(opts.is_a?(Hash) ? opts[:arn] : opts)
   end
 
