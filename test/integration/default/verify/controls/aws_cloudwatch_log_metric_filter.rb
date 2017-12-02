@@ -1,46 +1,73 @@
-lmf_1_name = attribute(
-  'lmf_1_name',
-  default: 'default.lmf_1_name',
-  description: 'Name of a Cloudwatch Log Metric Filter',
-)
-
-lmf_2_name = attribute(
-  'lmf_2_name',
-  default: 'default.lmf_2_name',
-  description: 'Name of a Cloudwatch Log Metric Filter',
-)
-
-lmf_lg_1_name = attribute(
-  'lmf_lg_1_name',
-  default: 'default.lmf_lg_1_name',
-  description: 'Name of a Cloudwatch Log Group',
-)
-
-lmf_lg_2_name = attribute(
-  'lmf_lg_2_name',
-  default: 'default.lmf_lg_2_name',
-  description: 'Name of a Cloudwatch Log Group',
-)
-
-lmf_1_metric_1_name = attribute(
-  'lmf_1_metric_1_name',
-  default: 'default.lmf_1_metric_1_name',
-  description: 'Name of a Cloudwatch Metric',
-)
-
-describe aws_cloudwatch_log_metric_filter(
-  filter_name: lmf_1_name,
-  log_group_name: lmf_lg_1_name,
-) do
-  it { should exist }
-  its('pattern') { should cmp 'testpattern01'}
-  its('metric_name') { should cmp lmf_1_metric_1_name }
+fixtures = {}
+[
+'log_metric_filter_1_name',
+'log_metric_filter_1_log_group_name',
+'log_metric_filter_1_metric_name',
+'log_metric_filter_2_name',
+'log_metric_filter_2_log_group_name',
+].each do |fixture_name|
+  fixtures[fixture_name] = attribute(
+  fixture_name,
+  default: "default.#{fixture_name}",
+  description: 'See ../build/cloudwatch.tf',
+  )
 end
 
-describe aws_cloudwatch_log_metric_filter(
-  pattern: 'testpattern02',
-) do
-  it { should exist }
-  its('log_group_name') { should cmp lmf_lg_2_name }
-  its('filter_name') { should cmp lmf_2_name }
+
+#----------------------- Recall -----------------------#
+
+control "aws_cloudwatch_log_metric_filter recall" do
+  describe aws_cloudwatch_log_metric_filter(
+    filter_name: fixtures['log_metric_filter_1_name'],
+    log_group_name: fixtures['log_metric_filter_1_log_group_name'],
+  ) do
+    it { should exist }
+  end
+
+  describe aws_cloudwatch_log_metric_filter(
+    pattern: 'testpattern02',
+  ) do
+    it { should exist }
+  end    
+end
+
+#----------------------- pattern property -----------------------#
+
+control "aws_cloudwatch_log_metric_filter pattern property" do
+  describe aws_cloudwatch_log_metric_filter(
+    filter_name: fixtures['log_metric_filter_1_name'],
+    log_group_name: fixtures['log_metric_filter_1_log_group_name'],
+  ) do
+    its('pattern') { should cmp 'testpattern01' }  
+  end
+end
+
+#----------------------- metric_name property -----------------------#
+control "aws_cloudwatch_log_metric_filter metric_name property" do
+  describe aws_cloudwatch_log_metric_filter(
+    filter_name: fixtures['log_metric_filter_1_name'],
+    log_group_name: fixtures['log_metric_filter_1_log_group_name'],
+  ) do
+    its('metric_name') { should cmp fixtures['log_metric_filter_1_metric_name'] }
+  end
+end
+
+#----------------------- log_group_name property -----------------------#
+control "aws_cloudwatch_log_metric_filter log_group_name property" do
+  describe aws_cloudwatch_log_metric_filter(
+    filter_name: fixtures['log_metric_filter_2_name'],
+    log_group_name: fixtures['log_metric_filter_2_log_group_name'],
+  ) do
+    its('log_group_name') { should cmp fixtures['log_metric_filter_2_log_group_name'] }
+  end
+end
+
+#----------------------- filter_name property -----------------------#
+control "aws_cloudwatch_log_metric_filter filter_name property" do
+  describe aws_cloudwatch_log_metric_filter(
+    filter_name: fixtures['log_metric_filter_2_name'],
+    log_group_name: fixtures['log_metric_filter_2_log_group_name'],
+  ) do
+    its('filter_name') { should cmp fixtures['log_metric_filter_2_name'] }
+  end
 end
