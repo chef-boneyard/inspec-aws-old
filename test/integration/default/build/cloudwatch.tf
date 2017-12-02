@@ -79,6 +79,14 @@ resource "aws_cloudwatch_metric_alarm" "alarm_1" {
   insufficient_data_actions = []
 }
 
-output "cloudwatch_alarm_01" {
+output "cloudwatch_alarm_1_name" {
   value = "${terraform.env}-test-alarm-01"
+}
+
+output "cloudwatch_alarm_1_namespace" {
+  value = "${terraform.env}_YourNamespace_1"
+}
+
+output "cloudwatch_alarm_1_metric_name" {
+  value = "${terraform.env}_testmetric_1"
 }
