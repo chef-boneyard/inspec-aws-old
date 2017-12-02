@@ -46,6 +46,7 @@ Additionally, the first time you run the tests, you will need to accept the user
 
 #### Test Fixtures for the Default Account
 
+1. As the root user, enable a virtual MFA device.
 
 ### Creating the Minimal Account
 1. Create an AWS account.  Make a note of the account email and root password in a secure secret storage system.
