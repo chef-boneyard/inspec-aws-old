@@ -20,7 +20,7 @@ class AWSConnection
     end
     opts = {
       region: ENV['AWS_REGION'] || ENV['AWS_DEFAULT_REGION'],
-      credentials: creds
+      credentials: creds,
     }
     Aws.config.update(opts)
   end
