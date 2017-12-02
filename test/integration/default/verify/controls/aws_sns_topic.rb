@@ -1,16 +1,20 @@
-sns_topic_with_subscription_arn = attribute(
-  'sns_test_topic_01_arn',
-  default: 'default.sns_test_topic_01_arn',
-  description: 'ARN of an SNS topic with at least one subscription')
+fixtures = {}
+[
+  'sns_topic_recall_hit_arn',  
+  'sns_topic_with_subscription_arn',
+  'sns_topic_no_subscription_arn',
+].each do |fixture_name|
+  fixtures[fixture_name] = attribute(
+  fixture_name,
+  default: "default.#{fixture_name}",
+  description: 'See ../build/sns.tf',
+  )
+end
 
-sns_topic_with_no_subscriptions_arn = attribute(
-  'sns_test_topic_02_arn',
-  default: 'default.sns_test_topic_02_arn',
-  description: 'ARN of an SNS topic with no subscriptions')
+control 'aws_sns_topic recall' do
 
-control 'SNS Topics' do
-  # Split the ARNs so we can test things
-  scheme, partition, service, region, account, topic = sns_topic_with_subscription_arn.split(':')
+  # Split the ARNs so we can test various ways of missing
+  scheme, partition, service, region, account, topic = fixtures['sns_topic_recall_hit_arn'].split(':')
   arn_prefix = [scheme, partition, service].join(':')
 
   # Search miss
@@ -19,16 +23,17 @@ control 'SNS Topics' do
     it { should_not exist }
   end
 
-  # Search hit, fully specified, has subscriptions
-  describe aws_sns_topic(sns_topic_with_subscription_arn) do
+  # Search hit
+  describe aws_sns_topic(fixtures['sns_topic_recall_hit_arn']) do
     it { should exist }
+  end
+end
+
+control "aws_sns_topic confirmed_subscription_count property" do
+  describe aws_sns_topic(fixtures['sns_topic_with_subscription_arn']) do
     its('confirmed_subscription_count') { should_not be_zero }
   end
-
-  # Search hit, fully specified, has no subscriptions
-  describe aws_sns_topic(sns_topic_with_no_subscriptions_arn) do
-    it { should exist }
+  describe aws_sns_topic(fixtures['sns_topic_no_subscription_arn']) do
     its('confirmed_subscription_count') { should be_zero }
   end
-
 end
