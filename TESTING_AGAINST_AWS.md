@@ -48,6 +48,17 @@ Additionally, the first time you run the tests, you will need to accept the user
 
 
 ### Creating the Minimal Account
+1. Create an AWS account.  Make a note of the account email and root password in a secure secret storage system.
+2. Create an IAM user named `test-fixture-maker`.
+  * Enable programmatic access (to generate an access key)
+  * Direct-attach the policy AdministratorAccess
+  * Note the access key and secret key ID that are generated.
+3. Using the aws command line tool, store the access key and secret key in a profile with a special name:
+  `aws configure --profile inspec-aws-test-minimal`
+
+#### Test Fixtures for the Minimal Account
+
+1. Create an Access Key for the root user.  You do not have to save the access key.
 
 ## Running the integration tests
 
