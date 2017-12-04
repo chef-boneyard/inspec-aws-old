@@ -103,4 +103,11 @@ The name of the S3 bucket where API logs are being delivered.
     its('s3_bucket_name') { should cmp 'my-bucket' }
   end
 
+### trail_name
+
+The name of the Trail.
+
+  describe aws_cloudtrail_trail do
+    its('trail_name') { should cmp 'Default' }
+  end
  
