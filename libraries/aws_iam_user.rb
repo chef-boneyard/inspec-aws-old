@@ -2,8 +2,6 @@
 # author: Steffanie Freeman
 # author: Simon Varlow
 # author: Chris Redekop
-require 'aws_conn'
-
 class AwsIamUser < Inspec.resource(1)
   name 'aws_iam_user'
   desc 'Verifies settings for AWS IAM user'
