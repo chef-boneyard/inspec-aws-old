@@ -1,16 +1,17 @@
 # author: Christoph Hartmann
-
-class Ec2 < Inspec.resource(1)
-  name 'aws_ec2'
+class AwsEc2Instance < Inspec.resource(1)
+  name 'aws_ec2_instance'
   desc 'Verifies settings for an EC2 instance'
 
   example "
-    describe aws_ec2('i-123456') do
+    describe aws_ec2_instance('i-123456') do
       it { should be_running }
+      it { should have_roles }
     end
 
-    describe aws_ec2(name: 'my-instance') do
+    describe aws_ec2_instance(name: 'my-instance') do
       it { should be_running }
+      it { should have_roles }
     end
   "
 
@@ -19,6 +20,7 @@ class Ec2 < Inspec.resource(1)
     @opts.is_a?(Hash) ? @display_name = @opts[:name] : @display_name = opts
     @ec2_client = conn.ec2_client
     @ec2_resource = conn.ec2_resource
+    @iam_resource = conn.iam_resource
   end
 
   def id
@@ -41,6 +43,7 @@ class Ec2 < Inspec.resource(1)
   alias instance_id id
 
   def exists?
+    return false if instance.nil?
     instance.exists?
   end
 
@@ -67,7 +70,7 @@ class Ec2 < Inspec.resource(1)
     instance_type image_id vpc_id
   }.each do |attribute|
     define_method attribute do
-      instance.send(attribute)
+      instance.send(attribute) if instance
     end
   end
 
@@ -85,9 +88,38 @@ class Ec2 < Inspec.resource(1)
     "EC2 Instance #{@display_name}"
   end
 
+  def has_roles?
+    instance_profile = instance.iam_instance_profile
+
+    if instance_profile
+      roles = @iam_resource.instance_profile(
+        instance_profile.arn.gsub(%r{^.*\/}, ''),
+      ).roles
+    else
+      roles = nil
+    end
+
+    roles && !roles.empty?
+  end
+
   private
 
   def instance
     @instance ||= @ec2_resource.instance(id)
+  end
+end
+
+# Deprecated
+class AwsEc2 < AwsEc2Instance
+  name 'aws_ec2'
+
+  def initialize(opts, conn = AWSConnection.new)
+    deprecated
+    super(opts, conn)
+  end
+
+  def deprecated
+    warn '[DEPRECATION] `aws_ec2(parameter)` is deprecated. ' \
+         'Please use `aws_ec2_instance(parameter)` instead.'
   end
 end

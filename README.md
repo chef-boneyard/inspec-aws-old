@@ -13,11 +13,13 @@ As of now, AWS resources are implemented as an InSpec resource pack. It will shi
 
 ## Get started
 
-To run the profile, use InSpec with an environment variable for AWS credentials:
+Before running the profile with InSpec, define environment variables with your AWS region and credentials.  InSpec supports the following variables:
 
+- `AWS_REGION`
 - `AWS_DEFAULT_REGION`
 - `AWS_ACCESS_KEY_ID`
 - `AWS_SECRET_ACCESS_KEY`
+- `AWS_SESSION_TOKEN`
 
 Those variables are defined in [AWS CLI Docs](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html#cli-environment)
 
@@ -53,7 +55,7 @@ control "aws-1" do
   impact 0.7
   title 'Checks the machine is running'
 
-  describe ec2('my-ec2-machine') do
+  describe aws_ec2_instance('my-ec2-machine') do
     it { should be_running }
   end
 end
@@ -61,7 +63,12 @@ end
 
 ### Available Resources
 
- * `aws_ec2` - This resource reads information about an ec2 instance
+ * `aws_ec2_instance` - This resource reads information about an ec2 instance
+ * `aws_iam_access_key` - Verifies settings for AWS IAM access keys
+ * `aws_iam_password_policy` - Verifies iam password policy
+ * `aws_iam_root_user` - Verifies settings for AWS root account
+ * `aws_iam_user` - Verifies settings for a specific AWS IAM user
+ * `aws_iam_users` - Verifies settings for AWS IAM users
 
 ### Roadmap
 
@@ -71,7 +78,6 @@ end
  * `aws_iam_group`
  * `aws_iam_policy`
  * `aws_iam_role`
- * `aws_iam_user`
  ...
 
 
@@ -88,7 +94,7 @@ bundle exec rake test
 ### Integration tests
 
 To run the integration tests, please make sure all required environment variables like `AWS_ACCESS_KEY_ID`
-, `AWS_SECRET_ACCESS_KEY` and `AWS_DEFAULT_REGION` are set properly. (`AWS_DEFAULT_REGION` **must** be set to **us-east-1** when running the integration tests.) We use terraform to create the AWS setup and InSpec to verify the all aspects. If you want to use a specific terraform environment, set environment variable `INSPEC_TERRAFORM_ENV`. Integration tests can be executed via:
+, `AWS_SECRET_ACCESS_KEY` and `AWS_REGION` are set properly. (`AWS_REGION` **must** be set to **us-east-1** when running the integration tests.) We use terraform to create the AWS setup and InSpec to verify the all aspects. If you want to use a specific terraform environment, set environment variable `INSPEC_TERRAFORM_ENV`. Integration tests can be executed via:
 
 ```
 bundle exec rake test:integration
