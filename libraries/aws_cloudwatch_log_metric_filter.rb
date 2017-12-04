@@ -27,10 +27,14 @@ EOX
   private
 
   def validate_params(raw_params)
-    check_resource_param_names(
+    validated_params = check_resource_param_names(
       raw_params: raw_params,
       allowed_params: [:filter_name, :log_group_name, :pattern],
     )
+    if validated_params.empty?
+      raise ArgumentError, 'You must provide either filter_name, log_group, or pattern to aws_cloudwatch_log_metric_filter.'
+    end
+    validated_params
   end
 
   def fetch_from_aws
