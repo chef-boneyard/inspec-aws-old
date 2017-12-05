@@ -22,7 +22,7 @@ Also, there are some singleton resources (such as the default VPC, or Config sta
 
 ## Current Solution
 
-We create two AWS accounts, each dedicated to the task of integration testing inspec-aws.  Both accounts will be manually configured (to cover the gap between what we want to examine, and what test fixtures Terraform can set up).  Between the two of them, we want to have a positive and a negative compliance check for each test point.
+We create two AWS accounts, each dedicated to the task of integration testing inspec-aws.  Both accounts will be manually configured to cover the gap between what we want to examine, and what test fixtures Terraform can set up.  Between the two of them, we want to have a positive and a negative compliance check for each test point.
 
 Put another way, we want a less secure account, against which we will run a profile expecting it to be less secure.  If the profile passes, we have verified that inspec-aws is able to detect the "negative" case.  We call this secondary account - in which we only run tests that we could not fixture or run in the main account - the "minimal" account.
 
@@ -35,6 +35,8 @@ Note that some tests will fail for the first day or two after you set up the acc
 Additionally, the first time you run the tests, you will need to accept the user agreement in the AWS marketplace for the linux AMIs we use.  You'll need to do it 4 times, once for each of debian and centos on the two accounts.
 
 ### Creating the Default account
+
+Follow these instructions carefully.  Do not perform any action not specified.
 
 1. Create an AWS account.  Make a note of the account email and root password in a secure secret storage system.
 2. Create an IAM user named `test-fixture-maker`.
@@ -49,6 +51,9 @@ Additionally, the first time you run the tests, you will need to accept the user
 1. As the root user, enable a virtual MFA device.
 
 ### Creating the Minimal Account
+
+Follow these instructions carefully.  Do not perform any action not specified.
+
 1. Create an AWS account.  Make a note of the account email and root password in a secure secret storage system.
 2. Create an IAM user named `test-fixture-maker`.
   * Enable programmatic access (to generate an access key)
