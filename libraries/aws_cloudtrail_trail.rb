@@ -2,7 +2,7 @@ class AwsCloudTrailTrail < Inspec.resource(1)
   name 'aws_cloudtrail_trail'
   desc 'Verifies individual AWS CloudTrail Trails'
 
-  example <<~EOD
+  example "
     describe aws_cloudtrail_trail('Default') do
       its('s3_bucket_name') { should eq 'mycorp-cloudtrail' }
     end
@@ -10,7 +10,7 @@ class AwsCloudTrailTrail < Inspec.resource(1)
     describe aws_cloudtrail do
       it { should exist }
     end
-  EOD
+  "
 
   # This is lifted directly from resource_mixin.rb; delete after PR 121 merges
   def initialize(resource_params = {})
@@ -47,7 +47,6 @@ class AwsCloudTrailTrail < Inspec.resource(1)
     validated_params
   end
 
-
   attr_reader :trail_name, :kms_key_id, :log_group_name, :s3_bucket_name
   attr_reader :is_multi_region, :is_log_file_validation_enabled, :is_encrypted
   alias be_multi_region? is_multi_region
@@ -68,10 +67,10 @@ class AwsCloudTrailTrail < Inspec.resource(1)
 
   def validate_params(raw_params)
     validated_params = check_resource_param_names(
-    raw_params: raw_params,
-    allowed_params: [:trail_name],
-    allowed_scalar_name: :trail_name,
-    allowed_scalar_type: String,
+      raw_params: raw_params,
+      allowed_params: [:trail_name],
+      allowed_scalar_name: :trail_name,
+      allowed_scalar_type: String,
     )
 
     # If no name was provided, assume 'Default'.
@@ -87,7 +86,7 @@ class AwsCloudTrailTrail < Inspec.resource(1)
       return
     end
     @exists = true
-    
+
     # Simple properties
     @kms_key_id     = trails[0].kms_key_id
     @log_group_name = trails[0].log_group_name
@@ -98,7 +97,7 @@ class AwsCloudTrailTrail < Inspec.resource(1)
     @is_log_file_validation_enabled = trails[0].log_file_validation_enabled
 
     # These are synthetics.
-    @is_encrypted =  ! (kms_key_id.nil? || kms_key_id.empty?)
+    @is_encrypted = !(kms_key_id.nil? || kms_key_id.empty?)
   end
 
   # This class may be deleted once PR 121 is merged.
