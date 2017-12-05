@@ -47,7 +47,7 @@ class AwsCloudTrailTrail < Inspec.resource(1)
     validated_params
   end
 
-  attr_reader :trail_name
+  attr_reader :trail_name, :kms_key_id, :log_group_name, :s3_bucket_name
 
   # This is lifted directly from resource_mixin.rb; delete after PR 121 merges
   def exists?
@@ -81,7 +81,11 @@ class AwsCloudTrailTrail < Inspec.resource(1)
       return
     end
     @exists = true
-    # TODO - properties
+    
+    # Simple properties
+    @kms_key_id     = trails[0].kms_key_id
+    @log_group_name = trails[0].log_group_name
+    @s3_bucket_name = trails[0].s3_bucket_name
   end
 
   # This class may be deleted once PR 121 is merged.

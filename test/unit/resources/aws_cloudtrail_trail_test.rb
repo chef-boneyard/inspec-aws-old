@@ -58,6 +58,52 @@ end
 #                                Properties
 #=============================================================================#
 
+class AwsCloudTrailTrailKmsKeyIdPropertyTest < Minitest::Test
+  def setup
+    AwsCloudTrailTrail::BackendFactory.select(AwsMCTTB::TwoTrails)
+  end
+
+  def test_kms_key_id_property_when_present
+    trail = AwsCloudTrailTrail.new('security')
+    assert_equal('3a86879e-dead-beef-acbc-56db6b873c88', trail.kms_key_id)
+  end
+
+  def test_kms_key_id_property_when_absent
+    assert_nil(AwsCloudTrailTrail.new('applications').kms_key_id)
+  end
+end
+
+class AwsCloudTrailTrailLogGroupNamePropertyTest < Minitest::Test
+  def setup
+    AwsCloudTrailTrail::BackendFactory.select(AwsMCTTB::TwoTrails)
+  end
+
+  def test_log_group_name_property_when_present
+    trail = AwsCloudTrailTrail.new('security')
+    assert_equal('security-logs', trail.log_group_name)
+  end
+
+  def test_log_group_name_property_when_absent
+    assert_nil(AwsCloudTrailTrail.new('applications').log_group_name)
+  end
+end
+
+class AwsCloudTrailTrailS3BucketNamePropertyTest < Minitest::Test
+  def test_s3_bucket_name_property_when_present
+    AwsCloudTrailTrail::BackendFactory.select(AwsMCTTB::TwoTrails)    
+    trail = AwsCloudTrailTrail.new('security')
+    assert_equal('security-bucket', trail.s3_bucket_name)
+  end
+end
+
+#=============================================================================#
+#                              Custom Matchers
+#=============================================================================#
+
+# be_multi_region
+# be_encrypted
+# have_log_file_validation_enabled
+
 #=============================================================================#
 #                               Test Fixtures
 #=============================================================================#
@@ -99,6 +145,9 @@ module AwsMCTTB
         trail_list: [
           OpenStruct.new({
             name: 'security',
+            kms_key_id: '3a86879e-dead-beef-acbc-56db6b873c88',
+            log_group_name: 'security-logs',
+            s3_bucket_name: 'security-bucket',
           }),
           OpenStruct.new({
             name: 'applications',
