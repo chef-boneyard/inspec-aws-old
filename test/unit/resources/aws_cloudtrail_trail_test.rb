@@ -58,6 +58,7 @@ end
 #                                Properties
 #=============================================================================#
 
+#-------------------------------  kms_key_id ---------------------------------#
 class AwsCloudTrailTrailKmsKeyIdPropertyTest < Minitest::Test
   def setup
     AwsCloudTrailTrail::BackendFactory.select(AwsMCTTB::TwoTrails)
@@ -73,6 +74,7 @@ class AwsCloudTrailTrailKmsKeyIdPropertyTest < Minitest::Test
   end
 end
 
+#----------------------------  log_group_name ---------------------------------#
 class AwsCloudTrailTrailLogGroupNamePropertyTest < Minitest::Test
   def setup
     AwsCloudTrailTrail::BackendFactory.select(AwsMCTTB::TwoTrails)
@@ -88,6 +90,7 @@ class AwsCloudTrailTrailLogGroupNamePropertyTest < Minitest::Test
   end
 end
 
+#-----------------------------  s3_bucket_name ---------------------------------#
 class AwsCloudTrailTrailS3BucketNamePropertyTest < Minitest::Test
   def test_s3_bucket_name_property_when_present
     AwsCloudTrailTrail::BackendFactory.select(AwsMCTTB::TwoTrails)    
@@ -100,9 +103,80 @@ end
 #                              Custom Matchers
 #=============================================================================#
 
-# be_multi_region
-# be_encrypted
-# have_log_file_validation_enabled
+#------------------------------- multi_region --------------------------------#
+class AwsCloudTrailTrailMultiRegionMatcherTest < Minitest::Test
+  def setup
+    AwsCloudTrailTrail::BackendFactory.select(AwsMCTTB::TwoTrails)
+  end
+
+  def test_multi_region_matcher_methods
+    trail = AwsCloudTrailTrail.new
+    assert_respond_to(trail, :is_multi_region)
+    assert_respond_to(trail, :be_multi_region?)
+  end
+
+  def test_multi_region_when_true
+    trail = AwsCloudTrailTrail.new('security')
+    assert(trail.is_multi_region)
+    assert(trail.be_multi_region?)
+  end
+
+  def test_multi_region_when_false
+    trail = AwsCloudTrailTrail.new('applications')
+    refute(trail.is_multi_region)
+    refute(trail.be_multi_region?)
+  end
+end
+
+#------------------------------- encrypted ---------------------------------#
+class AwsCloudTrailTrailEncryptedMatcherTest < Minitest::Test
+  def setup
+    AwsCloudTrailTrail::BackendFactory.select(AwsMCTTB::TwoTrails)
+  end
+
+  def test_encrypted_matcher_methods
+    trail = AwsCloudTrailTrail.new
+    assert_respond_to(trail, :is_encrypted)
+    assert_respond_to(trail, :be_encrypted?)
+  end
+
+  def test_encrypted_when_true
+    trail = AwsCloudTrailTrail.new('security')
+    assert(trail.is_encrypted)
+    assert(trail.be_encrypted?)
+  end
+
+  def test_encrypted_when_false
+    trail = AwsCloudTrailTrail.new('applications')
+    refute(trail.is_encrypted)
+    refute(trail.be_encrypted?)
+  end
+end
+
+#------------------------- log_file_validation_enabled -----------------------------#
+class AwsCloudTrailTrailLogFileValidationMatcherTest < Minitest::Test
+  def setup
+    AwsCloudTrailTrail::BackendFactory.select(AwsMCTTB::TwoTrails)
+  end
+
+  def test_log_file_validation_enabled_matcher_methods
+    trail = AwsCloudTrailTrail.new
+    assert_respond_to(trail, :is_log_file_validation_enabled)
+    assert_respond_to(trail, :has_log_file_validation_enabled?)
+  end
+
+  def test_log_file_validation_enabled_when_true
+    trail = AwsCloudTrailTrail.new('security')
+    assert(trail.is_log_file_validation_enabled)
+    assert(trail.has_log_file_validation_enabled?)
+  end
+
+  def test_log_file_validation_enabled_when_false
+    trail = AwsCloudTrailTrail.new('applications')
+    refute(trail.is_log_file_validation_enabled)
+    refute(trail.has_log_file_validation_enabled?)
+  end
+end
 
 #=============================================================================#
 #                               Test Fixtures
@@ -148,9 +222,13 @@ module AwsMCTTB
             kms_key_id: '3a86879e-dead-beef-acbc-56db6b873c88',
             log_group_name: 'security-logs',
             s3_bucket_name: 'security-bucket',
+            log_file_validation_enabled: true,
+            is_multi_region_trail: true,
           }),
           OpenStruct.new({
             name: 'applications',
+            log_file_validation_enabled: false,
+            is_multi_region_trail: false,
           }),
         ]
       })
