@@ -72,7 +72,7 @@ To run all AWS integration tests, run:
 To run the tests against one account only:
 
  ```
- bundle exec rake test:aws:defualt
+ bundle exec rake test:aws:default
  ```
 
  or
@@ -84,9 +84,9 @@ To run the tests against one account only:
 Each account has separate tasks for setup, running the tests, and cleanup.  You may run them separately:
 
 ```
-bundle exec rake test:aws:setup:defualt
-bundle exec rake test:aws:run:defualt
-bundle exec rake test:aws:cleanup:defualt
+bundle exec rake test:aws:setup:default
+bundle exec rake test:aws:run:default
+bundle exec rake test:aws:cleanup:default
 ```
 
 
