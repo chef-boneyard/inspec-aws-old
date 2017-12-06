@@ -39,30 +39,8 @@ class AwsIamPolicyTest < Minitest::Test
 		@mock_policy.expect :nil?, true
 		@mock_policy.expect :policy_name, Policy
 		e = assert_raises Exception do 
-			AwsIamPolicy.new(Arn,@mock_conn).name
+			AwsIamPolicy.new(ARN,@mock_conn).name
 		end
 		assert_equal e.message, 'this policy does not exist'
 	end
-
-	def test_attachment_count_returns_count
-		@mock_policy.expect :nil?, false
-		@mock_policy.expect :attachment_count, 1
-		refute_nil AwsIamPolicy.new(Arn,@mock_conn).attachment_count
-	end
-
-	def test_attachment_count_when_there_are_no_attachment_count
-		@mock_policy.expect :nil?, false
-		@mock_policy.expect :attachment_count, nil 
-		assert_nil AwsIamPolicy.new(Arn,@mock_conn).attachment_count
-	end
-
-	def test_attachment_count_returns_exception_when_policy_does_not_exist
-		@mock_policy.expect :nil?, true
-		@mock_policy.expect :attachment_count, 1
-		e = assert_raises Exception do 
-			AwsIamPolicy.new(Arn,@mock_conn).attachment_count
-		end
-		assert_equal e.message, 'this policy does not exist'
-	end
-
 end
