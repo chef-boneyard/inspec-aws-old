@@ -55,6 +55,7 @@ class AwsIamAccessKeys < Inspec.resource(1)
         .add(:access_key_ids, field: :access_key_id)
         .add(:created_date, field: :created_date)
         .add(:created_days_ago, field: :created_days_ago)
+        .add(:created_with_user, field: :created_with_user)
         .add(:created_hours_ago, field: :created_hours_ago)
         .add(:usernames, field: :username)
         .add(:active, field: :active)
@@ -87,7 +88,7 @@ class AwsIamAccessKeys < Inspec.resource(1)
     class AwsUserIterator < AccessKeyProvider
       def fetch(criteria)
         iam_client = AWSConnection.new.iam_client
-
+        
         user_details = {}
         if criteria.key?(:username)
           begin
@@ -136,7 +137,8 @@ class AwsIamAccessKeys < Inspec.resource(1)
         key_info[:created_hours_ago] = ((Time.now - key_info[:create_date]) / (60*60)).to_i
         key_info[:created_days_ago] = (key_info[:created_hours_ago] / 24).to_i
         key_info[:user_created_date] = user_details[:create_date]
-        
+        key_info[:created_with_user] = (key_info[:create_date] - key_info[:user_created_date]).abs < 1.0/24.0
+
         # Last used is a separate API call
         iam_client = AWSConnection.new.iam_client
         last_used =

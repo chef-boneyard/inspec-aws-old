@@ -170,6 +170,21 @@ class AwsIamAccessKeysPropertiesTest < Minitest::Test
   end
 
   #----------------------------------------------------------#
+  #                     created_with_user                    #
+  #----------------------------------------------------------#
+  def test_property_created_with_user
+    assert_kind_of(TrueClass, @all_basic.entries[0].created_with_user)
+    assert_kind_of(FalseClass, @all_basic.entries[1].created_with_user)
+
+    arg_filtered = @all_basic.where(created_with_user: true)
+    assert_equal(2, arg_filtered.entries.count)
+    assert arg_filtered.access_key_ids.first.end_with?('BOB')
+
+    block_filtered = @all_basic.where { created_with_user }
+    assert_equal(2, block_filtered.entries.count)
+  end
+
+  #----------------------------------------------------------#
   #                    active / inactive                     #
   #----------------------------------------------------------#
   def test_property_active
@@ -300,6 +315,7 @@ class BasicMAKP < AwsIamAccessKeys::AccessKeyProvider
         created_date: DateTime.parse('2017-10-27T17:58:00Z'),
         created_days_ago: 4,
         created_hours_ago: 102,
+        created_with_user: true,
         status: 'Active',
         active: true,
         inactive: false,
@@ -317,6 +333,7 @@ class BasicMAKP < AwsIamAccessKeys::AccessKeyProvider
         created_date: DateTime.parse('2017-10-22T17:58:00Z'),
         created_days_ago: 9,
         created_hours_ago: 222,
+        created_with_user: false,        
         status: 'Active',
         active: true,
         inactive: false,
@@ -334,6 +351,7 @@ class BasicMAKP < AwsIamAccessKeys::AccessKeyProvider
         created_date: DateTime.parse('2017-10-31T17:58:00Z'),
         created_days_ago: 1,
         created_hours_ago: 12,
+        created_with_user: true,        
         status: 'Inactive',
         active: false,
         inactive: true,
@@ -342,7 +360,7 @@ class BasicMAKP < AwsIamAccessKeys::AccessKeyProvider
         last_used_hours_ago: 5,
         ever_used: true,
         never_used: false,
-        user_created_date: DateTime.parse('2017-10-31T17:58:00Z'),        
+        user_created_date: DateTime.parse('2017-10-31T17:58:00Z'),  
       },
     ]
   end
