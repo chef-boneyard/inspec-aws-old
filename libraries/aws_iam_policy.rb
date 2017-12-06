@@ -9,7 +9,7 @@ class AwsIamPolicy < Inspec.resource(1)
 
   example "
     describe aws_iam_policy'AwsSupportAccess' do
-      it { should exist} 
+      it { should exist}
       its('attachment_count') { should be > 0 }
     end
   "
@@ -18,9 +18,9 @@ class AwsIamPolicy < Inspec.resource(1)
     @policy = conn.iam_resource.policy(opts.is_a?(Hash) ? opts[:arn] : opts)
   end
 
-  def name 
-    raise "this policy does not exist" unless exists?
-    @policy.policy_name 
+  def name
+    raise 'this policy does not exist' unless exists?
+    @policy.policy_name
   end
 
   def exists?
@@ -28,7 +28,7 @@ class AwsIamPolicy < Inspec.resource(1)
   end
 
   def attachment_count
-    raise "this policy does not exist" unless exists?
+    raise 'this policy does not exist' unless exists?
     @policy.attachment_count
   end
 end
