@@ -64,7 +64,8 @@ class AwsIamAccessKeys < Inspec.resource(1)
         .add(:last_used_days_ago,  field: :last_used_days_ago)
         .add(:ever_used,           field: :ever_used)
         .add(:never_used,          field: :never_used)
-  filter.connect(self, :access_key_data)
+        .add(:user_created_date,   field: :user_created_date)
+        filter.connect(self, :access_key_data)
 
   def access_key_data
     @table
@@ -86,16 +87,23 @@ class AwsIamAccessKeys < Inspec.resource(1)
     class AwsUserIterator < AccessKeyProvider
       def fetch(criteria)
         iam_client = AWSConnection.new.iam_client
-        usernames = []
+
+        user_details = {}
         if criteria.key?(:username)
-          usernames.push criteria[:username]
+          begin
+            user_details[criteria[:username]] = iam_client.get_user(user_name: criteria[:username]).user
+          rescue Aws::IAM::Errors::NoSuchEntity # rubocop:disable Lint/HandleExceptions
+            # Swallow - a miss on search results should return an empty table            
+          end
         else
           # TODO: pagination check and resume
-          usernames = iam_client.list_users.users.map(&:user_name)
+          iam_client.list_users.users.each do |info|
+            user_details[info.user_name] = info
+          end
         end
 
         access_key_data = []
-        usernames.each do |username|
+        user_details.each_key do |username|
           begin
             user_keys = iam_client.list_access_keys(user_name: username)
                                   .access_key_metadata
@@ -108,9 +116,10 @@ class AwsIamAccessKeys < Inspec.resource(1)
               }
             end
 
+            # Copy in from user data
             # Synthetics
             user_keys.each do |key_info|
-              add_synthetic_fields(key_info)
+              add_synthetic_fields(key_info, user_details[username])
             end
             access_key_data.concat(user_keys)
           rescue Aws::IAM::Errors::NoSuchEntity # rubocop:disable Lint/HandleExceptions
@@ -120,13 +129,14 @@ class AwsIamAccessKeys < Inspec.resource(1)
         access_key_data
       end
 
-      def add_synthetic_fields(key_info) # rubocop:disable Metrics/AbcSize
+      def add_synthetic_fields(key_info, user_details) # rubocop:disable Metrics/AbcSize
         key_info[:id] = key_info[:access_key_id]
         key_info[:active] = key_info[:status] == 'Active'
         key_info[:inactive] = key_info[:status] != 'Active'
         key_info[:created_hours_ago] = ((Time.now - key_info[:create_date]) / (60*60)).to_i
         key_info[:created_days_ago] = (key_info[:created_hours_ago] / 24).to_i
-
+        key_info[:user_created_date] = user_details[:create_date]
+        
         # Last used is a separate API call
         iam_client = AWSConnection.new.iam_client
         last_used =

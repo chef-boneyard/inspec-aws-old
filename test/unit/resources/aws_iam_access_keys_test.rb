@@ -64,7 +64,7 @@ end
 
 class AwsIamAccessKeysFilterCriteriaTest < Minitest::Test
   def setup
-    # Here we always want no rseults.
+    # Here we always want no results.
     AwsIamAccessKeys::AccessKeyProvider.select(AlwaysEmptyMAKP)
     @valued_criteria = {
       username: 'bob',
@@ -262,6 +262,20 @@ class AwsIamAccessKeysPropertiesTest < Minitest::Test
     assert_equal(1, block_filtered.entries.count)
     assert block_filtered.access_key_ids.first.end_with?('BOB')
   end
+
+  #----------------------------------------------------------#
+  #                    user_created_date                     #
+  #----------------------------------------------------------#
+  def test_property_user_created_date
+    assert_kind_of(DateTime, @all_basic.entries.first.user_created_date)
+    arg_filtered = @all_basic.where(user_created_date: DateTime.parse('2017-10-21T17:58:00Z'))
+    assert_equal(1, arg_filtered.entries.count)
+    assert arg_filtered.access_key_ids.first.end_with?('SALLY')
+
+    block_filtered = @all_basic.where { user_created_date.saturday? }
+    assert_equal(1, block_filtered.entries.count)
+    assert block_filtered.access_key_ids.first.end_with?('SALLY')
+  end
 end
 #==========================================================#
 #                 Mock Support Classes                     #
@@ -294,6 +308,7 @@ class BasicMAKP < AwsIamAccessKeys::AccessKeyProvider
         last_used_hours_ago: nil,
         ever_used: false,
         never_used: true,
+        user_created_date: DateTime.parse('2017-10-27T17:58:00Z'),
       },
       {
         username: 'sally',
@@ -310,6 +325,7 @@ class BasicMAKP < AwsIamAccessKeys::AccessKeyProvider
         last_used_hours_ago: 102,
         ever_used: true,
         never_used: false,
+        user_created_date: DateTime.parse('2017-10-21T17:58:00Z'),        
       },
       {
         username: 'robin',
@@ -326,6 +342,7 @@ class BasicMAKP < AwsIamAccessKeys::AccessKeyProvider
         last_used_hours_ago: 5,
         ever_used: true,
         never_used: false,
+        user_created_date: DateTime.parse('2017-10-31T17:58:00Z'),        
       },
     ]
   end
