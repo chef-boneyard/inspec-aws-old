@@ -66,7 +66,7 @@ class AwsIamAccessKeys < Inspec.resource(1)
         .add(:ever_used,           field: :ever_used)
         .add(:never_used,          field: :never_used)
         .add(:user_created_date,   field: :user_created_date)
-        filter.connect(self, :access_key_data)
+  filter.connect(self, :access_key_data)
 
   def access_key_data
     @table
@@ -88,13 +88,13 @@ class AwsIamAccessKeys < Inspec.resource(1)
     class AwsUserIterator < AccessKeyProvider
       def fetch(criteria)
         iam_client = AWSConnection.new.iam_client
-        
+
         user_details = {}
         if criteria.key?(:username)
           begin
             user_details[criteria[:username]] = iam_client.get_user(user_name: criteria[:username]).user
           rescue Aws::IAM::Errors::NoSuchEntity # rubocop:disable Lint/HandleExceptions
-            # Swallow - a miss on search results should return an empty table            
+            # Swallow - a miss on search results should return an empty table
           end
         else
           # TODO: pagination check and resume
