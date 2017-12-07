@@ -30,6 +30,24 @@ class AwsIamRoleConstructorTest < Minitest::Test
 end
 
 #=============================================================================#
+#                               Search / Recall
+#=============================================================================#
+class AwsIamRoleRecallTest < Minitest::Test
+  # No setup here - each test needs to explicitly declare
+  # what they want from the backend.
+
+  def test_recall_no_match_is_no_exception
+    AwsIamRole::BackendFactory.select(AwsMIRB::Miss)
+    refute AwsIamRole.new('nonesuch').exists?
+  end
+
+  def test_recall_match_single_result_works
+    AwsIamRole::BackendFactory.select(AwsMIRB::Basic)
+    assert AwsIamRole.new('alpha').exists?
+  end
+end
+
+#=============================================================================#
 #                               Test Fixtures
 #=============================================================================#
 module AwsMIRB
@@ -42,7 +60,7 @@ module AwsMIRB
   class Basic
     def get_role(query)
       fixtures = {
-        alpha => OpenStruct.new({
+        'alpha' => OpenStruct.new({
           role_name: 'alpha',
         }),
       }
@@ -50,7 +68,7 @@ module AwsMIRB
         raise Aws::IAM::Errors::NoSuchEntity.new('Nope', 'Nope')
       end
       OpenStruct.new({
-        role => fixtures[query[:role_name]]
+        role: fixtures[query[:role_name]]
       })
     end
   end

@@ -26,14 +26,23 @@ class AwsIamRole < Inspec.resource(1)
   end
 
   def fetch_from_aws
-    # TODO
+    role_info = nil
+    begin
+      role_info = AwsIamRole::BackendFactory.create.get_role(role_name: role_name)
+    rescue Aws::IAM::Errors::NoSuchEntity
+      @exists = false
+      return
+    end
+    @exists = true
   end
 
   # Uses the SDK API to really talk to AWS
   class Backend
     class AwsClientApi
       BackendFactory.set_default_backend(self)
-      # TODO
+      def get_role(query)
+        AWSConnection.new.iam_client.get_role(query)
+      end
     end
   end
 end
