@@ -15,9 +15,6 @@ Use the `aws_iam_role` InSpec audit resource to test properties of a single IAM 
     it { should exist }
   end
 
-  # Obtain the AssumeRole Policy as a decoded hash
-  policy_info = aws_iam_role(other-role).assume_role_policy  
-
 ## Resource Parameters
 
 ### role_name
@@ -55,7 +52,3 @@ A textual description of the IAM Role.
     describe aws_iam_role('my-role') do
       its('description') { should be('Our most important Role')}
     end
-
-### assume_role_policy
-
-A Ruby Hash created from the URL-encoded JSON policy document.  This structure contains information in the IAM Policy language that controls who is allows to utilize this role.

@@ -47,6 +47,29 @@ class AwsIamRoleRecallTest < Minitest::Test
   end
 end
 
+
+#=============================================================================#
+#                                Properties
+#=============================================================================#
+
+class AwsIamRolePropertiesTest < Minitest::Test
+  def setup
+    AwsIamRole::BackendFactory.select(AwsMIRB::Basic)
+  end
+
+  #---------------------------------------
+  #       description
+  #---------------------------------------
+  def test_property_description
+    assert_equal('alpha role', AwsIamRole.new('alpha').description)
+  end
+
+  def test_prop_conf_sub_count_zero
+    assert_empty(AwsIamRole.new('beta').description)    
+  end
+end
+
+
 #=============================================================================#
 #                               Test Fixtures
 #=============================================================================#
@@ -62,6 +85,11 @@ module AwsMIRB
       fixtures = {
         'alpha' => OpenStruct.new({
           role_name: 'alpha',
+          description: 'alpha role',
+        }),
+        'beta' => OpenStruct.new({
+          role_name: 'beta',
+          description: '',
         }),
       }
       unless fixtures.key?(query[:role_name])

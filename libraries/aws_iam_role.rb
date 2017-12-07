@@ -8,7 +8,7 @@ class AwsIamRole < Inspec.resource(1)
   "
 
   include AwsResourceMixin
-  attr_reader :role_name
+  attr_reader :role_name, :description
 
   private
 
@@ -34,6 +34,7 @@ class AwsIamRole < Inspec.resource(1)
       return
     end
     @exists = true
+    @description = role_info.role.description
   end
 
   # Uses the SDK API to really talk to AWS
