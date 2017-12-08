@@ -106,6 +106,21 @@ class AwsIamUserTest < Minitest::Test
     mock_access_key_factory.verify
   end
 
+  def test_that_has_policies_returns_true
+    @mock_user_provider.expect :user, @mock_user, [Username]
+    @mock_dets_provider.expect :has_policies?, true
+    @mock_dets_prov_ini.expect :create, @mock_dets_provider, [@mock_user]
+
+    assert (
+      AwsIamUser.new(
+        @mock_user,
+        @mock_user_provider,
+        @mock_dets_prov_ini,
+      ).has_policies?
+    )
+
+  end
+
   def test_to_s
     test_user = { name: Username, has_mfa_enabled?: true }
     @mock_user_provider.expect :user, test_user, [Username]
