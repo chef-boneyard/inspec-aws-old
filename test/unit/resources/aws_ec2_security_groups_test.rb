@@ -23,6 +23,32 @@ class AwsESGConstructor < Minitest::Test
 end
 
 #=============================================================================#
+#                            Filter Criteria
+#=============================================================================#
+class AwsESGFilterCriteria < Minitest::Test
+  def setup
+    AwsEc2SecurityGroups::BackendFactory.select(AwsMESGB::Basic)
+  end
+  
+  def test_filter_vpc_id
+    hit = AwsEc2SecurityGroups.new.where(vpc_id: 'vpc-12345678')
+    assert(hit.exists?)
+
+    miss = AwsEc2SecurityGroups.new.where(vpc_id: 'vpc-87654321')
+    refute(miss.exists?)
+  end
+
+  def test_filter_group_name
+    hit = AwsEc2SecurityGroups.new.where(group_name: 'alpha')
+    assert(hit.exists?)
+
+    miss = AwsEc2SecurityGroups.new.where(group_name: 'nonesuch')
+    refute(miss.exists?)
+  end
+
+end
+
+#=============================================================================#
 #                               Test Fixtures
 #=============================================================================#
 
@@ -34,4 +60,28 @@ module AwsMESGB
       })
     end
   end
+
+  class Basic < AwsEc2SecurityGroups::Backend
+    def describe_security_groups(query)
+      fixtures = [
+        OpenStruct.new({
+          group_name: 'alpha',
+          vpc_id: 'vpc-aaaabbbb',
+        }),
+        OpenStruct.new({
+          group_name: 'beta',
+          vpc_id: 'vpc-12345678',
+        }),
+      ]
+
+      selected = fixtures.select do |sg|
+        query.keys.all? do |criterion|
+          query[criterion] == sg[criterion]
+        end
+      end
+
+      OpenStruct.new({ security_groups: selected })
+    end
+  end
+
 end

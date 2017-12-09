@@ -1,7 +1,7 @@
 fixtures = {}
 [
-  'ec2_security_groups_default_vpc_id',
-  'ec2_security_groups_default_group_id',
+  'ec2_security_group_default_vpc_id',
+  'ec2_security_group_default_group_id',
 ].each do |fixture_name|
   fixtures[fixture_name] = attribute(
     fixture_name,
@@ -16,6 +16,22 @@ control "aws_security_groups client-side filtering" do
   # You should always have at least one security group
   describe all_groups do
     it { should exist }
+  end
+
+  # You should be able to find a security group in the default VPC
+  describe all_groups.where(vpc_id: fixtures['ec2_security_group_default_vpc_id']) do
+    it { should exist }
+  end
+  describe all_groups.where(vpc_id: 'vpc-12345678') do
+    it { should_not exist }
+  end
+
+  # You should be able to find the security group named default
+  describe all_groups.where(group_name: 'default') do
+    it { should exist }
+  end
+  describe all_groups.where(group_name: 'no-such-security-group') do
+    it { should_not exist }
   end
 
 end
