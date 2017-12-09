@@ -60,15 +60,15 @@ class AwsEc2SecurityGroups < Inspec.resource(1)
   def fetch_from_backend(criteria)
     @table = []
     backend = AwsEc2SecurityGroups::BackendFactory.create
-    # Note: should we ever implement server-side filtering 
+    # Note: should we ever implement server-side filtering
     # (and this is a very good resource for that),
     # we will need to reformat the criteria we are sending to AWS.
     backend.describe_security_groups(criteria).security_groups.each do |sg_info|
       @table.push({
-        group_id: sg_info.group_id,
+                    group_id: sg_info.group_id,
         group_name: sg_info.group_name,
         vpc_id: sg_info.vpc_id,
-      })
+                  })
     end
   end
 
