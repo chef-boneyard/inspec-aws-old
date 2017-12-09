@@ -33,5 +33,11 @@ control "aws_security_groups client-side filtering" do
   describe all_groups.where(group_name: 'no-such-security-group') do
     it { should_not exist }
   end
+end
 
+control "aws_security_groups properties" do
+  # You should be able to find the default security group's ID.
+  describe aws_ec2_security_groups.where(vpc_id: fixtures['ec2_security_group_default_vpc_id']) do
+    its('group_ids') { should include fixtures['ec2_security_group_default_group_id'] }
+  end
 end

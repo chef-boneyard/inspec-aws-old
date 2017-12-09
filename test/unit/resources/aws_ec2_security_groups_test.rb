@@ -49,6 +49,22 @@ class AwsESGFilterCriteria < Minitest::Test
 end
 
 #=============================================================================#
+#                            Properties
+#=============================================================================#
+class AwsESGProperties < Minitest::Test
+  def setup
+    AwsEc2SecurityGroups::BackendFactory.select(AwsMESGB::Basic)
+  end
+  
+  def test_property_group_ids
+    basic = AwsEc2SecurityGroups.new
+    assert_kind_of(Array, basic.group_ids)
+    assert(basic.group_ids.include?('sg-aaaabbbb'))
+    refute(basic.group_ids.include?(nil))
+  end
+end
+
+#=============================================================================#
 #                               Test Fixtures
 #=============================================================================#
 
@@ -65,10 +81,12 @@ module AwsMESGB
     def describe_security_groups(query)
       fixtures = [
         OpenStruct.new({
+          group_id: 'sg-aaaabbbb',
           group_name: 'alpha',
           vpc_id: 'vpc-aaaabbbb',
         }),
         OpenStruct.new({
+          group_id: 'sg-12345678',
           group_name: 'beta',
           vpc_id: 'vpc-12345678',
         }),
