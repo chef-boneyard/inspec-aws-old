@@ -57,7 +57,7 @@ class AwsEc2SecurityGroup < Inspec.resource(1)
       val = instance_variable_get("@#{criterion_name}".to_sym)
       unless val.nil?
         filters.push({
-          name: criterion_name.to_s.tr('-','_'),
+          name: criterion_name.to_s.tr('_','-'),
           values: [val],
         })
       end

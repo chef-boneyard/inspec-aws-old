@@ -70,6 +70,12 @@ class AwsESGSConstructor < Minitest::Test
     assert_equal('vpc-aaaabbbb', AwsEc2SecurityGroup.new('sg-aaaabbbb').vpc_id)
     assert_nil(AwsEc2SecurityGroup.new('sg-87654321').vpc_id)
   end
+
+  def test_property_description
+    assert_equal('Awesome Group', AwsEc2SecurityGroup.new('sg-12345678').description)
+    assert_nil(AwsEc2SecurityGroup.new('sg-87654321').description)
+  end
+
 end
 
 #=============================================================================#
@@ -89,11 +95,13 @@ module AwsMESGSB
     def describe_security_groups(query)
       fixtures = [
         OpenStruct.new({
+          description: 'Some Group',
           group_id: 'sg-aaaabbbb',
           group_name: 'alpha',
           vpc_id: 'vpc-aaaabbbb',
         }),
         OpenStruct.new({
+          description: 'Awesome Group',          
           group_id: 'sg-12345678',
           group_name: 'beta',
           vpc_id: 'vpc-12345678',
@@ -102,7 +110,7 @@ module AwsMESGSB
 
       selected = fixtures.select do |sg|
         query[:filters].all? do |filter|
-          filter[:values].include?(sg[filter[:name].to_sym])
+          filter[:values].include?(sg[filter[:name].tr('-','_')])
         end
       end
 
