@@ -100,8 +100,6 @@ The control will pass if the specified SG was found.  Use should_not if you want
       it { should_not exist }
     end 
 
-## Filter Criteri
-
 ## Properties
 
 ### group_id

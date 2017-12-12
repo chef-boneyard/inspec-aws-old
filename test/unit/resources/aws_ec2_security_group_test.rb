@@ -48,6 +48,31 @@ class AwsESGSConstructor < Minitest::Test
 end
 
 #=============================================================================#
+#                               Properties
+#=============================================================================#
+
+class AwsESGSConstructor < Minitest::Test
+  def setup
+    AwsEc2SecurityGroup::BackendFactory.select(AwsMESGSB::Basic)
+  end
+  
+  def test_property_group_id
+    assert_equal('sg-12345678', AwsEc2SecurityGroup.new('sg-12345678').group_id)
+    assert_nil(AwsEc2SecurityGroup.new(group_name: 'my-group').group_id)
+  end
+
+  def test_property_group_name
+    assert_equal('beta', AwsEc2SecurityGroup.new('sg-12345678').group_name)
+    assert_nil(AwsEc2SecurityGroup.new('sg-87654321').group_name)
+  end
+
+  def test_property_vpc_id
+    assert_equal('vpc-aaaabbbb', AwsEc2SecurityGroup.new('sg-aaaabbbb').vpc_id)
+    assert_nil(AwsEc2SecurityGroup.new('sg-87654321').vpc_id)
+  end
+end
+
+#=============================================================================#
 #                               Test Fixtures
 #=============================================================================#
 
@@ -59,4 +84,30 @@ module AwsMESGSB
       })
     end
   end
+
+  class Basic < AwsEc2SecurityGroup::Backend
+    def describe_security_groups(query)
+      fixtures = [
+        OpenStruct.new({
+          group_id: 'sg-aaaabbbb',
+          group_name: 'alpha',
+          vpc_id: 'vpc-aaaabbbb',
+        }),
+        OpenStruct.new({
+          group_id: 'sg-12345678',
+          group_name: 'beta',
+          vpc_id: 'vpc-12345678',
+        }),
+      ]
+
+      selected = fixtures.select do |sg|
+        query[:filters].all? do |filter|
+          filter[:values].include?(sg[filter[:name].to_sym])
+        end
+      end
+
+      OpenStruct.new({ security_groups: selected })
+    end
+  end
+
 end

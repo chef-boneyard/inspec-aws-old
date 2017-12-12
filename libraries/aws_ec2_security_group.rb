@@ -8,7 +8,7 @@ class AwsEc2SecurityGroup < Inspec.resource(1)
   '
 
   include AwsResourceMixin
-  attr_reader :group_id
+  attr_reader :description, :group_id, :group_name, :vpc_id
 
   def to_s
     'EC2 Security Group'
@@ -44,7 +44,37 @@ class AwsEc2SecurityGroup < Inspec.resource(1)
   end
 
   def fetch_from_aws
-    # TODO
+    backend = AwsEc2SecurityGroup::BackendFactory.create
+
+    # Transform into filter format expected by AWS
+    filters = []
+    [
+      :description,
+      :group_id, 
+      :group_name, 
+      :vpc_id,
+    ].each do |criterion_name|
+      val = instance_variable_get("@#{criterion_name}".to_sym)
+      unless val.nil?
+        filters.push({
+          name: criterion_name.to_s.tr('-','_'),
+          values: [val],
+        })
+      end
+    end
+    dsg_response = backend.describe_security_groups(filters: filters)
+
+    if dsg_response.security_groups.empty?
+      @exists = false
+      return
+    end
+
+    @exists = true
+    @description   = dsg_response.security_groups[0].description
+    @group_id   = dsg_response.security_groups[0].group_id
+    @group_name = dsg_response.security_groups[0].group_name
+    @vpc_id     = dsg_response.security_groups[0].vpc_id
+    
   end
 
   class Backend
