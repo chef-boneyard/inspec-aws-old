@@ -24,7 +24,12 @@ class AwsIamPolicy < Inspec.resource(1)
   end
 
   def exists?
-    !@policy.nil?
+    begin 
+      !@policy.create_date
+      true
+    rescue Exception
+      false
+    end 
   end
 
   def attachment_count
