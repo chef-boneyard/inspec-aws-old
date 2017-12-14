@@ -1,14 +1,19 @@
 # Testing Against AWS - Integration Testing
 
+## Problem Statement
+
+We want to be able to test AWS-related InSpec resources against AWS itself.  This means we need to create constructs ("test fixtures") in AWS to examine using InSpec.  For cost management, we also want to be able to destroy 
+
 ## General Approach
 
-In general, we use Terraform to setup test objects in AWS, then run a predefined set of InSpec controls against it (which should all pass); finally we tear down the the environment using Terraform.
+We use Terraform to setup test fixtures in AWS, then run a defined set of InSpec controls against these (which should all pass), and finally tear down the test fixtures with Terraform.  For fixtures that cannot be managed by Terraform, we manually setup fixtures using instructions below.
 
-We also use the AWS CLI credentials system to manage credentials.
+We use the AWS CLI credentials system to manage credentials.
+
 
 ### Installing Terraform
 
-Download [Terraform](https://www.terraform.io/downloads.html).  We currently require at least v0.10 . You may also consider using [tfenv](https://github.com/kamatama41/tfenv), which allows you to install and choose from multiple versions.
+Download [Terraform](https://www.terraform.io/downloads.html).  We require at least v0.10 . To install and choose from multiple Terraform versions, consider using [tfenv](https://github.com/kamatama41/tfenv).
 
 ### Installing AWS CLI
 
@@ -22,13 +27,12 @@ Also, there are some singleton resources (such as the default VPC, or Config sta
 
 ## Current Solution
 
-We create two AWS accounts, each dedicated to the task of integration testing inspec-aws.  Both accounts will be manually configured to cover the gap between what we want to examine, and what test fixtures Terraform can set up.  Between the two of them, we want to have a positive and a negative compliance check for each test point.
+Our solution is to create two AWS accounts, each dedicated to the task of integration testing inspec-aws.
 
-Put another way, we want a less secure account, against which we will run a profile expecting it to be less secure.  If the profile passes, we have verified that inspec-aws is able to detect the "negative" case.  We call this secondary account - in which we only run tests that we could not fixture or run in the main account - the "minimal" account.
+In the "default" account, we setup all fixtures that can be handled by Terraform.  For any remaining fixtures,
+such as enabling MFA on the root account, we manually set one value in the "default" account, and manually set the opposing value in the "minimal" account.  This allows use to perform testing on any reachable resource or property, regardless of whether or not Terraform can manage it.
 
-The "default" account's tests cover a superset of the "negative" account's tests.  For example, they both check root account MFA settings, but the default test account will have it enabled (and the inspec tests will expect that) whereas the minimal account will have root MFA disabled (and the corresponding inspec tests will expect that, as well).
-
-All tests (and test fixtures) that do not require such special handling are placed in the "default" set.  That includes both positive and negative checks.
+All tests (and test fixtures) that do not require special handling are placed in the "default" set.  That includes both positive and negative checks.
 
 Note that some tests will fail for the first day or two after you set up the accounts, due to the tests checking properties such as the last usage time of an access key, for example.  
 
