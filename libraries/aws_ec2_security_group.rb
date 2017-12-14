@@ -56,10 +56,12 @@ class AwsEc2SecurityGroup < Inspec.resource(1)
     ].each do |criterion_name|
       val = instance_variable_get("@#{criterion_name}".to_sym)
       next if val.nil?
-      filters.push({
-                     name: criterion_name.to_s.tr('_', '-'),
-        values: [val],
-                   })
+      filters.push(
+        {
+          name: criterion_name.to_s.tr('_', '-'),
+          values: [val],
+        },
+      )
     end
     dsg_response = backend.describe_security_groups(filters: filters)
 
