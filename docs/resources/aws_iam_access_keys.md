@@ -158,7 +158,7 @@ Searches for access keys owned by the named user. Each user may have zero, one, 
 
 The date at which the user was created.
 
-    # User have to be a week old to have a key
+    # Users have to be a week old to have a key
     describe aws_iam_access_keys.where { user_created_date > Date.now - 7 }
       it { should_not exist }
     end
