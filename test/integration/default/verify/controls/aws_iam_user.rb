@@ -42,6 +42,6 @@ end
 
 aws_iam_user(name: fixtures['iam_user_with_access_key']).access_keys.each { |access_key|
   describe access_key do
-   it { should be_active }
+   its('status') { should eq 'Active' }
   end
 }
