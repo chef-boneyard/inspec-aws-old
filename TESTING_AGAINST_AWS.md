@@ -53,6 +53,12 @@ Follow these instructions carefully.  Do not perform any action not specified.
 #### Test Fixtures for the Default Account
 
 1. As the root user, enable a virtual MFA device.
+2. Create an IAM user named 'test-user-last-key-use'.
+  * Enable programmatic access (to generate an access key)
+  * Note the access key and secret key ID that are generated.
+  * Direct-attach the policy AmazonEC2ReadOnlyAccess
+  * Using the AWS CLI and the credentials, execute the command `aws ec2 describe-instances`.
+  * The goal here is to have an access key that was used at one point.
 
 ### Creating the Minimal Account
 
