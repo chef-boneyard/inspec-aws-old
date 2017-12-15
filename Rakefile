@@ -91,5 +91,5 @@ namespace :test do
       end
     end
   end
-  task aws: [:default, :minimal]  
+  task aws: [:'aws:default', :'aws:minimal']  
 end
