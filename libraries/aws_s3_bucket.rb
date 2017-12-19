@@ -10,7 +10,7 @@ class AwsS3Bucket < Inspec.resource(1)
    "
 
    include AwsResourceMixin
-   attr_reader :bucket, :permissions, :has_public_files
+   attr_reader :name, :permissions, :has_public_files
    alias have_public_files? has_public_files
    alias has_public_files? has_public_files
 
@@ -23,7 +23,7 @@ class AwsS3Bucket < Inspec.resource(1)
    def validate_params(raw_params)
      validated_params = check_resource_param_names(
        raw_params: raw_params,
-       allowed_params: [:bucket],
+       allowed_params: [:name],
        allowed_scalar_name: :bucket,
        allowed_scalar_type: String,
      )
@@ -37,7 +37,7 @@ class AwsS3Bucket < Inspec.resource(1)
      # Transform into filter format expected by AWS
      filters = []
      [
-       :bucket,
+       :name,
        :permissions,
      ].each do |criterion_name|
        val = instance_variable_get("@#{criterion_name}".to_sym)
@@ -53,18 +53,18 @@ class AwsS3Bucket < Inspec.resource(1)
      bucket_info = nil
      begin
        buckets = AwsS3Bucket::BackendFactory.create.list_buckets
-       bucket_objects = AwsS3Bucket::BackendFactory.create.list_objects(bucket: bucket)
+       bucket_objects = AwsS3Bucket::BackendFactory.create.list_objects(bucket: name)
        @object_keys = []
        @has_public_files = false
        bucket_objects.contents.each do |object|
-         grants = AwsS3Bucket::BackendFactory.create.get_object_acl(bucket: bucket, key: object.key)
+         grants = AwsS3Bucket::BackendFactory.create.get_object_acl(bucket: name, key: object.key)
          grants.each do |grant|
            if grant.grantee.type == 'Group' and grant.permission != ""
              @has_public_files = true
            end
          end
        end
-       @permissions = AwsS3Bucket::BackendFactory.create.get_bucket_acl(bucket: bucket)
+       @permissions = AwsS3Bucket::BackendFactory.create.get_bucket_acl(bucket: name)
      rescue Aws::IAM::Errors::NoSuchEntity
        @exists = false
        return
