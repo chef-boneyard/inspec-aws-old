@@ -25,6 +25,10 @@ class AwsEc2SecurityGroups < Inspec.resource(1)
     @table
   end
 
+  def count
+    @table.length
+  end
+
   def to_s
     'EC2 Security Groups'
   end
