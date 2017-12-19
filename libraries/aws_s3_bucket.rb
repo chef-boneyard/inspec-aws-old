@@ -2,7 +2,7 @@ class AwsS3Bucket < Inspec.resource(1)
    name 'aws_s3_bucket'
    desc 'Verifies settings for a s3 bucket'
    example "
-     describe aws_s3_bucket(bucket: '-aws_demo_s3_bucket') do
+     describe aws_s3_bucket(name: '-aws_demo_s3_bucket') do
        it { should exist }
        it { should_not have_public_files }
        its('permissions') { should cmp ['FULL_CONTROL', 'READ'] }
