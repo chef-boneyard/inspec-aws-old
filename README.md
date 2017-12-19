@@ -23,7 +23,7 @@ Before running the profile with InSpec, define environment variables with your A
 
 Those variables are defined in [AWS CLI Docs](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html#cli-environment)
 
-Now you can use `inspec exec inspec-aws`. 
+Now you can use `inspec exec inspec-aws`.
 
 Our future intent is to support an `aws` target for InSpec/Train, so you may also pass credentials `inspec exec inspec-aws -t aws://accesskey:secret@region`.
 
@@ -48,7 +48,7 @@ depends:
     url: https://github.com/chef/inspec-aws/archive/master.tar.gz
 ```
 
-### Add controls
+### Add controls to your profile
 
 Since your profile depends on the resource pack, you can use those resources in your own profile:
 
@@ -62,6 +62,12 @@ control "aws-1" do
   end
 end
 ```
+
+#### Using includes in profiles
+
+Please review the InSpec docs on using [Profile Dependencies](https://www.inspec.io/docs/reference/profiles/index.html#profile-dependencies) should you have any issues.
+
+Ensure you either update ( via `inspec vendor --overwirte`) or remove your `inspec.lock` file prior to running `inspec exec my-profile`. This ensures that InSpec pulls in the inherited profile and its resources.
 
 ### Available Resources
 
