@@ -10,7 +10,7 @@ class AwsS3Bucket < Inspec.resource(1)
    "
 
    include AwsResourceMixin
-   attr_reader :name, :permissions, :has_public_files
+   attr_reader :name, :permissions, :has_public_files, :policy
    alias have_public_files? has_public_files
    alias has_public_files? has_public_files
 
@@ -39,6 +39,7 @@ class AwsS3Bucket < Inspec.resource(1)
      [
        :name,
        :permissions,
+       :policy
      ].each do |criterion_name|
        val = instance_variable_get("@#{criterion_name}".to_sym)
        next if val.nil?
@@ -65,6 +66,12 @@ class AwsS3Bucket < Inspec.resource(1)
          end
        end
        @permissions = AwsS3Bucket::BackendFactory.create.get_bucket_acl(bucket: name)
+       # Check bucket policy
+       begin
+         @policy = AwsS3Bucket::BackendFactory.create.get_bucket_policy(bucket: name)
+       rescue Exception
+         @policy = ''
+       end
      rescue Aws::IAM::Errors::NoSuchEntity
        @exists = false
        return
@@ -94,6 +101,10 @@ class AwsS3Bucket < Inspec.resource(1)
 
        def get_object_acl(query)
          AWSConnection.new.s3_client.get_object_acl(query).grants
+       end
+
+       def get_bucket_policy(query)
+         AWSConnection.new.s3_client.get_bucket_policy(query)
        end
      end
    end
