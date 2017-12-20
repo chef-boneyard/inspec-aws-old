@@ -44,7 +44,7 @@ This InSpec resource accepts the following parameters, which are used to search 
 
 The Security Group ID of the Security Group.  This is of the format `sg-` followed by 8 hexadecimal characters.  The ID is unique within your AWS account; using ID ensures that you will never match more than one SG.  The ID is also the default resource parameter, so you may omit the hash syntax.
 
-    # Using Hash syntax 
+    # Using Hash syntax
     describe aws_ec2_security_group(id: 'sg-12345678') do
       it { should exist }
     end
@@ -64,7 +64,7 @@ The Security Group ID of the Security Group.  This is of the format `sg-` follow
 The string Name of the Security Group.  Every VPC has a security group named 'default'.  Names are unique within a VPC, but not within an AWS account.
 
     # Get default security group for a certain VPC
-    describe aws_ec2_security_group(group_name: 'default', vpc_id: vpc_id: 'vpc-12345678') do
+    describe aws_ec2_security_group(group_name: 'default', vpc_id: 'vpc-12345678') do
       it { should exist }
     end
 
@@ -98,7 +98,7 @@ The control will pass if the specified SG was found.  Use should_not if you want
     # Make sure we don't have any security groups with the name 'nogood'
     describe aws_ec2_security_group(group_name: 'nogood')
       it { should_not exist }
-    end 
+    end
 
 ## Properties
 
@@ -107,12 +107,12 @@ The control will pass if the specified SG was found.  Use should_not if you want
 Provides the Security Group ID.
 
     # Inspect the group ID of the default group
-    describe aws_ec2_security_group(group_name: 'default', vpc_id: vpc_id: 'vpc-12345678') do
+    describe aws_ec2_security_group(group_name: 'default', vpc_id: 'vpc-12345678') do
       its('group_id') { should cmp 'sg-12345678' }
     end
 
     # Store the group ID in a Ruby variable for use elsewhere
-    sg_id = aws_ec2_security_group(group_name: 'default', vpc_id: vpc_id: 'vpc-12345678').group_id
+    sg_id = aws_ec2_security_group(group_name: 'default', vpc_id: 'vpc-12345678').group_id
 
 ### group_name
 
@@ -137,6 +137,6 @@ A String reflecting the human-meaningful description that was given to the SG at
 A String in the format 'vpc-' followed by 8 hexadecimal characters reflecting VPC that contains the security group.
 
     # Inspec the VPC ID of a particular group
-    describe aws_ec2_security_group('sg-12345678') do
+    describe aws_ec2_security_group('vpc-12345678') do
       its('vpc_id') { should cmp 'vpc-12345678' }
     end
