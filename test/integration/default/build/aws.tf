@@ -4,6 +4,8 @@ terraform {
 
 provider "aws" {}
 
+provider "random" {}
+
 data "aws_caller_identity" "creds" {}
 output "aws_account_id" {
   value = "${data.aws_caller_identity.creds.account_id}"
