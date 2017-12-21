@@ -2,7 +2,7 @@ class AwsS3Bucket < Inspec.resource(1)
    name 'aws_s3_bucket'
    desc 'Verifies settings for a s3 bucket'
    example "
-     describe aws_s3_bucket(name: '-aws_demo_s3_bucket') do
+     describe aws_s3_bucket(name: 'test_bucket') do
        it { should exist }
        it { should_not have_public_files }
        its('permissions') { should cmp ['FULL_CONTROL', 'READ'] }
@@ -15,7 +15,7 @@ class AwsS3Bucket < Inspec.resource(1)
    alias has_public_files? has_public_files
 
    def to_s
-     'S3 Bucket'
+     "S3 Bucket #{@name}"
    end
 
    private
@@ -24,12 +24,13 @@ class AwsS3Bucket < Inspec.resource(1)
      validated_params = check_resource_param_names(
        raw_params: raw_params,
        allowed_params: [:name],
-       allowed_scalar_name: :bucket,
+       allowed_scalar_name: :name,
        allowed_scalar_type: String,
      )
      if validated_params.empty?
        raise ArgumentError, 'You must provide a role_name to aws_iam_role.'
      end
+
      validated_params
    end
 
@@ -39,7 +40,8 @@ class AwsS3Bucket < Inspec.resource(1)
      [
        :name,
        :permissions,
-       :policy
+       :policy,
+       :region,
      ].each do |criterion_name|
        val = instance_variable_get("@#{criterion_name}".to_sym)
        next if val.nil?

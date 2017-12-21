@@ -2,13 +2,13 @@
 title: About the aws_s3_bucket Resource
 ---
 
-# aws_iam_user
+# aws_s3_bucket
 
 Use the `aws_s3_bucket` InSpec audit resource to test properties of a single AWS bucket.
 
 To test properties of a multiple S3 buckets , use the `aws_s3_buckets` resource.
 
-To test properties of the special AWS S3 bucket, use the `aws_s3_bucket` resource.
+To test properties of a specific AWS S3 bucket, use the `aws_s3_bucket` resource.
 
 <br>
 
@@ -29,7 +29,7 @@ The following examples show how to use this InSpec audit resource.
 ### Test a buckets permissions
 
     describe aws_s3_bucket(name: 'test_bucket') do
-      it { should_not exist }
+      its('permissions') { should cmp ['READ'] }
     end
 
 ### Test that a bucket does not have any public files
