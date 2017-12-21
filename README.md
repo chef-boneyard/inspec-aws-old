@@ -23,10 +23,6 @@ Before running the profile with InSpec, define environment variables with your A
 
 Those variables are defined in [AWS CLI Docs](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html#cli-environment)
 
-Now you can use `inspec exec inspec-aws`. 
-
-Our future intent is to support an `aws` target for InSpec/Train, so you may also pass credentials `inspec exec inspec-aws -t aws://accesskey:secret@region`.
-
 ## Use the resources
 
 Since this is a InSpec resource pack, it only defines InSpec resources. It includes example tests only. You can easily use the AWS InSpec resources in your tests do the following:
@@ -63,6 +59,12 @@ control "aws-1" do
 end
 ```
 
+### Running your profile
+
+Now you can use `inspec exec my-profile` to execute your new profile.
+
+Our future intent is to support an `aws` target for InSpec/Train, so you may also pass credentials `inspec exec my-profile -t aws://accesskey:secret@region`.
+
 ### Available Resources
 
  * `aws_ec2_instance` - This resource reads information about an ec2 instance
@@ -80,10 +82,8 @@ end
  * `aws_iam_group`
  * `aws_iam_policy`
  * `aws_iam_role`
- ...
 
-
-## Tests
+## Development and Testing the AWS Resources Pack
 
 ### Unit tests
 
