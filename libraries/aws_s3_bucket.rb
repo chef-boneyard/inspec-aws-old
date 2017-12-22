@@ -18,6 +18,22 @@ class AwsS3Bucket < Inspec.resource(1)
      "S3 Bucket #{@name}"
    end
 
+   def permissions_owner
+     @permissions[:owner]
+   end
+
+   def permissions_auth_users
+     @permissions[:authorizedUsers]
+   end
+
+   def permissions_everyone
+     @permissions[:everyone]
+   end
+
+   def permissions_log_group
+     @permissions[:logGroup]
+   end
+
    private
 
    def validate_params(raw_params)
@@ -55,19 +71,38 @@ class AwsS3Bucket < Inspec.resource(1)
 
      bucket_info = nil
      begin
-       buckets = AwsS3Bucket::BackendFactory.create.list_buckets
+       puts name
        bucket_objects = AwsS3Bucket::BackendFactory.create.list_objects(bucket: name)
-       @object_keys = []
        @has_public_files = false
        bucket_objects.contents.each do |object|
          grants = AwsS3Bucket::BackendFactory.create.get_object_acl(bucket: name, key: object.key)
          grants.each do |grant|
-           if grant.grantee.type == 'Group' and grant.permission != ""
+           puts grants
+
+           if grant.grantee.type == 'Group' and grant.grantee.uri =~ /AllUsers/ and grant.permission != ""
+             puts "here"
              @has_public_files = true
            end
          end
        end
-       @permissions = AwsS3Bucket::BackendFactory.create.get_bucket_acl(bucket: name)
+       @permissions = {
+         owner: [],
+         authorizedUsers: [],
+         everyone: [],
+         logGroup: [],
+       }
+       AwsS3Bucket::BackendFactory.create.get_bucket_acl(bucket: name).each do |grant|
+         puts grant
+         if grant.grantee.type == 'CanonicalUser' and grant.permission != ''
+           @permissions[:owner].push(grant.permission)
+         elsif grant.grantee.type == 'AmazonCustomerByEmail' and grant.permission != ''
+           @permissions[:authorizedUsers].push(grant.permission)
+         elsif grant.grantee.type == 'Group' and grant.grantee.uri =~ /AllUsers/ and grant.permission != ''
+           @permissions[:everyone].push(grant.permission)
+         elsif grant.grantee.type == 'Group' and grant.grantee.uri =~ /LogDelivery/ and grant.permission != ''
+           @permissions[:logGroup].push(grant.permission)
+         end
+       end
        # Check bucket policy
        begin
          @policy = AwsS3Bucket::BackendFactory.create.get_bucket_policy(bucket: name)
@@ -86,19 +121,12 @@ class AwsS3Bucket < Inspec.resource(1)
      class AwsClientApi
        BackendFactory.set_default_backend(self)
 
-       def list_buckets
-         AWSConnection.new.s3_client.list_buckets
-       end
        def list_objects(query)
          AWSConnection.new.s3_client.list_objects(query)
        end
 
        def get_bucket_acl(query)
-         permissions = []
-         AWSConnection.new.s3_client.get_bucket_acl(query).grants.each do |grant|
-           permissions.push(grant.permission)
-         end
-         permissions
+         AWSConnection.new.s3_client.get_bucket_acl(query).grants
        end
 
        def get_object_acl(query)
