@@ -19,12 +19,12 @@ class AwsS3BucketConstructor < Minitest::Test
   end
 
   def test_constructor_accept_scalar_param
-    AwsS3Bucket.new('test_bucket')
+    AwsS3Bucket.new('Public Bucket')
   end
 
   def test_constructor_expected_well_formed_args
     {
-      name: 'test_bucket',
+      name: 'Public Bucket',
     }.each do |param, value|
       AwsS3Bucket.new(param => value)
     end
@@ -46,22 +46,41 @@ class AwsS3BucketConstructor < Minitest::Test
 
   def test_property_name
     assert_equal('Public Bucket', AwsS3Bucket.new('Public Bucket').name)
-    assert_nil(AwsS3Bucket.new(name: 'My Bucket').name)
   end
 
-  # def test_property_permissions
-  #   assert_equal(['FULL_CONTROL', 'READ'], AwsS3Bucket.new('Public Bucket').permissions)
-  #   assert_nil(AwsS3Bucket.new('My Bucket').permissions)
-  # end
+  #-----------------------------------------------------#
+  # Testing Propertys of a public bucket
+  #-----------------------------------------------------#
+  def test_property_permissions
+    assert_equal(['FULL_CONTROL'], AwsS3Bucket.new('Public Bucket').permissions_owner)
+    assert_equal(['READ'], AwsS3Bucket.new('Public Bucket').permissions_auth_users)
+    assert_equal(['READ'], AwsS3Bucket.new('Public Bucket').permissions_everyone)
+    assert_equal(['WRITE'], AwsS3Bucket.new('Public Bucket').permissions_log_group)
+  end
+
+  #-----------------------------------------------------#
+  # Testing Propertys of a private bucket
+  #-----------------------------------------------------#
+  def test_property_permissions
+    assert_equal(['FULL_CONTROL'], AwsS3Bucket.new('Private Bucket').permissions_owner)
+    assert_equal([], AwsS3Bucket.new('Private Bucket').permissions_auth_users)
+    assert_equal([], AwsS3Bucket.new('Private Bucket').permissions_everyone)
+    assert_equal([], AwsS3Bucket.new('Private Bucket').permissions_log_group)
+  end
+
+  #-----------------------------------------------------#
+  # Testing Propertys of a log bucket
+  #-----------------------------------------------------#
+  def test_property_permissions
+    assert_equal(['FULL_CONTROL'], AwsS3Bucket.new('Log Bucket').permissions_owner)
+    assert_equal([], AwsS3Bucket.new('Log Bucket').permissions_auth_users)
+    assert_equal([], AwsS3Bucket.new('Log Bucket').permissions_everyone)
+    assert_equal(['WRITE'], AwsS3Bucket.new('Log Bucket').permissions_log_group)
+  end
 
   def test_property_has_public_files
     assert_equal(true, AwsS3Bucket.new('Public Bucket').has_public_files)
-    assert_nil(AwsS3Bucket.new('My Bucket').has_public_files)
-  end
-
-  def test_property_policy
-    assert_equal('', AwsS3Bucket.new('Public Bucket').policy)
-    assert_nil(AwsS3Bucket.new('My Bucket').policy)
+    assert_equal(false, AwsS3Bucket.new('Private Bucket').has_public_files)
   end
 
 end
@@ -73,49 +92,90 @@ end
 module AwsMSBSB
   class Basic < AwsS3Bucket::Backend
     def list_objects(query)
-      objects = [
-          OpenStruct.new({
-            key: 'public_file.jpg',
+      buckets = {
+        'Public Bucket' => OpenStruct.new({
+          :contents => [
+            OpenStruct.new({
+              key: 'public_file.jpg',
+            }),
+          ]
         }),
-        OpenStruct.new({
-          key: 'private_file.jpg',
+        'Private Bucket' => OpenStruct.new({
+          :contents => [
+            OpenStruct.new({
+              key: 'private_file.jpg',
+            }),
+          ]
         }),
-      ]
-
-      OpenStruct.new({ contents: objects })
+        'Log Bucket' => OpenStruct.new({
+          :contents => [
+          ]
+        }),
+      }
+      buckets[query[:bucket]]
     end
 
     def get_bucket_acl(query)
-      fixtures = [
-        OpenStruct.new({
-          grantee: {
-            type: 'CanonicalUser',
-          },
-          permission: ['FULL_CONTROL'],
+      buckets = {
+        'Public Bucket' => OpenStruct.new({
+          :grants => [
+            OpenStruct.new({
+              grantee: {
+                type: 'CanonicalUser',
+              },
+              permission: 'FULL_CONTROL',
+            }),
+            OpenStruct.new({
+              grantee: {
+                type: 'AmazonCustomerByEmail',
+              },
+              permission: 'READ',
+            }),
+            OpenStruct.new({
+              grantee: {
+                type: 'Group',
+                uri: 'http://acs.amazonaws.com/groups/global/LogDelivery'
+              },
+              permission: 'WRITE',
+            }),
+            OpenStruct.new({
+              grantee: {
+                type: 'Group',
+                uri: 'http://acs.amazonaws.com/groups/global/AllUsers'
+              },
+              permission: 'READ',
+            }),
+          ]
         }),
-        OpenStruct.new({
-          grantee: {
-            type: 'AmazonCustomerByEmail',
-          },
-          permission: ['READ'],
+        'Private Bucket' => OpenStruct.new({
+          :grants => [
+            OpenStruct.new({
+              grantee: {
+                type: 'CanonicalUser',
+              },
+              permission: 'FULL_CONTROL',
+            }),
+          ]
         }),
-        OpenStruct.new({
-          grantee: {
-            type: 'Group',
-            uri: 'http://acs.amazonaws.com/groups/global/LogDelivery'
-          },
-          permission: ['WRITE'],
+        'Log Bucket' => OpenStruct.new({
+          :grants => [
+            OpenStruct.new({
+              grantee: {
+                type: 'CanonicalUser',
+              },
+              permission: 'FULL_CONTROL',
+            }),
+            OpenStruct.new({
+              grantee: {
+                type: 'Group',
+                uri: 'http://acs.amazonaws.com/groups/global/LogDelivery'
+              },
+              permission: 'WRITE',
+            }),
+          ]
         }),
-        OpenStruct.new({
-          grantee: {
-            type: 'Group',
-            uri: 'http://acs.amazonaws.com/groups/global/AllUsers'
-          },
-          permission: ['READ'],
-        }),
-      ]
-
-      OpenStruct.new({ grants: fixtures })
+      }
+      buckets[query[:bucket]][:grants]
     end
 
     def get_object_acl(query)
@@ -154,21 +214,7 @@ module AwsMSBSB
           ]
         }),
       }
-      #puts objects[query[:key]]
-      objects[query[:key]]
-    end
-
-    def get_bucket_policy(query)
-      fixtures = [
-        OpenStruct.new({
-          policy: '',
-        }),
-        OpenStruct.new({
-          policy: '',
-        }),
-      ]
-
-      OpenStruct.new({ policies: fixtures })
+      objects[query[:key]][:grants]
     end
   end
 end
