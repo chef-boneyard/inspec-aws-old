@@ -13,20 +13,20 @@ end
 describe aws_s3_bucket(name: fixtures['s3_bucket_name']) do
   it { should exist }
   it { should have_public_files }
-  its('permissions_owner') { should cmp ['FULL_CONTROL'] }
+  its('permissions.owner') { should be_in ['FULL_CONTROL'] }
 end
 
 #------------------- Permissions Log Group  -------------------#
 describe aws_s3_bucket(name: fixtures['s3_bucket_name']) do
-  its('permissions_log_group') { should cmp [] }
+  its('permissions.logGroup') { should be_in [] }
 end
 
 #------------------- Permissions Everyone  -------------------#
 describe aws_s3_bucket(name: fixtures['s3_bucket_name']) do
-  its('permissions_everyone') { should cmp ['READ'] }
+  its('permissions.everyone') { should be_in ['READ'] }
 end
 
 #------------------- Permissions Authorized Users  -------------------#
 describe aws_s3_bucket(name: fixtures['s3_bucket_name']) do
-  its('permissions_auth_users') { should cmp [] }
+  its('permissions.authUsers') { should be_in [] }
 end

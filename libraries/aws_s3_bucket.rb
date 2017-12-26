@@ -5,7 +5,7 @@ class AwsS3Bucket < Inspec.resource(1)
     describe aws_s3_bucket(name: 'test_bucket') do
       it { should exist }
       it { should_not have_public_files }
-      its('permissions_owner') { should cmp ['FULL_CONTROL'] }
+      its('permissions.owner') { should be_in ['FULL_CONTROL'] }
     end
   "
 
@@ -18,20 +18,8 @@ class AwsS3Bucket < Inspec.resource(1)
     "S3 Bucket #{@name}"
   end
 
-  def permissions_owner
-    @permissions[:owner]
-  end
-
-  def permissions_auth_users
-    @permissions[:authorizedUsers]
-  end
-
-  def permissions_everyone
-    @permissions[:everyone]
-  end
-
-  def permissions_log_group
-    @permissions[:logGroup]
+  def permissions
+    @permissions
   end
 
   private
@@ -93,10 +81,14 @@ class AwsS3Bucket < Inspec.resource(1)
   end
 
   def fetch_permissions
-    @permissions = {
-      owner: [], authorizedUsers: [],
-      everyone: [], logGroup: []
-    }
+    # Use a Mash to make it easier to access hash elements in "its('permissions') {should ...}"
+    @permissions = Hashie::Mash.new({})
+    # Make sure standard extensions exist so we don't get nil for nil:NilClass
+    # when the user tests for extensions which aren't present
+    %w{
+      owner logGroup authUsers everyone
+    }.each { |perm| @permissions[perm] ||= [] }
+
     AwsS3Bucket::BackendFactory.create.get_bucket_acl(bucket: name).each do |grant|
       type = grant.grantee[:type]
       permission = grant[:permission]
