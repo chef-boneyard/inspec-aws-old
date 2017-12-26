@@ -18,10 +18,6 @@ class AwsS3Bucket < Inspec.resource(1)
     "S3 Bucket #{@name}"
   end
 
-  def permissions
-    @permissions
-  end
-
   private
 
   def validate_params(raw_params)
