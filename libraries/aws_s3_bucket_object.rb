@@ -2,9 +2,11 @@ class AwsS3BucketObject < Inspec.resource(1)
   name 'aws_s3_bucket_object'
   desc 'Verifies settings for a s3 bucket object'
   example "
-    describe aws_s3_bucket_object(name: bucket_name, key: file) do
+    describe aws_s3_bucket_object(name: 'bucket_name', key: 'file_name') do
       it { should exist }
       its('permissions.authUsers') { should be_in [] }
+      its('permissions.owner') { should be_in ['FULL_CONTROL'] }
+      its('permissions.everyone') { should be_in [] }
     end
   "
 
@@ -22,7 +24,7 @@ class AwsS3BucketObject < Inspec.resource(1)
     validated_params = check_resource_param_names(
       raw_params: raw_params,
       allowed_params: [:name, :key, :id],
-      allowed_scalar_name: :name,
+      allowed_scalar_name: [:name, :key],
       allowed_scalar_type: String,
     )
     if validated_params.empty?
@@ -39,7 +41,7 @@ class AwsS3BucketObject < Inspec.resource(1)
       :key,
       :id,
       :public,
-      :auth_users_permissions,
+      :permissions,
     ].each do |criterion_name|
       val = instance_variable_get("@#{criterion_name}".to_sym)
       next if val.nil?
@@ -61,24 +63,24 @@ class AwsS3BucketObject < Inspec.resource(1)
   end
 
   def fetch_permissions
-    grants = AwsS3BucketObject::BackendFactory.create.get_object_acl(bucket: name, key: key)
     # Use a Mash to make it easier to access hash elements in "its('permissions') {should ...}"
     @permissions = Hashie::Mash.new({})
     # Make sure standard extensions exist so we don't get nil for nil:NilClass
     # when the user tests for extensions which aren't present
     %w{
-      owner logGroup authUsers everyone
+      owner authUsers everyone
     }.each { |perm| @permissions[perm] ||= [] }
 
     @public = false
-    grants.each do |grant|
+    AwsS3BucketObject::BackendFactory.create.get_object_acl(bucket: name, key: key).each do |grant|
       permission = grant[:permission]
       type = grant.grantee[:type]
       if type == 'Group'
+        puts true
         @public = true
         @permissions[:everyone].push(permission)
       elsif type == 'AmazonCustomerByEmail'
-        @permissions[:auth_users].push(permission)
+        @permissions[:authUsers].push(permission)
       elsif type == 'CanonicalUser'
         @permissions[:owner].push(permission)
       end
