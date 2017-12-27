@@ -29,7 +29,7 @@ The following examples show how to use this InSpec audit resource.
 ### Test a buckets permissions
 
     describe aws_s3_bucket(name: 'test_bucket') do
-      its('permissions_owner') { should cmp ['FULL_CONTROL'] }
+      its('permissions.owner') { should cmp ['FULL_CONTROL'] }
       its('permissions.authUsers') { should be_in [] }
       its('permissions.logGroup') { should be_in ['WRITE'] }
       its('permissions.everyone') { should be_in [] }

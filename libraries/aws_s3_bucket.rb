@@ -10,7 +10,7 @@ class AwsS3Bucket < Inspec.resource(1)
   "
 
   include AwsResourceMixin
-  attr_reader :name, :permissions, :has_public_files, :policy
+  attr_reader :name, :permissions, :has_public_files, :region
   alias have_public_files? has_public_files
   alias has_public_files? has_public_files
 
@@ -40,7 +40,6 @@ class AwsS3Bucket < Inspec.resource(1)
     [
       :name,
       :permissions,
-      :policy,
       :region,
     ].each do |criterion_name|
       val = instance_variable_get("@#{criterion_name}".to_sym)
@@ -56,6 +55,7 @@ class AwsS3Bucket < Inspec.resource(1)
     begin
       compute_has_public_files
       fetch_permissions
+      fetch_region
     rescue Aws::IAM::Errors::NoSuchEntity
       @exists = false
       return
@@ -92,13 +92,17 @@ class AwsS3Bucket < Inspec.resource(1)
       if type == 'CanonicalUser'
         @permissions[:owner].push(permission)
       elsif type == 'AmazonCustomerByEmail'
-        @permissions[:authorizedUsers].push(permission)
+        @permissions[:authUsers].push(permission)
       elsif type == 'Group' and uri =~ /AllUsers/
         @permissions[:everyone].push(permission)
       elsif type == 'Group' and uri =~ /LogDelivery/
         @permissions[:logGroup].push(permission)
       end
     end
+  end
+
+  def fetch_region
+    @region = AwsS3Bucket::BackendFactory.create.get_bucket_location(bucket: name)
   end
 
   # Uses the SDK API to really talk to AWS
@@ -116,6 +120,10 @@ class AwsS3Bucket < Inspec.resource(1)
 
       def get_object_acl(query)
         AWSConnection.new.s3_client.get_object_acl(query).grants
+      end
+
+      def get_bucket_location(query)
+        AWSConnection.new.s3_client.get_bucket_location(query).location_constraint
       end
     end
   end

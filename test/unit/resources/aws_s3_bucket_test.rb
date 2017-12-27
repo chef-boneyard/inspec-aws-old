@@ -52,30 +52,30 @@ class AwsS3BucketConstructor < Minitest::Test
   # Testing Propertys of a public bucket
   #-----------------------------------------------------#
   def test_property_permissions
-    assert_equal(['FULL_CONTROL'], AwsS3Bucket.new('Public Bucket').permissions_owner)
-    assert_equal(['READ'], AwsS3Bucket.new('Public Bucket').permissions_auth_users)
-    assert_equal(['READ'], AwsS3Bucket.new('Public Bucket').permissions_everyone)
-    assert_equal(['WRITE'], AwsS3Bucket.new('Public Bucket').permissions_log_group)
+    assert_equal(['FULL_CONTROL'], AwsS3Bucket.new('Public Bucket').permissions.owner)
+    assert_equal(['READ'], AwsS3Bucket.new('Public Bucket').permissions.authUsers)
+    assert_equal(['READ'], AwsS3Bucket.new('Public Bucket').permissions.everyone)
+    assert_equal(['WRITE'], AwsS3Bucket.new('Public Bucket').permissions.logGroup)
   end
 
   #-----------------------------------------------------#
   # Testing Propertys of a private bucket
   #-----------------------------------------------------#
   def test_property_permissions
-    assert_equal(['FULL_CONTROL'], AwsS3Bucket.new('Private Bucket').permissions_owner)
-    assert_equal([], AwsS3Bucket.new('Private Bucket').permissions_auth_users)
-    assert_equal([], AwsS3Bucket.new('Private Bucket').permissions_everyone)
-    assert_equal([], AwsS3Bucket.new('Private Bucket').permissions_log_group)
+    assert_equal(['FULL_CONTROL'], AwsS3Bucket.new('Private Bucket').permissions.owner)
+    assert_equal([], AwsS3Bucket.new('Private Bucket').permissions.authUsers)
+    assert_equal([], AwsS3Bucket.new('Private Bucket').permissions.everyone)
+    assert_equal([], AwsS3Bucket.new('Private Bucket').permissions.logGroup)
   end
 
   #-----------------------------------------------------#
   # Testing Propertys of a log bucket
   #-----------------------------------------------------#
   def test_property_permissions
-    assert_equal(['FULL_CONTROL'], AwsS3Bucket.new('Log Bucket').permissions_owner)
-    assert_equal([], AwsS3Bucket.new('Log Bucket').permissions_auth_users)
-    assert_equal([], AwsS3Bucket.new('Log Bucket').permissions_everyone)
-    assert_equal(['WRITE'], AwsS3Bucket.new('Log Bucket').permissions_log_group)
+    assert_equal(['FULL_CONTROL'], AwsS3Bucket.new('Log Bucket').permissions.owner)
+    assert_equal([], AwsS3Bucket.new('Log Bucket').permissions.authUsers)
+    assert_equal([], AwsS3Bucket.new('Log Bucket').permissions.everyone)
+    assert_equal(['WRITE'], AwsS3Bucket.new('Log Bucket').permissions.logGroup)
   end
 
   def test_property_has_public_files
@@ -215,6 +215,17 @@ module AwsMSBSB
         }),
       }
       objects[query[:key]][:grants]
+    end
+
+    def get_bucket_location(query)
+      buckets = {
+        'Public Bucket' => OpenStruct.new({
+          location_constraint: 'us_east-1'
+        }),
+        'Private Bucket' => OpenStruct.new({
+          location_constraint: ''
+        })
+      }
     end
   end
 end
