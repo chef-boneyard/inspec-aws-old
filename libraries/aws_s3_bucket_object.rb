@@ -62,6 +62,7 @@ class AwsS3BucketObject < Inspec.resource(1)
     @exists = true
   end
 
+  # get the permissions of an object
   def fetch_permissions
     # Use a Mash to make it easier to access hash elements in "its('permissions') {should ...}"
     @permissions = Hashie::Mash.new({})
