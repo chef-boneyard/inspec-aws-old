@@ -77,7 +77,6 @@ class AwsS3BucketObject < Inspec.resource(1)
       permission = grant[:permission]
       type = grant.grantee[:type]
       if type == 'Group'
-        puts true
         @public = true
         @permissions[:everyone].push(permission)
       elsif type == 'AmazonCustomerByEmail'
