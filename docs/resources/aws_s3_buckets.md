@@ -17,7 +17,8 @@ To test properties of a specific AWS S3 bucket, use the `aws_s3_bucket` resource
 An `aws_s3_buckets` resource block declares all buckets in an account
 
     describe aws_s3_buckets do
-      it { should exist }
+      its('buckets') { should be-in ['logging_bucket', 'another_bucket'] }
+      it { should_not have_public_buckets }
     end
 
 <br>
@@ -26,30 +27,20 @@ An `aws_s3_buckets` resource block declares all buckets in an account
 
 The following examples show how to use this InSpec audit resource.
 
-### Test a buckets permissions
+### Test the names of available buckets
 
-    describe aws_s3_bucket(name: 'test_bucket') do
-      its('permissions_owner') { should cmp ['FULL_CONTROL'] }
-      its('permissions_auth_users') { should cmp [] }
-      its('permissions_log_group') { should cmp ['WRITE'] }
-      its('permissions_everyone') { should cmp [] }
-
+    describe aws_s3_buckets do
+      its('buckets') { should be-in ['logging_bucket', 'another_bucket'] }
     end
 
-### Test that a bucket does not have any public files
+### Test if there is any public buckets
 
-    describe aws_s3_bucket(name: 'test_bucket') do
-      it { should_not have_public_files }
+    describe aws_s3_buckets do
+      it { should_not have_public_buckets }
     end
 
 <br>
 
 ## Matchers
 
-This InSpec audit resource has the following special matchers. For a full list of available matchers (such as `exist`) please visit our [matchers page](https://www.inspec.io/docs/reference/matchers/).
-
-### have_console_password
-
-The `have_public_files` matcher tests if the S3 Bucket has any files that are open to the public.
-
-    it { should_not have_public_files }
+This InSpec audit resource has no specific matchers.  
