@@ -2,14 +2,11 @@ resource "random_id" "bucket_id" {
   byte_length = 8
 }
 
-output "s3_bucket_name" {
-  value = "aws_demo_s3_bucket-${random_id.bucket_id.hex}"
-}
-
 resource "aws_s3_bucket" "aws_demo_bucket" {
-  bucket = "aws_demo_s3_bucket-${random_id.bucket_id.hex}"
-  acl    = "public-read"
+  bucket        = "aws-demo-s3-bucket-${random_id.bucket_id.hex}"
+  acl           = "public-read"
   force_destroy = true
+  region        = "us-east-1"
 
   tags {
     Name        = "aws_demo_bucket"
@@ -17,10 +14,14 @@ resource "aws_s3_bucket" "aws_demo_bucket" {
   }
 }
 
+output "s3_bucket_name" {
+  value = "aws-demo-s3-bucket-${random_id.bucket_id.hex}"
+}
+
 # add s3 bucket elements - pub
 
 resource "aws_s3_bucket_object" "public-read" {
-  bucket = "aws_demo_s3_bucket-${random_id.bucket_id.hex}"
+  bucket = "aws-demo-s3-bucket-${random_id.bucket_id.hex}"
   acl    = "public-read"
   key    = "public-pic-read.jpg"
   source = "./data/public-pic.jpg"
@@ -32,7 +33,7 @@ resource "aws_s3_bucket_object" "public-read" {
 # add s3 bucket elements - pub Authenticated Users only
 
 resource "aws_s3_bucket_object" "authenticated-read" {
-  bucket = "aws_demo_s3_bucket-${random_id.bucket_id.hex}"
+  bucket = "aws-demo-s3-bucket-${random_id.bucket_id.hex}"
   acl    = "authenticated-read"
   key    = "public-pic-authenticated.jpg"
   source = "./data/public-pic.jpg"
@@ -43,7 +44,7 @@ resource "aws_s3_bucket_object" "authenticated-read" {
 # add s3 bucket elements - pri
 
 resource "aws_s3_bucket_object" "private" {
-  bucket = "aws_demo_s3_bucket-${random_id.bucket_id.hex}"
+  bucket = "aws-demo-s3-bucket-${random_id.bucket_id.hex}"
   acl = "private"
   key    = "private-pic.jpg"
   source = "./data/private-pic.jpg"
