@@ -33,14 +33,14 @@ The following examples show how to use this InSpec audit resource.
       its('buckets') { should be-in ['logging_bucket', 'another_bucket'] }
     end
 
-### Test if there is any public buckets
-
-    describe aws_s3_buckets do
-      it { should_not have_public_buckets }
-    end
-
 <br>
 
 ## Matchers
 
-This InSpec audit resource has no specific matchers.  
+This InSpec audit resource has the following special matchers. For a full list of available matchers (such as `exist`) please visit our [matchers page](https://www.inspec.io/docs/reference/matchers/).
+
+### have_public_buckets
+
+The `have_public_buckets` matcher tests if there exists a bucket that is publicly available.
+
+    it { should_not have_public_buckets }
