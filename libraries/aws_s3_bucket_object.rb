@@ -15,7 +15,7 @@ class AwsS3BucketObject < Inspec.resource(1)
   alias public? public
 
   def to_s
-    "S3 Bucket Object, Bucket Name: #{@name}, Object Key: #{@key}"
+    "S3 Bucket Object #{@key} (#{@name})"
   end
 
   private
