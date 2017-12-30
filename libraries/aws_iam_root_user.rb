@@ -1,4 +1,6 @@
 # author: Miles Tjandrawidjaja
+require '_aws'
+
 class AwsIamRootUser < Inspec.resource(1)
   name 'aws_iam_root_user'
   desc 'Verifies settings for AWS root account'

@@ -1,4 +1,6 @@
 # author: Chris Redekop
+require '_aws'
+
 class AwsIamAccessKey < Inspec.resource(1)
   name 'aws_iam_access_key'
   desc 'Verifies settings for AWS IAM access keys'

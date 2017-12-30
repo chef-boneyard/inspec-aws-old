@@ -1,4 +1,6 @@
 # author: Christoph Hartmann
+require '_aws'
+
 class AwsEc2Instance < Inspec.resource(1)
   name 'aws_ec2_instance'
   desc 'Verifies settings for an EC2 instance'
