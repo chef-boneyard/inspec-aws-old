@@ -51,7 +51,7 @@ class AwsS3BucketConstructor < Minitest::Test
   #-----------------------------------------------------#
   # Testing Propertys of a public bucket
   #-----------------------------------------------------#
-  def test_property_permissions
+  def test_property_permissions_public
     assert_equal(['FULL_CONTROL'], AwsS3Bucket.new('Public Bucket').permissions.owner)
     assert_equal(['READ'], AwsS3Bucket.new('Public Bucket').permissions.authUsers)
     assert_equal(['READ'], AwsS3Bucket.new('Public Bucket').permissions.everyone)
@@ -61,7 +61,7 @@ class AwsS3BucketConstructor < Minitest::Test
   #-----------------------------------------------------#
   # Testing Propertys of a private bucket
   #-----------------------------------------------------#
-  def test_property_permissions
+  def test_property_permissions_private
     assert_equal(['FULL_CONTROL'], AwsS3Bucket.new('Private Bucket').permissions.owner)
     assert_equal([], AwsS3Bucket.new('Private Bucket').permissions.authUsers)
     assert_equal([], AwsS3Bucket.new('Private Bucket').permissions.everyone)
@@ -71,7 +71,7 @@ class AwsS3BucketConstructor < Minitest::Test
   #-----------------------------------------------------#
   # Testing Propertys of a log bucket
   #-----------------------------------------------------#
-  def test_property_permissions
+  def test_property_permissions_log
     assert_equal(['FULL_CONTROL'], AwsS3Bucket.new('Log Bucket').permissions.owner)
     assert_equal([], AwsS3Bucket.new('Log Bucket').permissions.authUsers)
     assert_equal([], AwsS3Bucket.new('Log Bucket').permissions.everyone)
@@ -81,6 +81,7 @@ class AwsS3BucketConstructor < Minitest::Test
   def test_property_has_public_files
     assert_equal(true, AwsS3Bucket.new('Public Bucket').has_public_files)
     assert_equal(false, AwsS3Bucket.new('Private Bucket').has_public_files)
+    assert_equal([], AwsS3Bucket.new('Private Bucket').objects.public)
   end
 
 end

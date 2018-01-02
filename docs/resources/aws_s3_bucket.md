@@ -70,6 +70,18 @@ The `permissions` hash property is used for matching the permissions of specific
       its('permissions.logGroup') { should be_in ['WRITE'] }
     end
 
+### objects (Hash)
+
+The `objects` hash property is used for testing the objects in a bucket.
+
+    describe aws_s3_bucket('test_bucket') do
+      # Check what extension categories we have
+      its('objects') { should include 'public' }
+
+      # Check examples of 'public'
+      d
+    end
+
 ## Matchers
 
 This InSpec audit resource has the following special matchers. For a full list of available matchers (such as `exist`) please visit our [matchers page](https://www.inspec.io/docs/reference/matchers/).

@@ -1,3 +1,5 @@
+require '_aws'
+
 class AwsS3Bucket < Inspec.resource(1)
   name 'aws_s3_bucket'
   desc 'Verifies settings for a s3 bucket'
@@ -6,11 +8,12 @@ class AwsS3Bucket < Inspec.resource(1)
       it { should exist }
       it { should_not have_public_files }
       its('permissions.owner') { should be_in ['FULL_CONTROL'] }
+      its('objects.public') { should eq [] }
     end
   "
 
   include AwsResourceMixin
-  attr_reader :name, :permissions, :has_public_files, :region
+  attr_reader :name, :permissions, :has_public_files, :region, :objects
   alias have_public_files? has_public_files
   alias has_public_files? has_public_files
 
@@ -41,6 +44,7 @@ class AwsS3Bucket < Inspec.resource(1)
       :name,
       :permissions,
       :region,
+      :objects,
     ].each do |criterion_name|
       val = instance_variable_get("@#{criterion_name}".to_sym)
       next if val.nil?
@@ -65,12 +69,19 @@ class AwsS3Bucket < Inspec.resource(1)
 
   def compute_has_public_files
     @has_public_files = false
+
+    @objects = Hashie::Mash.new({})
+    %w{
+      public
+    }.each { |object| @objects[object] ||= [] }
+
     bucket_objects = AwsS3Bucket::BackendFactory.create.list_objects(bucket: name)
     bucket_objects.contents.each do |object|
       grants = AwsS3Bucket::BackendFactory.create.get_object_acl(bucket: name, key: object.key)
       grants.each do |grant|
         if grant.grantee[:type] == 'Group' and grant.grantee[:uri] =~ /AllUsers/ and grant[:permission] != ''
           @has_public_files = true
+          @objects.public.push(object.key)
         end
       end
     end

@@ -40,6 +40,12 @@ end
 
 control 'aws_s3_bucket region' do
   describe aws_s3_bucket(name: fixtures['s3_bucket_name']) do
-    its('region') { should eq 'us-east-1' }
+    its('region') { should eq 'us-east-2' }
+  end
+end
+
+control 'aws_s3_bucket objects' do
+  describe aws_s3_bucket(name: fixtures['s3_bucket_name']) do
+    its('objects.public') { should eq ["public-pic-read.jpg"] }
   end
 end
