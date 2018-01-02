@@ -79,7 +79,7 @@ The `objects` hash property is used for testing the objects in a bucket.
       its('objects') { should include 'public' }
 
       # Check examples of 'public'
-      d
+      its('objects.public') { should eq [] }
     end
 
 ## Matchers
