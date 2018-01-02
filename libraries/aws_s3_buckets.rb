@@ -1,11 +1,14 @@
+require '_aws'
+
 class AwsS3Buckets < Inspec.resource(1)
   name 'aws_s3_buckets'
   desc 'Verifies settings for AWS S3 Buckets in bulk'
-  example '
+  example "
     describe aws_s3_buckets do
-      it { should exist }
+      its('buckets.all') { should be_in ['logging_bucket', 'another_bucket'] }
+      it { should_not have_public_buckets }
     end
-  '
+  "
   include AwsResourceMixin
   attr_reader :table, :buckets, :has_public_buckets
   alias have_public_buckets? has_public_buckets
@@ -53,7 +56,10 @@ class AwsS3Buckets < Inspec.resource(1)
       )
     end
     @table   = []
-    @buckets = []
+    @buckets = Hashie::Mash.new({})
+    %w{
+      public all
+    }.each { |bucket| @buckets[bucket] ||= [] }
     backend  = AwsS3Buckets::BackendFactory.create
     # Note: should we ever implement server-side filtering
     # (and this is a very good resource for that),
@@ -68,18 +74,19 @@ class AwsS3Buckets < Inspec.resource(1)
                       id: results.owner.id,
                     },
                   })
-      @buckets.push(b_info.name)
+      @buckets.all.push(b_info.name)
     end
     fetch_public_buckets
   end
 
   def fetch_public_buckets
     @has_public_buckets = false
-    @buckets.each do |bucket|
+    @buckets.all.each do |bucket|
       AwsS3Buckets::BackendFactory.create.get_bucket_acl(bucket: bucket).each do |grant|
         type = grant.grantee[:type]
         if type == 'Group' and grant.grantee[:uri] =~ /AllUsers/
           @has_public_buckets = true
+          @buckets.public.push(bucket)
         end
       end
     end

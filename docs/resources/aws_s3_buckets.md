@@ -17,7 +17,7 @@ To test properties of a specific AWS S3 bucket, use the `aws_s3_bucket` resource
 An `aws_s3_buckets` resource block declares all buckets in an account
 
     describe aws_s3_buckets do
-      its('buckets') { should be_in ['logging_bucket', 'another_bucket'] }
+      its('buckets.all') { should be_in ['logging_bucket', 'another_bucket'] }
       it { should_not have_public_buckets }
     end
 
@@ -30,10 +30,25 @@ The following examples show how to use this InSpec audit resource.
 ### Test the names of available buckets
 
     describe aws_s3_buckets do
-      its('buckets') { should be_in ['logging_bucket', 'another_bucket'] }
+      its('buckets.all') { should be_in ['logging_bucket', 'another_bucket'] }
     end
 
 <br>
+
+## Supported Properties
+
+### buckets (Hash)
+
+The `buckets` hash property is used for testing the buckets with different permissions.
+If the buckets.public test fails it will return the buckets that are public.
+
+    describe aws_s3_bucket('test_bucket') do
+      # Check what extension categories we have
+      its('buckets') { should include 'public' }
+
+      # Check examples of 'public'
+      its('buckets.public') { should eq [] }
+    end
 
 ## Matchers
 

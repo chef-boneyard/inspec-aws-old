@@ -34,11 +34,12 @@ class AwsS3BucketsConstructor < Minitest::Test
   end
 
   def test_property_buckets
-    assert_equal(['Public Bucket', 'Private Bucket'], AwsS3Buckets.new.buckets)
+    assert_equal(['Public Bucket', 'Private Bucket'], AwsS3Buckets.new.buckets.all)
   end
 
   def test_public_buckets
     assert_equal(true, AwsS3Buckets.new.has_public_buckets)
+    assert_equal(['Public Bucket'], AwsS3Buckets.new.buckets.public)
   end
 end
 

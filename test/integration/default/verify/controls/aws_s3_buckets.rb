@@ -12,7 +12,8 @@ end
 control 'aws_s3_buckets public buckets' do
   #------------------- Exists / Permissions Owner / public files  -------------------#
   describe aws_s3_buckets do
-    its('buckets') { should be_in [fixtures['s3_bucket_name']] }
+    its('buckets.all') { should be_in [fixtures['s3_bucket_name']] }
     it { should have_public_buckets }
+    its('buckets.public') { should eq [fixtures['s3_bucket_name']] }
   end
 end
