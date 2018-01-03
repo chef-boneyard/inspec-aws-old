@@ -77,8 +77,7 @@ class AwsS3Bucket < Inspec.resource(1)
       public
     }.each { |object| @objects[object] ||= [] }
 
-    bucket_objects = AwsS3Bucket::BackendFactory.create.list_objects(bucket: name)
-    bucket_objects.contents.each do |object|
+    AwsS3Bucket::BackendFactory.create.list_objects(bucket: name).contents.each do |object|
       grants = AwsS3Bucket::BackendFactory.create.get_object_acl(bucket: name, key: object.key)
       grants.each do |grant|
         if grant.grantee[:type] == 'Group' and grant.grantee[:uri] =~ /AllUsers/ and grant[:permission] != ''
