@@ -28,6 +28,7 @@ control 'aws_s3_bucket everyone' do
   #------------------- Permissions Everyone  -------------------#
   describe aws_s3_bucket(name: fixtures['s3_bucket_name']) do
     its('permissions.everyone') { should be_in ['READ'] }
+    it { should be_public }
   end
 end
 

@@ -18,6 +18,7 @@ An `aws_s3_bucket` resource block declares a bucket by name, and then lists test
 
     describe aws_s3_bucket(name: 'test_bucket') do
       it { should exist }
+      it { should_not be_public }
     end
 
 <br>
@@ -91,3 +92,9 @@ This InSpec audit resource has the following special matchers. For a full list o
 The `have_public_files` matcher tests if the S3 Bucket has any files that are open to the public. Returns a true if one or more objects in the bucket are public.  If no objects are public returns false.  Please visit https://blog.rackspace.com/3-things-aws-s3-security-stay-headlines for more details on what is public.
 
     it { should_not have_public_files }
+
+### public
+
+the `public` matcher tests if the S3 bucket is publicly accessible.
+
+    it { should_not be_public }

@@ -13,9 +13,10 @@ class AwsS3Bucket < Inspec.resource(1)
   "
 
   include AwsResourceMixin
-  attr_reader :name, :permissions, :has_public_files, :region, :objects
+  attr_reader :name, :permissions, :has_public_files, :region, :objects, :public
   alias have_public_files? has_public_files
   alias has_public_files? has_public_files
+  alias public? public
 
   def to_s
     "S3 Bucket #{@name}"
@@ -45,6 +46,7 @@ class AwsS3Bucket < Inspec.resource(1)
       :permissions,
       :region,
       :objects,
+      :public,
     ].each do |criterion_name|
       val = instance_variable_get("@#{criterion_name}".to_sym)
       next if val.nil?
@@ -90,6 +92,7 @@ class AwsS3Bucket < Inspec.resource(1)
   def fetch_permissions
     # Use a Mash to make it easier to access hash elements in "its('permissions') {should ...}"
     @permissions = Hashie::Mash.new({})
+    @public = false
     # Make sure standard extensions exist so we don't get nil for nil:NilClass
     # when the user tests for extensions which aren't present
     %w{
@@ -106,6 +109,7 @@ class AwsS3Bucket < Inspec.resource(1)
         @permissions[:authUsers].push(permission)
       elsif type == 'Group' and uri =~ /AllUsers/
         @permissions[:everyone].push(permission)
+        @public = true
       elsif type == 'Group' and uri =~ /LogDelivery/
         @permissions[:logGroup].push(permission)
       end
