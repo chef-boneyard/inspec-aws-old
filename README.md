@@ -23,7 +23,7 @@ Before running the profile with InSpec, define environment variables with your A
 
 Those variables are defined in [AWS CLI Docs](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html#cli-environment)
 
-Now you can use `inspec exec inspec-aws`.
+Now you can use `inspec exec inspec-aws`. 
 
 Our future intent is to support an `aws` target for InSpec/Train, so you may also pass credentials `inspec exec inspec-aws -t aws://accesskey:secret@region`.
 
