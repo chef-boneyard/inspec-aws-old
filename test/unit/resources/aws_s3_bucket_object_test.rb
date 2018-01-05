@@ -37,6 +37,16 @@ class AwsS3BucketObjectConstructor < Minitest::Test
   def test_constructor_reject_bucket_doesntexist
     assert_raises(ArgumentError) { AwsS3BucketObject.new(bla: 'blabla') }
   end
+end
+
+#=============================================================================#
+#                               Recall
+#=============================================================================#
+
+class AwsS3BucketRecallTest < Minitest::Test
+  def setup
+    AwsS3BucketObject::BackendFactory.select(AwsMSBOSB::Basic)
+  end
 
   def test_searching
     AwsS3BucketObject.new(bucket_name: 'Public Bucket', key: 'public_file.jpg')
@@ -52,14 +62,6 @@ end
 class AwsS3BucketTestProperties < Minitest::Test
   def setup
     AwsS3BucketObject::BackendFactory.select(AwsMSBOSB::Basic)
-  end
-
-  def test_property_name
-    assert_equal('Public Bucket', AwsS3BucketObject.new(bucket_name: 'Public Bucket', key: 'public_file.jpg').bucket_name)
-  end
-
-  def test_property_key
-    assert_equal('public_file.jpg', AwsS3BucketObject.new(bucket_name: 'Public Bucket', key: 'public_file.jpg').key)
   end
 
   #-----------------------------------------------------#
@@ -80,14 +82,29 @@ class AwsS3BucketTestProperties < Minitest::Test
     assert_equal([], AwsS3BucketObject.new(bucket_name: 'Public Bucket', key: 'private_file.jpg').permissions.everyone)
   end
 
-  #-----------------------------------------------------#
-  # Testing Properties of public
-  #-----------------------------------------------------#
+end
+
+#=============================================================================#
+#                               Matchers
+#=============================================================================#
+
+class AwsS3BucketMatchersTest < Minitest::Test
+  def setup
+    AwsS3BucketObject::BackendFactory.select(AwsMSBOSB::Basic)
+  end
+  
   def test_property_has_public_files
     assert_equal(true, AwsS3BucketObject.new(bucket_name: 'Public Bucket', key: 'public_file.jpg').public)
     assert_equal(false, AwsS3BucketObject.new(bucket_name: 'Public Bucket', key: 'private_file.jpg').public)
   end
 
+  def test_property_name
+    assert_equal('Public Bucket', AwsS3BucketObject.new(bucket_name: 'Public Bucket', key: 'public_file.jpg').bucket_name)
+  end
+
+  def test_property_key
+    assert_equal('public_file.jpg', AwsS3BucketObject.new(bucket_name: 'Public Bucket', key: 'public_file.jpg').key)
+  end
 end
 
 #=============================================================================#
