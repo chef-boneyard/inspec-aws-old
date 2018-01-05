@@ -1,4 +1,7 @@
 # author: Matthew Dromazos
+
+require '_aws'
+
 class AwsS3BucketPolicy < Inspec.resource(1)
   name 'aws_s3_bucket_policy'
   desc 'Verifies settings for a s3 bucket'

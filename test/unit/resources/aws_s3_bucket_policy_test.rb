@@ -36,10 +36,9 @@ class AwsS3BucketPolcyConstructor < Minitest::Test
 end
 
 #=============================================================================#
-#                               Properties
+#                               Recall Tests
 #=============================================================================#
-
-class AwsS3BucketProperties < Minitest::Test
+class AwsS3BucketRecallTests < Minitest::Test
   def setup
     AwsS3BucketPolicy::BackendFactory.select(AwsMSBPSB::Basic)
   end
@@ -48,16 +47,32 @@ class AwsS3BucketProperties < Minitest::Test
     assert_equal(true, AwsS3BucketPolicy.new('Public Bucket').exists?)
     assert_equal(false, AwsS3BucketPolicy.new('NonExistentBucket').exists?)
   end
+end
+
+
+#=============================================================================#
+#                               Properties
+#=============================================================================#
+
+class AwsS3BucketPropertiesTests < Minitest::Test
+  def setup
+    AwsS3BucketPolicy::BackendFactory.select(AwsMSBPSB::Basic)
+  end
 
   def test_property_name
     assert_equal('Public Bucket', AwsS3BucketPolicy.new('Public Bucket').bucket_name)
   end
+end
 
+#=============================================================================#
+#                               Matchers
+#=============================================================================#
+
+class AwsS3BucketMatchersTests < Minitest::Test
   def test_property_has_statement_allow_all
     assert_equal(true, AwsS3BucketPolicy.new('Public Bucket').has_statement_allow_all)
     assert_equal(false, AwsS3BucketPolicy.new('Private Bucket').has_statement_allow_all)
   end
-
 end
 
 #=============================================================================#
@@ -72,7 +87,7 @@ module AwsMSBPSB
           policy: StringIO.new("{\"Version\":\"2008-10-17\",\"Id\":\"LogPolicy\",\"Statement\":[{\"Sid\":\"Enables the log delivery group to publish logs to your bucket \",\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":[\"s3:GetBucketAcl\",\"s3:GetObjectAcl\",\"s3:PutObject\"],\"Resource\":[\"arn:aws:s3:::policytest1/*\",\"arn:aws:s3:::policytest1\"]}]}"),
         }),
         'Private Bucket' => OpenStruct.new({
-          policy: StringIO.new("{\"Version\":\"2008-10-17\",\"Id\":\"LogPolicy\",\"Statement\":[{\"Sid\":\"Enables the log delivery group to publish logs to your bucket \",\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"111122223333\"},\"Action\":[\"s3:GetBucketAcl\",\"s3:GetObjectAcl\",\"s3:PutObject\"],\"Resource\":[\"arn:aws:s3:::policytest1/*\",\"arn:aws:s3:::policytest1\"]}]}"),
+          policy: StringIO.new("{\"Version\":\"2008-10-17\",\"Id\":\"LogPolicy\",\"Statement\":[{\"Sid\":\"Enables the log delivery group to publish logs to your bucket \",\"Effect\":\"Deny\",\"Principal\":{\"AWS\":\"111122223333\"},\"Action\":[\"s3:GetBucketAcl\",\"s3:GetObjectAcl\",\"s3:PutObject\"],\"Resource\":[\"arn:aws:s3:::policytest1/*\",\"arn:aws:s3:::policytest1\"]}]}"),
         }),
       }
       buckets[query[:bucket]]
