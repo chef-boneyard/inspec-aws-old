@@ -1,7 +1,3 @@
-resource "random_id" "bucket_id" {
-  byte_length = 8
-}
-
 resource "aws_s3_bucket" "aws_demo_bucket_public" {
   bucket        = "aws-demo-s3-bucket-public-${terraform.env}.chef.io"
   acl           = "public-read"
