@@ -52,7 +52,7 @@ end
 
 control 'aws_s3_bucket_object should not exist test' do
   #------------------- Does not Exist  -------------------#
-  describe aws_s3_bucket_object(bucket_name: 'non_existent_bucket'), key: 'non_existent_object') do
-    it { shoud_not exist }
+  describe aws_s3_bucket_object(bucket_name: 'non_existent_bucket', key: 'non_existent_object') do
+    it { should_not exist }
   end
 end

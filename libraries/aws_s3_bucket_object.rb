@@ -46,6 +46,7 @@ class AwsS3BucketObject < Inspec.resource(1)
     end
     begin
       fetch_permissions
+      @exists = true
     rescue StandardError
       @exists = false
       return

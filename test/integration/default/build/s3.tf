@@ -1,9 +1,5 @@
-resource "random_id" "bucket_id" {
-  byte_length = 8
-}
-
 resource "aws_s3_bucket" "aws_demo_bucket" {
-  bucket        = "aws-demo-s3-bucket-${random_id.bucket_id.hex}"
+  bucket        = "aws-demo-s3-bucket-${terraform.env}.chef.io"
   acl           = "public-read"
   force_destroy = true
   region        = "us-east-1"
@@ -14,7 +10,7 @@ resource "aws_s3_bucket" "aws_demo_bucket" {
 }
 
 output "s3_bucket_name" {
-  value = "aws-demo-s3-bucket-${random_id.bucket_id.hex}"
+  value = "aws-demo-s3-bucket-${terraform.env}.chef.io"
 }
 
 # add s3 bucket elements - pub
