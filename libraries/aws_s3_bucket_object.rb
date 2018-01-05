@@ -1,3 +1,7 @@
+# author: Matthew Dromazos
+
+require '_aws'
+
 class AwsS3BucketObject < Inspec.resource(1)
   name 'aws_s3_bucket_object'
   desc 'Verifies settings for a s3 bucket object'
@@ -15,7 +19,6 @@ class AwsS3BucketObject < Inspec.resource(1)
   alias public? public
 
   def to_s
-    s3://bucket-name/object-key
     "s3://#{@bucket_name}/#{@key}"
   end
 
