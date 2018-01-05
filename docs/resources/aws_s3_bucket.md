@@ -16,9 +16,13 @@ To test properties of a specific AWS S3 bucket, use the `aws_s3_bucket` resource
 
 An `aws_s3_bucket` resource block declares a bucket by name, and then lists tests to be performed.
 
-    describe aws_s3_bucket(name: 'test_bucket') do
+    describe aws_s3_bucket(bucket_name: 'test_bucket') do
       it { should exist }
       it { should_not be_public }
+    end
+
+    describe aws_s3_bucket('test_bucket') do
+      it { should exist }
     end
 
 <br>
@@ -29,18 +33,17 @@ The following examples show how to use this InSpec audit resource.
 
 ### Test a buckets permissions
 
-    describe aws_s3_bucket(name: 'test_bucket') do
+    describe aws_s3_bucket(bucket_name: 'test_bucket') do
       its('permissions.owner') { should cmp ['FULL_CONTROL'] }
       its('permissions.authUsers') { should be_in [] }
       its('permissions.logGroup') { should be_in ['WRITE'] }
       its('permissions.everyone') { should be_in [] }
-
     end
 
-### Test that a bucket does not have any public files
+### Test that a bucket does not have any public objects
 
-    describe aws_s3_bucket(name: 'test_bucket') do
-      it { should_not have_public_files }
+    describe aws_s3_bucket(bucket_name: 'test_bucket') do
+      it { should_not have_public_objects }
     end
 
 <br>
@@ -52,12 +55,6 @@ The following examples show how to use this InSpec audit resource.
 The `permissions` hash property is used for matching the permissions of specific users.
 
     describe aws_s3_bucket('test_bucket') do
-      # Check what extension categories we have
-      its('permissions') { should include 'owner' }
-      its('permissions') { should include 'authUsers' }
-      its('permissions') { should include 'everyone' }
-      its('permissions') { should include 'logGroup' }
-
       # Check examples of 'owner'
       its('permissions.owner') { should be_in ['FULL_CONTROL'] }
 
@@ -71,30 +68,36 @@ The `permissions` hash property is used for matching the permissions of specific
       its('permissions.logGroup') { should be_in ['WRITE'] }
     end
 
-### objects (Hash)
+### public_objects
 
-The `objects` hash property is used for testing the objects in a bucket.
+The `public_objects` property is used for testing the public objects in a bucket.
 
     describe aws_s3_bucket('test_bucket') do
-      # Check what extension categories we have
-      its('objects') { should include 'public' }
-
       # Check examples of 'public'
-      its('objects.public') { should eq [] }
+      its('public_objects') { should eq [] }
+    end
+
+### region
+
+The `public_objects` property is used for testing the public objects in a bucket.
+
+    describe aws_s3_bucket('test_bucket') do
+      # Check if the correct region is set
+      its('region') { should eq 'us-east-1' }
     end
 
 ## Matchers
 
 This InSpec audit resource has the following special matchers. For a full list of available matchers (such as `exist`) please visit our [matchers page](https://www.inspec.io/docs/reference/matchers/).
 
-### have_public_files (alias: has_public_files)
+### have_public_objects (alias: has_public_objects)
 
-The `have_public_files` matcher tests if the S3 Bucket has any files that are open to the public. Returns a true if one or more objects in the bucket are public.  If no objects are public returns false.  Please visit https://blog.rackspace.com/3-things-aws-s3-security-stay-headlines for more details on what is public.
+The `have_public_objects` matcher tests if the S3 Bucket has any objects that are open to the public. Returns a true if one or more objects in the bucket are public.  If no objects are public returns false.  Please visit https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html for more details on what is public.
 
-    it { should_not have_public_files }
+    it { should_not have_public_objects }
 
 ### public
 
-the `public` matcher tests if the S3 bucket is publicly accessible.
+The `public` matcher tests if the S3 bucket has an ACL permission that allows the public to view the bucket
 
     it { should_not be_public }

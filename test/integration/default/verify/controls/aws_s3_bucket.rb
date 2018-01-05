@@ -8,45 +8,33 @@ fixtures = {}
     description: 'See ../build/s3.tf',
   )
 end
-control 'aws_s3_bucket owner' do
-  #------------------- Exists / Permissions Owner / public files  -------------------#
-  describe aws_s3_bucket(name: fixtures['s3_bucket_name']) do
+
+control 'aws_s3_bucket recall tests' do
+  #------------------- Exists -------------------#
+  describe aws_s3_bucket(bucket_name: fixtures['s3_bucket_name_public']) do
     it { should exist }
-    it { should have_public_files }
+  end
+  #------------------- Does Not Exist -------------------#
+  describe aws_s3_bucket(bucket_name: 'NonExistentBucket') do
+    it { should_not exist }
+  end
+end
+
+control 'aws_s3_bucket properties tests' do
+  #------------------- Exists / Permissions Owner / public files  -------------------#
+  describe aws_s3_bucket(bucket_name: fixtures['s3_bucket_name_public']) do
     its('permissions.owner') { should be_in ['FULL_CONTROL'] }
-  end
-end
-
-control 'aws_s3_bucket logGroup' do
-  #------------------- Permissions Log Group  -------------------#
-  describe aws_s3_bucket(name: fixtures['s3_bucket_name']) do
-    its('permissions.logGroup') { should be_in [] }
-  end
-end
-
-control 'aws_s3_bucket everyone' do
-  #------------------- Permissions Everyone  -------------------#
-  describe aws_s3_bucket(name: fixtures['s3_bucket_name']) do
-    its('permissions.everyone') { should be_in ['READ'] }
-    it { should be_public }
-  end
-end
-
-control 'aws_s3_bucket owner' do
-  #------------------- Permissions Authorized Users  -------------------#
-  describe aws_s3_bucket(name: fixtures['s3_bucket_name']) do
     its('permissions.authUsers') { should be_in [] }
+    its('permissions.logGroup') { should be_in [] }
+    its('permissions.everyone') { should be_in ['READ'] }
+    its('region') { should eq 'us-east-1' }
+    its('public_objects') { should eq ["public-pic-read.jpg"] }
   end
 end
 
-control 'aws_s3_bucket region' do
-  describe aws_s3_bucket(name: fixtures['s3_bucket_name']) do
-    its('region') { should eq 'us-east-2' }
-  end
-end
-
-control 'aws_s3_bucket objects' do
-  describe aws_s3_bucket(name: fixtures['s3_bucket_name']) do
-    its('objects.public') { should eq ["public-pic-read.jpg"] }
+control 'aws_s3_bucket matchers test' do
+  describe aws_s3_bucket(bucket_name: fixtures['s3_bucket_name_public']) do
+    it { should have_public_files }
+    it { should be_public }
   end
 end

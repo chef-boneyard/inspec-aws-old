@@ -24,7 +24,7 @@ class AwsS3BucketConstructor < Minitest::Test
 
   def test_constructor_expected_well_formed_args
     {
-      name: 'Public Bucket',
+      bucket_name: 'Public Bucket',
     }.each do |param, value|
       AwsS3Bucket.new(param => value)
     end
@@ -36,20 +36,37 @@ class AwsS3BucketConstructor < Minitest::Test
 end
 
 #=============================================================================#
+#                               Search / Recall
+#=============================================================================#
+class AwsS3BucketPropertiesTest < Minitest::Test
+  def setup
+    AwsS3Bucket::BackendFactory.select(AwsMSBSB::Basic)
+  end
+
+  def test_recall_no_match_is_no_exception
+    refute AwsS3Bucket.new('NonExistentBucket').exists?
+  end
+
+  def test_recall_match_single_result_works
+    assert AwsS3Bucket.new('Public Bucket').exists?
+  end
+end
+
+#=============================================================================#
 #                               Properties
 #=============================================================================#
 
-class AwsS3BucketConstructor < Minitest::Test
+class AwsS3BucketPropertiesTest < Minitest::Test
   def setup
     AwsS3Bucket::BackendFactory.select(AwsMSBSB::Basic)
   end
 
   def test_property_name
-    assert_equal('Public Bucket', AwsS3Bucket.new('Public Bucket').name)
+    assert_equal('Public Bucket', AwsS3Bucket.new('Public Bucket').bucket_name)
   end
 
   #-----------------------------------------------------#
-  # Testing Propertys of a public bucket
+  # Testing Properties of a public bucket
   #-----------------------------------------------------#
   def test_property_permissions_public
     assert_equal(['FULL_CONTROL'], AwsS3Bucket.new('Public Bucket').permissions.owner)
@@ -59,7 +76,7 @@ class AwsS3BucketConstructor < Minitest::Test
   end
 
   #-----------------------------------------------------#
-  # Testing Propertys of a private bucket
+  # Testing Properties of a private bucket
   #-----------------------------------------------------#
   def test_property_permissions_private
     assert_equal(['FULL_CONTROL'], AwsS3Bucket.new('Private Bucket').permissions.owner)
@@ -69,7 +86,7 @@ class AwsS3BucketConstructor < Minitest::Test
   end
 
   #-----------------------------------------------------#
-  # Testing Propertys of a log bucket
+  # Testing Properties of a log bucket
   #-----------------------------------------------------#
   def test_property_permissions_log
     assert_equal(['FULL_CONTROL'], AwsS3Bucket.new('Log Bucket').permissions.owner)
@@ -77,13 +94,28 @@ class AwsS3BucketConstructor < Minitest::Test
     assert_equal([], AwsS3Bucket.new('Log Bucket').permissions.everyone)
     assert_equal(['WRITE'], AwsS3Bucket.new('Log Bucket').permissions.logGroup)
   end
+end
 
-  def test_property_has_public_files
-    assert_equal(true, AwsS3Bucket.new('Public Bucket').has_public_files)
-    assert_equal(false, AwsS3Bucket.new('Private Bucket').has_public_files)
-    assert_equal([], AwsS3Bucket.new('Private Bucket').objects.public)
+#=============================================================================#
+#                               Test Matchers
+#=============================================================================#
+
+class AwsS3BucketPropertiesTest < Minitest::Test
+  def setup
+    AwsS3Bucket::BackendFactory.select(AwsMSBSB::Basic)
   end
 
+  def test_matcher_has_public_files
+    assert_equal(true, AwsS3Bucket.new('Public Bucket').has_public_objects)
+    assert_equal(false, AwsS3Bucket.new('Private Bucket').has_public_objects)
+    assert_equal([], AwsS3Bucket.new('Private Bucket').public_objects)
+  end
+
+
+  def test_matcher_region
+    assert_equal('us-east-1', AwsS3Bucket.new('Public Bucket').region)
+    assert_equal('us-east-2', AwsS3Bucket.new('Private Bucket').region)
+  end
 end
 
 #=============================================================================#
@@ -176,7 +208,7 @@ module AwsMSBSB
           ]
         }),
       }
-      buckets[query[:bucket]][:grants]
+      buckets[query[:bucket]]
     end
 
     def get_object_acl(query)
@@ -215,18 +247,19 @@ module AwsMSBSB
           ]
         }),
       }
-      objects[query[:key]][:grants]
+      objects[query[:key]]
     end
 
     def get_bucket_location(query)
       buckets = {
         'Public Bucket' => OpenStruct.new({
-          location_constraint: 'us_east-1'
+          location_constraint: ''
         }),
         'Private Bucket' => OpenStruct.new({
-          location_constraint: ''
+          location_constraint: 'us-east-2'
         })
       }
+      buckets[query[:bucket]]
     end
   end
 end
