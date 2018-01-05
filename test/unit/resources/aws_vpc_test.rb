@@ -28,6 +28,10 @@ class AwsVpcConstructorTest < Minitest::Test
   def test_rejects_unrecognized_params
     assert_raises(ArgumentError) { AwsVpc.new(shoe_size: 9) }
   end
+
+  def test_rejects_invalid_vpc_id
+    assert_raises(ArgumentError) { AwsVpc.new('vpc-rofl') }
+  end
 end
 
 #=============================================================================#

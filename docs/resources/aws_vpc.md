@@ -50,7 +50,7 @@ The following examples show how to use this InSpec audit resource.
 ### Test the CIDR of a named VPC
 
     describe aws_vpc('vpc-87654321') do
-      its('cidr') { should cmp '10.0.0.0/16' }
+      its('cidr_block') { should cmp '10.0.0.0/16' }
     end
 
 <br>
@@ -64,15 +64,55 @@ This InSpec audit resource has the following special matchers. For a full list o
 The test will pass if the identified VPC is the default VPC for the region.
 
     describe aws_vpc('vpc-87654321') do
-      it { should_not exist }
+      it { should be_default }
     end
 
 ## Properties
 
-### cidr
+### cidr_block
 
 The IPv4 address range that is managed by the VPC.
 
     describe aws_vpc('vpc-87654321') do
-      its('cidr') { should eq '10.0.0.0/16' }
+      its('cidr_block') { should cmp '10.0.0.0/16' }
+    end
+
+### dhcp\_options\_id
+
+The ID of the set of DHCP options you've associated with the VPC (or `default` if the default options are associated with the VPC).
+
+    describe aws_vpc do
+      its ('dhcp_options_id') { should eq 'dopt-a94671d0' }
+    end
+
+### state
+
+The state of the VPC (`pending` | `available`).
+
+    describe aws_vpc do
+      its ('state') { should eq 'available' }
+    end
+
+### vpc_id
+
+The ID of the VPC.
+
+    describe aws_vpc do
+      its('vpc_id') { should eq 'vpc-87654321' }
+    end
+
+### instance_tenancy
+
+The allowed tenancy of instances launched into the VPC.
+
+    describe aws_vpc do
+      its ('instance_tenancy') { should eq 'default' }
+    end
+
+###  is_default
+
+Indicates whether the VPC is the default VPC. This example is equivalent to the above be_default example.
+
+    describe aws_vpc('vpc-87654321') do
+      its('is_default') { should be true }
     end

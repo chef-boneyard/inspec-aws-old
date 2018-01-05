@@ -4,16 +4,23 @@ class AwsVpc < Inspec.resource(1)
   example "
     describe aws_vpc do
       it { should be_default }
-      its('cidr') { should be '10.0.0.0/16' }
+      its('cidr_block') { should cmp '10.0.0.0/16' }
     end
   "
 
   include AwsResourceMixin
-  attr_reader :vpc_id
 
   def to_s
     "VPC #{vpc_id}"
   end
+
+  [:cidr_block, :dhcp_options_id, :state, :vpc_id, :instance_tenancy, :is_default].each do |property|
+    define_method(property) do
+      @vpc[property]
+    end
+  end
+
+  alias default? is_default
 
   private
 
@@ -25,7 +32,6 @@ class AwsVpc < Inspec.resource(1)
       allowed_scalar_type: String,
     )
 
-
     if validated_params.key?(:vpc_id) && validated_params[:vpc_id] !~ /^vpc\-[0-9a-f]{8}/
       raise ArgumentError, 'aws_vpc VPC ID must be in the format "vpc-" followed by 8 hexadecimal characters.'
     end
@@ -34,7 +40,19 @@ class AwsVpc < Inspec.resource(1)
   end
 
   def fetch_from_aws
-    # TODO
+    backend = AwsVpc::BackendFactory.create
+
+    if @vpc_id.nil?
+      filter = { name: 'isDefault', values: ['true'] }
+    else
+      filter = { name: 'vpc-id', values: [@vpc_id] }
+    end
+
+    resp = backend.describe_vpcs({ filters: [filter] })
+
+    @vpc = resp.vpcs[0].to_h
+    @vpc_id = @vpc[:vpc_id]
+    @exists = !@vpc.empty?
   end
 
   class Backend
