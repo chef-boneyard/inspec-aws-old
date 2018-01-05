@@ -24,7 +24,7 @@ class AwsS3BucketPolcyConstructor < Minitest::Test
 
   def test_constructor_expected_well_formed_args
     {
-      name: 'Public Bucket',
+      bucket_name: 'Public Bucket',
     }.each do |param, value|
       AwsS3BucketPolicy.new(param => value)
     end
@@ -39,13 +39,18 @@ end
 #                               Properties
 #=============================================================================#
 
-class AwsS3BucketPolicyConstructor < Minitest::Test
+class AwsS3BucketProperties < Minitest::Test
   def setup
     AwsS3BucketPolicy::BackendFactory.select(AwsMSBPSB::Basic)
   end
 
+  def test_property_exist
+    assert_equal(true, AwsS3BucketPolicy.new('Public Bucket').exists?)
+    assert_equal(false, AwsS3BucketPolicy.new('NonExistentBucket').exists?)
+  end
+
   def test_property_name
-    assert_equal('Public Bucket', AwsS3BucketPolicy.new('Public Bucket').name)
+    assert_equal('Public Bucket', AwsS3BucketPolicy.new('Public Bucket').bucket_name)
   end
 
   def test_property_has_statement_allow_all
@@ -68,6 +73,16 @@ module AwsMSBPSB
         }),
         'Private Bucket' => OpenStruct.new({
           policy: StringIO.new("{\"Version\":\"2008-10-17\",\"Id\":\"LogPolicy\",\"Statement\":[{\"Sid\":\"Enables the log delivery group to publish logs to your bucket \",\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"111122223333\"},\"Action\":[\"s3:GetBucketAcl\",\"s3:GetObjectAcl\",\"s3:PutObject\"],\"Resource\":[\"arn:aws:s3:::policytest1/*\",\"arn:aws:s3:::policytest1\"]}]}"),
+        }),
+      }
+      buckets[query[:bucket]]
+    end
+
+    def head_bucket(query)
+      buckets = {
+        'Public Bucket' => OpenStruct.new({
+        }),
+        'Private Bucket' => OpenStruct.new({
         }),
       }
       buckets[query[:bucket]]

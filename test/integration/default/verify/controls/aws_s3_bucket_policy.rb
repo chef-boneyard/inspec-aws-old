@@ -8,10 +8,28 @@ fixtures = {}
     description: 'See ../build/s3.tf',
   )
 end
+
+control 'aws_s3_bucket_policy exist' do
+  #------------------- Exists / Permissions Owner / public files  -------------------#
+  describe aws_s3_bucket_policy(bucket_name: fixtures['s3_bucket_name']) do
+    it { should exist }
+  end
+
+  describe aws_s3_bucket_policy(bucket_name: 'NonExistentBucket') do
+    it { should_not exist }
+  end
+end
+
+control 'aws_s3_bucket_policy effect: deny, principal: *' do
+  #------------------- Exists / Permissions Owner / public files  -------------------#
+  describe aws_s3_bucket_policy(bucket_name: fixtures['s3_bucket_name']) do
+    it { should_not have_statement_allow_all }
+  end
+end
+
 control 'aws_s3_bucket_policy effect: allow, principal: *' do
   #------------------- Exists / Permissions Owner / public files  -------------------#
-  describe aws_s3_bucket_policy(name: fixtures['s3_bucket_name']) do
-    it { should exist }
-    it { should_not have_statement_allow_all }
+  describe aws_s3_bucket_policy(bucket_name: fixtures['s3_bucket_name']) do
+    it { should have_statement_allow_all }
   end
 end

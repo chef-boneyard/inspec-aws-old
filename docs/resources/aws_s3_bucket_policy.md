@@ -12,7 +12,7 @@ Use the `aws_s3_bucket_policy` InSpec audit resource to test properties of a sin
 
 An `aws_s3_bucket_policy` resource block declares a bucket by name, and then lists tests to be performed.
 
-    describe aws_s3_bucket_policy(name: 'test_bucket') do
+    describe aws_s3_bucket_policy(bucket_name: 'test_bucket') do
       it { should_not have_statement_allow_all }
     end
 
@@ -25,7 +25,7 @@ The following examples show how to use this InSpec audit resource.
 
 ### Test that a bucket's policy does not have any statements with effect set to 'allow' and 'principal' set to  ' * '
 
-    describe aws_s3_bucket_policy(name: 'test_bucket') do
+    describe aws_s3_bucket_policy(bucket_name: 'test_bucket') do
       it { should_not have_statement_allow_all }
     end
 
