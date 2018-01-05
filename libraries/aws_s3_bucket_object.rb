@@ -44,9 +44,12 @@ class AwsS3BucketObject < Inspec.resource(1)
       val = instance_variable_get("@#{criterion_name}".to_sym)
       next if val.nil?
     end
-    @exists = AwsS3BucketObject::BackendFactory.create.head_object(bucket: bucket_name, key: key).nil?
-    return unless @exists
-    fetch_permissions
+    begin
+      fetch_permissions
+    rescue StandardError
+      @exists = false
+      return
+    end
   end
 
   # get the permissions of an objectg
@@ -79,10 +82,6 @@ class AwsS3BucketObject < Inspec.resource(1)
       BackendFactory.set_default_backend(self)
       def get_object_acl(query)
         AWSConnection.new.s3_client.get_object_acl(query).grants
-      end
-
-      def head_object(query)
-        AWSConnection.new.s3_client.head_object(query)
       end
     end
   end

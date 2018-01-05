@@ -136,19 +136,5 @@ module AwsMSBOSB
       }
       buckets[query[:bucket]][query[:key]][:grants]
     end
-
-    def head_object(query)
-      buckets = {
-        'Public Bucket' => OpenStruct.new({
-          'public_file.jpg' => OpenStruct.new({
-
-          }),
-          'private_file.jpg' => OpenStruct.new({
-
-          }),
-        })
-      }
-      buckets[query[:bucket]][query[:key]]
-    end
   end
 end
