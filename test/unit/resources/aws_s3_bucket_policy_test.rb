@@ -69,6 +69,10 @@ end
 #=============================================================================#
 
 class AwsS3BucketMatchersTests < Minitest::Test
+  def setup
+    AwsS3BucketPolicy::BackendFactory.select(AwsMSBPSB::Basic)
+  end
+  
   def test_property_has_statement_allow_all
     assert_equal(true, AwsS3BucketPolicy.new('Public Bucket').has_statement_allow_all)
     assert_equal(false, AwsS3BucketPolicy.new('Private Bucket').has_statement_allow_all)
