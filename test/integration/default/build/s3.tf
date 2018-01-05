@@ -2,22 +2,14 @@ resource "aws_s3_bucket" "aws_demo_bucket_public" {
   bucket        = "aws-demo-s3-bucket-public-${terraform.env}.chef.io"
   acl           = "public-read"
   force_destroy = true
-  region        = "us-east-1"
-  tags {
-    Name        = "aws_demo_bucket_public"
-    Environment = "prod"
-  }
+  region        = "${var.region}"
 }
 
 resource "aws_s3_bucket" "aws_demo_bucket_private" {
   bucket        = "aws-demo-s3-bucket-private-${terraform.env}.chef.io"
   acl           = "private"
   force_destroy = true
-  region        = "us-east-1"
-  tags {
-    Name        = "aws_demo_bucket_private"
-    Environment = "prod"
-  }
+  region        = "${var.region}"
 }
 
 output "s3_bucket_name_public" {
