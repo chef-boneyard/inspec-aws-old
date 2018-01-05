@@ -49,7 +49,6 @@ class AwsS3BucketPolicy < Inspec.resource(1)
       @exists = false
       return
     end
-    puts @exists
   end
 
   def fetch_policy

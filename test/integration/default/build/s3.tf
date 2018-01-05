@@ -3,7 +3,7 @@ resource "random_id" "bucket_id" {
 }
 
 resource "aws_s3_bucket" "aws_demo_bucket_public" {
-  bucket        = "aws-demo-s3-bucket-public-${random_id.bucket_id.hex}"
+  bucket        = "aws-demo-s3-bucket-public-${terraform.env}.chef.io"
   acl           = "public-read"
   force_destroy = true
   region        = "us-east-1"
@@ -14,7 +14,7 @@ resource "aws_s3_bucket" "aws_demo_bucket_public" {
 }
 
 resource "aws_s3_bucket" "aws_demo_bucket_private" {
-  bucket        = "aws-demo-s3-bucket-private-${random_id.bucket_id.hex}"
+  bucket        = "aws-demo-s3-bucket-private-${terraform.env}.chef.io"
   acl           = "private"
   force_destroy = true
   region        = "us-east-1"
@@ -25,11 +25,11 @@ resource "aws_s3_bucket" "aws_demo_bucket_private" {
 }
 
 output "s3_bucket_name_public" {
-  value = "aws-demo-s3-bucket-public-${random_id.bucket_id.hex}"
+  value = "aws-demo-s3-bucket-public-${terraform.env}.chef.io"
 }
 
 output "s3_bucket_name_private" {
-  value = "aws-demo-s3-bucket-private-${random_id.bucket_id.hex}"
+  value = "aws-demo-s3-bucket-private-${terraform.env}.chef.io"
 }
 
 # add s3 bucket elements - pub
