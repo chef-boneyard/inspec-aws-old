@@ -52,30 +52,6 @@ resource "aws_s3_bucket_object" "private" {
   depends_on = ["aws_s3_bucket.aws_demo_bucket"]
 }
 
-# add s3 bucket policy elements
-
-resource "aws_s3_bucket_policy" "deny-policy" {
-  bucket = "${aws_s3_bucket.aws_demo_bucket.id}"
-  policy =<<POLICY
-{
-  "Version": "2012-10-17",
-  "Id": "TESTPOLICY",
-  "Statement": [
-    {
-      "Sid": "IPAllow",
-      "Effect": "Deny",
-      "Principal": "*",
-      "Action": "s3:*",
-      "Resource": "arn:aws:s3:::${aws_s3_bucket.aws_demo_bucket.id}/*",
-      "Condition": {
-         "IpAddress": {"aws:SourceIp": "8.8.8.8/32"}
-      }
-    }
-  ]
-}
-POLICY
-}
-
 # valid ACLs are Error: aws_s3_bucket_object.public: "acl" contains an invalid canned ACL type "public". V
 #alid types are either "authenticated-read", "aws-exec-read", "bucket-owner-full-control", "bucket-owner-read",
 # "private", "public-read", or "public-read-write"
