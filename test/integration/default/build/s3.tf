@@ -74,7 +74,7 @@ resource "aws_s3_bucket_policy" "allow-policy" {
   policy =<<POLICY
 {
   "Version": "2012-10-17",
-  "Id": "TESTPOLICY",
+  "Id": "ALLOWPOLICY",
   "Statement": [
     {
       "Sid": "IPAllow",
@@ -96,7 +96,7 @@ resource "aws_s3_bucket_policy" "deny-policy" {
   policy =<<POLICY
 {
   "Version": "2012-10-17",
-  "Id": "TESTPOLICY",
+  "Id": "DENYPOLICY",
   "Statement": [
     {
       "Sid": "IPAllow",

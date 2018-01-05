@@ -42,11 +42,14 @@ class AwsS3BucketPolicy < Inspec.resource(1)
       val = instance_variable_get("@#{criterion_name}".to_sym)
       next if val.nil?
     end
-    @exists = AwsS3BucketPolicy::BackendFactory.create.head_bucket(bucket: bucket_name).nil?
-    puts "here"
-    puts AwsS3BucketPolicy::BackendFactory.create.head_bucket(bucket: bucket_name)
-    return unless @exists
-    fetch_policy
+    begin
+      fetch_policy
+      @exists = true
+    rescue StandardError
+      @exists = false
+      return
+    end
+    puts @exists
   end
 
   def fetch_policy
@@ -66,10 +69,6 @@ class AwsS3BucketPolicy < Inspec.resource(1)
 
       def get_bucket_policy(query)
         AWSConnection.new.s3_client.get_bucket_policy(query)
-      end
-
-      def head_bucket(query)
-        AWSConnection.new.s3_client.head_bucket(query)
       end
     end
   end

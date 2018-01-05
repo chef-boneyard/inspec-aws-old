@@ -77,15 +77,5 @@ module AwsMSBPSB
       }
       buckets[query[:bucket]]
     end
-
-    def head_bucket(query)
-      buckets = {
-        'Public Bucket' => OpenStruct.new({
-        }),
-        'Private Bucket' => OpenStruct.new({
-        }),
-      }
-      buckets[query[:bucket]]
-    end
   end
 end
