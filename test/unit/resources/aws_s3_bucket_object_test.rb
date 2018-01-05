@@ -40,8 +40,8 @@ class AwsS3BucketObjectConstructor < Minitest::Test
 
   def test_searching
     AwsS3BucketObject.new(bucket_name: 'Public Bucket', key: 'public_file.jpg')
-    assert_raises(ArgumentError) { AwsS3BucketObject.new(bucket_name: 'Public Bucket', key: 'NonExistingObject') }
-    assert_raises(ArgumentError) { AwsS3BucketObject.new(bucket_name: 'NonExistingBucket', key: 'public_file.jpg') }
+    assert_equal(false, AwsS3BucketObject.new(bucket_name: 'Public Bucket', key: 'NonExistingObject').exists?)
+    assert_equal(false, AwsS3BucketObject.new(bucket_name: 'NonExistingBucket', key: 'public_file.jpg').exists?)
   end
 end
 
@@ -55,7 +55,7 @@ class AwsS3BucketTestProperties < Minitest::Test
   end
 
   def test_property_name
-    assert_equal('Public Bucket', AwsS3BucketObject.new(bucket_name: 'Public Bucket', key: 'public_file.jpg').name)
+    assert_equal('Public Bucket', AwsS3BucketObject.new(bucket_name: 'Public Bucket', key: 'public_file.jpg').bucket_name)
   end
 
   def test_property_key

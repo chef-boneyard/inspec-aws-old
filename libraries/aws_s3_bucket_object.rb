@@ -15,7 +15,8 @@ class AwsS3BucketObject < Inspec.resource(1)
   alias public? public
 
   def to_s
-    "S3 Bucket Object #{@key} (#{@bucket_name})"
+    s3://bucket-name/object-key
+    "s3://#{@bucket_name}/#{@key}"
   end
 
   private
@@ -27,7 +28,7 @@ class AwsS3BucketObject < Inspec.resource(1)
       allowed_scalar_name: [:bucket_name],
       allowed_scalar_type: String,
     )
-    if validated_params.empty? and validated_params.key?(:bucket_name) and validated_params.key(:key)
+    if validated_params.empty? or !validated_params.key?(:bucket_name) or !validated_params.key?(:key)
       raise ArgumentError, 'You must provide a bucket_name and key to aws_s3_bucket_object.'
     end
     validated_params
