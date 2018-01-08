@@ -9,7 +9,7 @@ require 'aws_s3_buckets'
 #=============================================================================#
 #                            Constructor Tests
 #=============================================================================#
-class AwsS3BucketsConstructor < Minitest::Test
+class AwsS3BucketsConstructorTests < Minitest::Test
   def setup
     AwsS3Buckets::BackendFactory.select(AwsMSBMB::Basic)
   end
@@ -25,21 +25,57 @@ class AwsS3BucketsConstructor < Minitest::Test
 end
 
 #=============================================================================#
-#                               Properties
+#                            Recall Tests
 #=============================================================================#
-
-class AwsS3BucketsConstructor < Minitest::Test
+class AwsS3BucketsRecallTests < Minitest::Test
   def setup
     AwsS3Buckets::BackendFactory.select(AwsMSBMB::Basic)
   end
 
-  def test_property_buckets
-    assert_equal(['Public Bucket', 'Private Bucket'], AwsS3Buckets.new.buckets.all)
+  def test_exists
+    assert_equal(true, AwsS3Buckets.new.where(bucket_name: 'Public Bucket').exists?)
+    assert_equal(true, AwsS3Buckets.new.where(bucket_name: 'Private Bucket').exists?)
   end
 
-  def test_public_buckets
-    assert_equal(true, AwsS3Buckets.new.has_public_buckets)
-    assert_equal(['Public Bucket'], AwsS3Buckets.new.buckets.public)
+  def test_doesnt_exist
+    assert_equal(false, AwsS3Buckets.new.where(bucket_name: 'NonExistentBucket').exists?)
+  end
+end
+
+#=============================================================================#
+#                               Properties Tests
+#=============================================================================#
+
+class AwsS3BucketsPropertiesTest < Minitest::Test
+  def setup
+    AwsS3Buckets::BackendFactory.select(AwsMSBMB::Basic)
+  end
+
+  def test_filter_public_buckets
+    assert_equal(['Public Bucket'], AwsS3Buckets.new.where(availability: 'Public').bucket_names)
+  end
+
+  def test_filter_private_buckets
+    assert_equal(['Private Bucket'], AwsS3Buckets.new.where(availability: 'Private').bucket_names)
+  end
+
+  def test_filter_bucket_names
+    assert_equal(['Public Bucket', 'Private Bucket'], AwsS3Buckets.new.bucket_names)
+  end
+end
+
+#=============================================================================#
+#                               Matchers Tests
+#=============================================================================#
+
+class AwsS3BucketsMatchersTest < Minitest::Test
+  def setup
+    AwsS3Buckets::BackendFactory.select(AwsMSBMB::Basic)
+  end
+
+  def test_matcher_has_public_buckets
+    assert_equal(true, AwsS3Buckets.new.has_public_buckets?)
+    assert_equal(true, AwsS3Buckets.new.have_public_buckets?)
   end
 end
 
@@ -129,7 +165,7 @@ module AwsMSBMB
           ]
         }),
       }
-      buckets[query[:bucket]][:grants]
+      buckets[query[:bucket]]
     end
   end
 end

@@ -1,16 +1,19 @@
+# author: Matthew Dromazos
+# author: Sam Cornwell
+
 require '_aws'
 
 class AwsS3Buckets < Inspec.resource(1)
   name 'aws_s3_buckets'
   desc 'Verifies settings for AWS S3 Buckets in bulk'
   example "
-    describe aws_s3_buckets do
-      its('buckets.all') { should be_in ['logging_bucket', 'another_bucket'] }
+    describe aws_s3_buckets.where(availability: 'Public') do
+      its('Bucket_names') { should eq [] }
       it { should_not have_public_buckets }
     end
   "
   include AwsResourceMixin
-  attr_reader :table, :buckets, :has_public_buckets
+  attr_reader :table, :has_public_buckets
   alias have_public_buckets? has_public_buckets
   alias has_public_buckets? has_public_buckets
 
@@ -19,7 +22,8 @@ class AwsS3Buckets < Inspec.resource(1)
   filter.add_accessor(:where)
         .add_accessor(:entries)
         .add(:exists?) { |x| !x.entries.empty? }
-        .add(:names, field: :name)
+        .add(:bucket_names, field: :bucket_name)
+        .add(:availability, field: :availability)
   filter.connect(self, :table)
 
   def to_s
@@ -32,63 +36,37 @@ class AwsS3Buckets < Inspec.resource(1)
     validated_params = check_resource_param_names(
       raw_params: raw_params,
       allowed_params: [],
-      allowed_scalar_name: nil,
-      allowed_scalar_type: String,
     )
     validated_params
   end
 
   def fetch_from_aws
-    # Transform into filter format expected by AWS
-    filters = []
     [
       :table,
-      :buckets,
       :has_public_buckets,
     ].each do |criterion_name|
       val = instance_variable_get("@#{criterion_name}".to_sym)
       next if val.nil?
-      filters.push(
-        {
-          name: criterion_name.to_s.tr('_', '-'),
-          values: [val],
-        },
-      )
     end
-    @table   = []
-    @buckets = Hashie::Mash.new({})
-    %w{
-      public all
-    }.each { |bucket| @buckets[bucket] ||= [] }
-    backend  = AwsS3Buckets::BackendFactory.create
-    # Note: should we ever implement server-side filtering
-    # (and this is a very good resource for that),
-    # we will need to reformat the criteria we are sending to AWS.
-    results = backend.list_buckets
+    @table  = []
+    results = AwsS3Buckets::BackendFactory.create.list_buckets
     results.buckets.each do |b_info|
+      bucket_availability = 'Private'
+      AwsS3Buckets::BackendFactory.create.get_bucket_acl(bucket: b_info.name).grants.each do |grant|
+        type = grant.grantee[:type]
+        next unless type == 'Group' and grant.grantee[:uri] == 'http://acs.amazonaws.com/groups/global/AllUsers'
+        @has_public_buckets = true
+        bucket_availability = 'Public'
+      end
       @table.push({
-                    name: b_info.name,
+                    bucket_name: b_info.name,
                     creation_date: b_info.creation_date,
                     owner: {
                       display_name: results.owner.display_name,
                       id: results.owner.id,
                     },
+                    availability: bucket_availability,
                   })
-      @buckets.all.push(b_info.name)
-    end
-    fetch_public_buckets
-  end
-
-  def fetch_public_buckets
-    @has_public_buckets = false
-    @buckets.all.each do |bucket|
-      AwsS3Buckets::BackendFactory.create.get_bucket_acl(bucket: bucket).each do |grant|
-        type = grant.grantee[:type]
-        if type == 'Group' and grant.grantee[:uri] =~ /AllUsers/
-          @has_public_buckets = true
-          @buckets.public.push(bucket)
-        end
-      end
     end
   end
 
@@ -101,7 +79,7 @@ class AwsS3Buckets < Inspec.resource(1)
       end
 
       def get_bucket_acl(query)
-        AWSConnection.new.s3_client.get_bucket_acl(query).grants
+        AWSConnection.new.s3_client.get_bucket_acl(query)
       end
     end
   end
