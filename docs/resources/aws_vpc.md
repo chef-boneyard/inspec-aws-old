@@ -108,11 +108,3 @@ The allowed tenancy of instances launched into the VPC.
     describe aws_vpc do
       its ('instance_tenancy') { should eq 'default' }
     end
-
-###  is_default
-
-Indicates whether the VPC is the default VPC. This example is equivalent to the above be_default example.
-
-    describe aws_vpc('vpc-87654321') do
-      its('is_default') { should be true }
-    end
