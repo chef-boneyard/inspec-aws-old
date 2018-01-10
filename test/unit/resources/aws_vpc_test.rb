@@ -44,7 +44,7 @@ class AwsVpcRecallTest < Minitest::Test
     AwsVpc::BackendFactory.select(MAVSB::Basic)
   end
 
-  def test_search_miss_is_not_an_exception
+  def test_search_hit_via_default_works
     assert AwsVpc.new.exists?
   end
 
@@ -56,7 +56,7 @@ class AwsVpcRecallTest < Minitest::Test
     assert AwsVpc.new(vpc_id: 'vpc-12344321').exists?
   end
 
-  def test_is_not_an_exception
+  def test_search_miss_is_not_an_exception
     refute AwsVpc.new(vpc_id: 'vpc-00000000').exists?
   end
 end
