@@ -40,9 +40,8 @@ class AwsRdsInstance < Inspec.resource(1)
     backend = AwsRdsInstance::BackendFactory.create
 
     # Transform into filter format expected by AWS
-    filters = []
     [
-        :db_id,
+      :db_id,
     ].each do |criterion_name|
       val = instance_variable_get("@#{criterion_name}".to_sym)
       next if val.nil?
@@ -50,8 +49,8 @@ class AwsRdsInstance < Inspec.resource(1)
     begin
       dsg_response = backend.describe_db_instances(db_instance_identifier: db_id)
     rescue StandardError
-        @exists = false
-        return
+      @exists = false
+      return
     end
 
     if dsg_response.db_instances.empty?
