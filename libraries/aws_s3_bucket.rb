@@ -1,7 +1,4 @@
 # author: Matthew Dromazos
-
-require '_aws'
-
 class AwsS3Bucket < Inspec.resource(1)
   name 'aws_s3_bucket'
   desc 'Verifies settings for a s3 bucket'
@@ -15,24 +12,25 @@ class AwsS3Bucket < Inspec.resource(1)
   "
 
   include AwsResourceMixin
-  attr_reader :bucket_name, :permissions, :region, :public
-  alias public? public
+  attr_reader :bucket_name, :region 
+  #attr_reader :is_public_by_acl
+  #alias public? public
 
   def to_s
     "S3 Bucket #{@bucket_name}"
   end
 
-  def public_objects
-    compute_has_public_objects unless !@has_public_objects.nil?
-    @public_objects
-  end
+  # def public_objects
+  #   compute_has_public_objects if @has_public_objects.nil?
+  #   @public_objects
+  # end
 
-  def has_public_objects
-    compute_has_public_objects unless !@has_public_objects.nil?
-    @has_public_objects
-  end
-  alias have_public_objects? has_public_objects
-  alias has_public_objects? has_public_objects
+  # def has_public_objects?
+  #   compute_has_public_objects if @has_public_objects.nil?
+  #   @has_public_objects
+  # end
+  # alias has_public_objects? has_public_objects
+  # RSpec will alias has_public_objects? to have_public_objects?
 
   private
 
@@ -51,24 +49,20 @@ class AwsS3Bucket < Inspec.resource(1)
   end
 
   def fetch_from_aws
-    [
-      :bucket_name,
-      :permissions,
-      :region,
-      :public,
-    ].each do |criterion_name|
-      val = instance_variable_get("@#{criterion_name}".to_sym)
-      next if val.nil?
-    end
+    backend = AwsS3Bucket::BackendFactory.create
 
+    # Since tehre is no basic "get_bucket" API call, use the 
+    # region fetch as the existance check.
     begin
-      fetch_permissions
-      fetch_region
-    rescue StandardError
+      @region = backend.get_bucket_location(bucket: bucket_name).location_constraint
+    rescue Aws::S3::Errors::NoSuchBucket
       @exists = false
       return
     end
     @exists = true
+
+    # fetch_bucket_acls(backend)
+
   end
 
   # Need to rethink this method because if there is over 1000 list_objects
@@ -113,11 +107,6 @@ class AwsS3Bucket < Inspec.resource(1)
         @permissions[:logGroup].push(permission)
       end
     end
-  end
-
-  def fetch_region
-    @region = AwsS3Bucket::BackendFactory.create.get_bucket_location(bucket: bucket_name).location_constraint
-    @region = 'us-east-1' unless @region != ''
   end
 
   # Uses the SDK API to really talk to AWS

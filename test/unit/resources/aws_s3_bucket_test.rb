@@ -19,15 +19,11 @@ class AwsS3BucketConstructor < Minitest::Test
   end
 
   def test_constructor_accept_scalar_param
-    AwsS3Bucket.new('Public Bucket')
+    AwsS3Bucket.new('some-bucket')
   end
 
-  def test_constructor_expected_well_formed_args
-    {
-      bucket_name: 'Public Bucket',
-    }.each do |param, value|
-      AwsS3Bucket.new(param => value)
-    end
+  def test_constructor_accept_hash
+    AwsS3Bucket.new(bucket_name: 'some-bucket')
   end
 
   def test_constructor_reject_unknown_resource_params
@@ -48,8 +44,10 @@ class AwsS3BucketPropertiesTest < Minitest::Test
   end
 
   def test_recall_match_single_result_works
-    assert AwsS3Bucket.new('Public Bucket').exists?
+    assert AwsS3Bucket.new('alpha').exists?
   end
+
+  # No need to handle multiple hits; S3 bucket names are globally unique.
 end
 
 #=============================================================================#
@@ -61,39 +59,46 @@ class AwsS3BucketPropertiesTest < Minitest::Test
     AwsS3Bucket::BackendFactory.select(AwsMSBSB::Basic)
   end
 
-  def test_property_name
-    assert_equal('Public Bucket', AwsS3Bucket.new('Public Bucket').bucket_name)
+  #---------------------Bucket Name----------------------------#  
+  def test_property_bucket_name
+    assert_equal('alpha', AwsS3Bucket.new('alpha').bucket_name)
+  end
+
+  #--------------------- Region ----------------------------#  
+  def test_property_region
+    assert_equal('us-east-2', AwsS3Bucket.new('alpha').region)
+    assert_equal('EU', AwsS3Bucket.new('beta').region)    
   end
 
   #-----------------------------------------------------#
   # Testing Properties of a public bucket
   #-----------------------------------------------------#
-  def test_property_permissions_public
-    assert_equal(['FULL_CONTROL'], AwsS3Bucket.new('Public Bucket').permissions.owner)
-    assert_equal(['READ'], AwsS3Bucket.new('Public Bucket').permissions.authUsers)
-    assert_equal(['READ'], AwsS3Bucket.new('Public Bucket').permissions.everyone)
-    assert_equal(['WRITE'], AwsS3Bucket.new('Public Bucket').permissions.logGroup)
-  end
+  # def test_property_permissions_public
+  #   assert_equal(['FULL_CONTROL'], AwsS3Bucket.new('Public Bucket').permissions.owner)
+  #   assert_equal(['READ'], AwsS3Bucket.new('Public Bucket').permissions.authUsers)
+  #   assert_equal(['READ'], AwsS3Bucket.new('Public Bucket').permissions.everyone)
+  #   assert_equal(['WRITE'], AwsS3Bucket.new('Public Bucket').permissions.logGroup)
+  # end
 
-  #-----------------------------------------------------#
-  # Testing Properties of a private bucket
-  #-----------------------------------------------------#
-  def test_property_permissions_private
-    assert_equal(['FULL_CONTROL'], AwsS3Bucket.new('Private Bucket').permissions.owner)
-    assert_equal([], AwsS3Bucket.new('Private Bucket').permissions.authUsers)
-    assert_equal([], AwsS3Bucket.new('Private Bucket').permissions.everyone)
-    assert_equal([], AwsS3Bucket.new('Private Bucket').permissions.logGroup)
-  end
+  # #-----------------------------------------------------#
+  # # Testing Properties of a private bucket
+  # #-----------------------------------------------------#
+  # def test_property_permissions_private
+  #   assert_equal(['FULL_CONTROL'], AwsS3Bucket.new('Private Bucket').permissions.owner)
+  #   assert_equal([], AwsS3Bucket.new('Private Bucket').permissions.authUsers)
+  #   assert_equal([], AwsS3Bucket.new('Private Bucket').permissions.everyone)
+  #   assert_equal([], AwsS3Bucket.new('Private Bucket').permissions.logGroup)
+  # end
 
-  #-----------------------------------------------------#
-  # Testing Properties of a log bucket
-  #-----------------------------------------------------#
-  def test_property_permissions_log
-    assert_equal(['FULL_CONTROL'], AwsS3Bucket.new('Log Bucket').permissions.owner)
-    assert_equal([], AwsS3Bucket.new('Log Bucket').permissions.authUsers)
-    assert_equal([], AwsS3Bucket.new('Log Bucket').permissions.everyone)
-    assert_equal(['WRITE'], AwsS3Bucket.new('Log Bucket').permissions.logGroup)
-  end
+  # #-----------------------------------------------------#
+  # # Testing Properties of a log bucket
+  # #-----------------------------------------------------#
+  # def test_property_permissions_log
+  #   assert_equal(['FULL_CONTROL'], AwsS3Bucket.new('Log Bucket').permissions.owner)
+  #   assert_equal([], AwsS3Bucket.new('Log Bucket').permissions.authUsers)
+  #   assert_equal([], AwsS3Bucket.new('Log Bucket').permissions.everyone)
+  #   assert_equal(['WRITE'], AwsS3Bucket.new('Log Bucket').permissions.logGroup)
+  # end
 end
 
 #=============================================================================#
@@ -105,17 +110,12 @@ class AwsS3BucketPropertiesTest < Minitest::Test
     AwsS3Bucket::BackendFactory.select(AwsMSBSB::Basic)
   end
 
-  def test_matcher_has_public_files
-    assert_equal(true, AwsS3Bucket.new('Public Bucket').has_public_objects)
-    assert_equal(false, AwsS3Bucket.new('Private Bucket').has_public_objects)
-    assert_equal([], AwsS3Bucket.new('Private Bucket').public_objects)
-  end
+  # def test_matcher_has_public_files
+  #   assert_equal(true, AwsS3Bucket.new('Public Bucket').has_public_objects)
+  #   assert_equal(false, AwsS3Bucket.new('Private Bucket').has_public_objects)
+  #   assert_equal([], AwsS3Bucket.new('Private Bucket').public_objects)
+  # end
 
-
-  def test_matcher_region
-    assert_equal('us-east-1', AwsS3Bucket.new('Public Bucket').region)
-    assert_equal('us-east-2', AwsS3Bucket.new('Private Bucket').region)
-  end
 end
 
 #=============================================================================#
@@ -252,13 +252,16 @@ module AwsMSBSB
 
     def get_bucket_location(query)
       buckets = {
-        'Public Bucket' => OpenStruct.new({
-          location_constraint: ''
-        }),
-        'Private Bucket' => OpenStruct.new({
+        'alpha' => OpenStruct.new({
           location_constraint: 'us-east-2'
+        }),
+        'beta' => OpenStruct.new({
+          location_constraint: 'EU'
         })
       }
+      unless buckets.key?(query[:bucket])
+        raise Aws::S3::Errors::NoSuchBucket.new(nil, nil)
+      end
       buckets[query[:bucket]]
     end
   end
