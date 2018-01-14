@@ -33,7 +33,12 @@ class AwsS3Bucket < Inspec.resource(1)
   # RSpec will alias has_public_objects? to have_public_objects?
 
   def bucket_acl
+    # This is simple enough to inline it.
     @bucket_acl ||= AwsS3Bucket::BackendFactory.create.get_bucket_acl(bucket: bucket_name).grants
+  end
+
+  def bucket_policy
+    @bucket_policy ||= fetch_bucket_policy
   end
 
   private
@@ -64,6 +69,22 @@ class AwsS3Bucket < Inspec.resource(1)
       return
     end
     @exists = true
+  end
+
+  def fetch_bucket_policy
+    backend = AwsS3Bucket::BackendFactory.create
+
+    begin
+      # AWS SDK returns a StringIO, we have to read()
+      raw_policy = backend.get_bucket_policy(bucket: bucket_name).policy
+      return JSON.parse(raw_policy.read)['Statement'].map do |statement|
+        lowercase_hash = {}
+        statement.each_key {|k| lowercase_hash[k.downcase] = statement[k]}
+        OpenStruct.new(lowercase_hash)
+      end
+    rescue Aws::S3::Errors::NoSuchBucketPolicy
+      return []
+    end
   end
 
   # Need to rethink this method because if there is over 1000 list_objects
@@ -104,6 +125,10 @@ class AwsS3Bucket < Inspec.resource(1)
 
       def get_bucket_location(query)
         AWSConnection.new.s3_client.get_bucket_location(query)
+      end
+
+      def get_bucket_policy(query)
+        AWSConnection.new.s3_client.get_bucket_policy(query)
       end
     end
   end

@@ -47,6 +47,8 @@ The following examples show how to use this InSpec audit resource.
 
 ## Supported Properties
 
+
+
 ### public_objects
 
 The `public_objects` property is used for testing the public objects in a bucket.
@@ -58,7 +60,7 @@ The `public_objects` property is used for testing the public objects in a bucket
 
 ### region
 
-The `public_objects` property is used for testing the public objects in a bucket.
+The `region` property identifies the AWS Region in which the S3 bucket is located.
 
     describe aws_s3_bucket('test_bucket') do
       # Check if the correct region is set
@@ -82,8 +84,25 @@ The value of bucket_acl is an Array of simple objects.  Each object has a `permi
     end
 
     # Look for grants to "AuthenticatedUsers" (that is, any authenticated AWS user - nearly public)
-    all_users_grants = bucket_acl.select do |g|
+    auth_grants = bucket_acl.select do |g|
       g.grantee.type == 'Group' && g.grantee.uri =~ /AuthenticatedUsers/
+    end
+
+### bucket_policy
+
+The `bucket_policy` is a low-level property that describes the IAM policy document controlling access to the bucket.  Other higher-level properties, such as is\_public, are more concise and easier to use.  The `bucket_policy` property returns a Ruby structure that you can probe to check for particular statements.
+
+The `bucket_policy` property returns an Array of simple objects, each object being an IAM Policy Statement. See the [AWS documentation](https://docs.aws.amazon.com/AmazonS3/latest/dev/example-bucket-policies.html#example-bucket-policies-use-case-2) for details about the structure of this data.
+
+If there is no bucket policy, this property will return an empty Array.
+
+    bucket_policy = aws_s3_bucket('my-bucket')
+
+    # Look for statements that allow the general public to do things
+    # It's possible these statements could be protected by conditions, 
+    # such as IP restrictions.
+    public_statements = bucket_policy.select do |s|
+      s.effect == 'Allow' && s.principal == '*'
     end
 
 ## Matchers

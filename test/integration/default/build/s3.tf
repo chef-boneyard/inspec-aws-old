@@ -35,6 +35,45 @@ output "s3_bucket_auth_name" {
 }
 
 #=================================================================#
+#                       S3 Bucket Policies
+#=================================================================#
+resource "aws_s3_bucket_policy" "allow" {
+  bucket = "${aws_s3_bucket.public.id}"
+  policy =<<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowGetObject",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::${aws_s3_bucket.public.id}/*"
+    }
+  ]
+}
+POLICY
+}
+
+resource "aws_s3_bucket_policy" "deny" {
+  bucket = "${aws_s3_bucket.private.id}"
+  policy =<<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenyGetObject",      
+      "Effect": "Deny",
+      "Principal": "*",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::${aws_s3_bucket.private.id}/*"
+    }
+  ]
+}
+POLICY
+}
+
+#=================================================================#
 #                       S3 Bucket Objects
 #=================================================================#
 

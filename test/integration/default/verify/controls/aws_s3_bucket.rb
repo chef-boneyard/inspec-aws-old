@@ -41,7 +41,7 @@ control 'aws_s3_bucket properties tests' do
   end
 
   #------------------- bucket_acl -------------------#
-  describe "Public grants on a public bucket" do
+  describe "Bucket ACL: Public grants on a public bucket" do
     subject do
       aws_s3_bucket(bucket_name: fixtures['s3_bucket_public_name']).bucket_acl.select do |g|
         g.grantee.type == 'Group' && g.grantee.uri =~ /AllUsers/
@@ -50,7 +50,7 @@ control 'aws_s3_bucket properties tests' do
     it { should_not be_empty }
   end
   
-  describe "Public grants on a private bucket" do
+  describe "Bucket ACL: Public grants on a private bucket" do
     subject do
       aws_s3_bucket(bucket_name: fixtures['s3_bucket_private_name']).bucket_acl.select do |g|
         g.grantee.type == 'Group' && g.grantee.uri =~ /AllUsers/
@@ -59,7 +59,7 @@ control 'aws_s3_bucket properties tests' do
     it { should be_empty }
   end
 
-  describe "AuthUser grants on a private bucket" do
+  describe "Bucket ACL: AuthUser grants on a private bucket" do
     subject do
       aws_s3_bucket(bucket_name: fixtures['s3_bucket_private_name']).bucket_acl.select do |g|
         g.grantee.type == 'Group' && g.grantee.uri =~ /AuthenticatedUsers/
@@ -68,13 +68,39 @@ control 'aws_s3_bucket properties tests' do
     it { should be_empty }
   end
 
-  describe "AuthUser grants on an AuthUser bucket" do
+  describe "Bucket ACL: AuthUser grants on an AuthUser bucket" do
     subject do
       aws_s3_bucket(bucket_name: fixtures['s3_bucket_auth_name']).bucket_acl.select do |g|
         g.grantee.type == 'Group' && g.grantee.uri =~ /AuthenticatedUsers/
       end
     end
     it { should_not be_empty }
+  end
+
+  #------------------- bucket_policy -------------------#
+  describe "Bucket Policy: Allow GetObject Statement For Everyone on public" do
+    subject do
+      bucket_policy = aws_s3_bucket(bucket_name: fixtures['s3_bucket_public_name']).bucket_policy
+      allow_all = bucket_policy.select { |s| s.effect == 'Allow' && s.principal == '*' }
+      allow_all.count
+    end
+    it { should == 1 }
+  end
+
+  describe "Bucket Policy: Allow GetObject Statement For Everyone on private" do
+    subject do
+      bucket_policy = aws_s3_bucket(bucket_name: fixtures['s3_bucket_private_name']).bucket_policy
+      allow_all = bucket_policy.select { |s| s.effect == 'Allow' && s.principal == '*' }
+      allow_all.count
+    end
+    it { should be_zero }
+  end
+
+  describe "Bucket Policy: Empty policy on auth" do
+    subject do
+      aws_s3_bucket(bucket_name: fixtures['s3_bucket_auth_name']).bucket_policy
+    end
+    it { should be_empty }
   end
 end
 

@@ -116,6 +116,34 @@ class AwsS3BucketPropertiesTest < Minitest::Test
     end
     refute_empty(auth_users_grants)
   end
+
+  #---------------------- bucket_policy -------------------------------#
+  def test_property_bucket_policy_structure
+    bucket_policy = AwsS3Bucket.new('public').bucket_policy
+    assert_kind_of(Array, bucket_policy)
+    assert_kind_of(OpenStruct, bucket_policy.first)
+    [:effect, :principal, :action, :resource].each do |field|
+      assert_respond_to(bucket_policy.first, field)
+    end
+  end
+
+  def test_property_bucket_policy_public
+    bucket_policy = AwsS3Bucket.new('public').bucket_policy
+    allow_all = bucket_policy.select { |s| s.effect == 'Allow' && s.principal == '*' }
+    assert_equal(1, allow_all.count)
+  end
+
+  def test_property_bucket_policy_private
+    bucket_policy = AwsS3Bucket.new('private').bucket_policy
+    allow_all = bucket_policy.select { |s| s.effect == 'Allow' && s.principal == '*' }
+    assert_equal(0, allow_all.count)
+  end
+
+  def test_property_bucket_policy_auth
+    bucket_policy = AwsS3Bucket.new('auth').bucket_policy
+    assert_empty(bucket_policy)
+  end
+
 end
 
 #=============================================================================#
@@ -157,10 +185,6 @@ module AwsMSBSB
             }),
           ]
         }),
-        'Log Bucket' => OpenStruct.new({
-          :contents => [
-          ]
-        }),
       }
       buckets[query[:bucket]]
     end
@@ -199,18 +223,6 @@ module AwsMSBSB
           ]
         }),
         'private' => OpenStruct.new({ :grants => [ owner_full_control ] }),
-        'logging' => OpenStruct.new({
-          :grants => [
-            owner_full_control,
-            OpenStruct.new({
-              grantee: OpenStruct.new({
-                type: 'Group',
-                uri: 'http://acs.amazonaws.com/groups/global/LogDelivery'
-              }),
-              permission: 'WRITE',
-            }),
-          ]
-        }),
       }
       buckets[query[:bucket]]
     end
@@ -258,11 +270,52 @@ module AwsMSBSB
       buckets = {
         'public' => OpenStruct.new({ location_constraint: 'us-east-2' }),
         'private' => OpenStruct.new({ location_constraint: 'EU' }),
-        'logging' => OpenStruct.new({ location_constraint: 'ap-southeast-2' }),
         'auth-users' => OpenStruct.new({ location_constraint: 'ap-southeast-1' }),
       }
       unless buckets.key?(query[:bucket])
         raise Aws::S3::Errors::NoSuchBucket.new(nil, nil)
+      end
+      buckets[query[:bucket]]
+    end
+
+    def get_bucket_policy(query)
+      buckets = {
+        'public' => OpenStruct.new({
+          policy: StringIO.new(<<'EOP')
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowGetObject",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::private/*"
+    }
+  ]
+}
+EOP
+        }),
+        'private' => OpenStruct.new({
+          policy: StringIO.new(<<'EOP')          
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenyGetObject",
+      "Effect": "Deny",
+      "Principal": "*",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::private/*"
+    }
+  ]
+}
+EOP
+        }),
+        # No policies for auth bucket
+      }
+      unless buckets.key?(query[:bucket])
+        raise Aws::S3::Errors::NoSuchBucketPolicy.new(nil, nil)
       end
       buckets[query[:bucket]]
     end
