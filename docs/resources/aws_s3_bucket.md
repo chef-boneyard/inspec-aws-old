@@ -31,13 +31,10 @@ An `aws_s3_bucket` resource block declares a bucket by name, and then lists test
 
 The following examples show how to use this InSpec audit resource.
 
-### Test a buckets permissions
+### Test a bucket's bucket-level ACL
 
     describe aws_s3_bucket(bucket_name: 'test_bucket') do
-      its('permissions.owner') { should cmp ['FULL_CONTROL'] }
-      its('permissions.authUsers') { should be_in [] }
-      its('permissions.logGroup') { should be_in ['WRITE'] }
-      its('permissions.everyone') { should be_in [] }
+      its('bucket_acl.count') { should eq 1 }
     end
 
 ### Test that a bucket does not have any public objects
@@ -49,24 +46,6 @@ The following examples show how to use this InSpec audit resource.
 <br>
 
 ## Supported Properties
-
-### permissions (Hash)
-
-The `permissions` hash property is used for matching the permissions of specific users.
-
-    describe aws_s3_bucket('test_bucket') do
-      # Check examples of 'owner'
-      its('permissions.owner') { should be_in ['FULL_CONTROL'] }
-
-      # Check examples of 'authUsers'
-      its('permissions.authUsers') { should be_in ['READ'] }
-
-      # Check examples of 'everyone'
-      its('permissions.everyone') { should be_in [] }
-
-      # Check examples of the 'logGroup'
-      its('permissions.logGroup') { should be_in ['WRITE'] }
-    end
 
 ### public_objects
 
@@ -84,6 +63,27 @@ The `public_objects` property is used for testing the public objects in a bucket
     describe aws_s3_bucket('test_bucket') do
       # Check if the correct region is set
       its('region') { should eq 'us-east-1' }
+    end
+
+## Unsupported Properties
+
+### bucket_acl
+
+The `bucket_acl` property is a low-level property that lists the individual Bucket ACL grants that are in effect on the bucket.  Other higher-level properties, such as is\_public, are more concise and easier to use.  You can use the `bucket_acl` property to investigate which grants are in efffect, causing is\_public to fail.
+
+The value of bucket_acl is an Array of simple objects.  Each object has a `permission` property and a `grantee` property.  The `permission` property will be a string such as 'READ', 'WRITE' etc (See the [AWS documentation](https://docs.aws.amazon.com/sdkforruby/api/Aws/S3/Client.html#get_bucket_acl-instance_method) for a full list).  The `grantee` property contains sub-properties, such as `type` and `uri`.
+
+    
+    bucket_acl = aws_s3_bucket('my-bucket')
+
+    # Look for grants to "AllUsers" (that is, the public)
+    all_users_grants = bucket_acl.select do |g|
+      g.grantee.type == 'Group' && g.grantee.uri =~ /AllUsers/
+    end
+
+    # Look for grants to "AuthenticatedUsers" (that is, any authenticated AWS user - nearly public)
+    all_users_grants = bucket_acl.select do |g|
+      g.grantee.type == 'Group' && g.grantee.uri =~ /AuthenticatedUsers/
     end
 
 ## Matchers

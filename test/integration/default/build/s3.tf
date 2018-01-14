@@ -57,7 +57,7 @@ resource "aws_s3_bucket_object" "authenticated-read" {
 }
 
 # add s3 bucket objects - private in public
-resource "aws_s3_bucket_object" "private" {
+resource "aws_s3_bucket_object" "private-public" {
   bucket = "${aws_s3_bucket.public.id}"
   acl = "private"
   key    = "private-pic.png"
@@ -65,7 +65,7 @@ resource "aws_s3_bucket_object" "private" {
 }
 
 # add s3 bucket objects - private in private
-resource "aws_s3_bucket_object" "private" {
+resource "aws_s3_bucket_object" "private-private" {
   bucket = "${aws_s3_bucket.private.id}"
   acl = "private"
   key    = "private-pic.png"

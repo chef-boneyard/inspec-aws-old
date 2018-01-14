@@ -1,5 +1,4 @@
 # encoding: utf-8
-require 'ostruct'
 require 'helper'
 require 'aws_s3_bucket'
 
@@ -44,7 +43,7 @@ class AwsS3BucketPropertiesTest < Minitest::Test
   end
 
   def test_recall_match_single_result_works
-    assert AwsS3Bucket.new('alpha').exists?
+    assert AwsS3Bucket.new('public').exists?
   end
 
   # No need to handle multiple hits; S3 bucket names are globally unique.
@@ -61,44 +60,62 @@ class AwsS3BucketPropertiesTest < Minitest::Test
 
   #---------------------Bucket Name----------------------------#  
   def test_property_bucket_name
-    assert_equal('alpha', AwsS3Bucket.new('alpha').bucket_name)
+    assert_equal('public', AwsS3Bucket.new('public').bucket_name)
   end
 
   #--------------------- Region ----------------------------#  
   def test_property_region
-    assert_equal('us-east-2', AwsS3Bucket.new('alpha').region)
-    assert_equal('EU', AwsS3Bucket.new('beta').region)    
+    assert_equal('us-east-2', AwsS3Bucket.new('public').region)
+    assert_equal('EU', AwsS3Bucket.new('private').region)    
   end
 
-  #-----------------------------------------------------#
-  # Testing Properties of a public bucket
-  #-----------------------------------------------------#
-  # def test_property_permissions_public
-  #   assert_equal(['FULL_CONTROL'], AwsS3Bucket.new('Public Bucket').permissions.owner)
-  #   assert_equal(['READ'], AwsS3Bucket.new('Public Bucket').permissions.authUsers)
-  #   assert_equal(['READ'], AwsS3Bucket.new('Public Bucket').permissions.everyone)
-  #   assert_equal(['WRITE'], AwsS3Bucket.new('Public Bucket').permissions.logGroup)
-  # end
+  #---------------------- bucket_acl -------------------------------#
+  def test_property_bucket_acl_structure
+    bucket_acl = AwsS3Bucket.new('public').bucket_acl
 
-  # #-----------------------------------------------------#
-  # # Testing Properties of a private bucket
-  # #-----------------------------------------------------#
-  # def test_property_permissions_private
-  #   assert_equal(['FULL_CONTROL'], AwsS3Bucket.new('Private Bucket').permissions.owner)
-  #   assert_equal([], AwsS3Bucket.new('Private Bucket').permissions.authUsers)
-  #   assert_equal([], AwsS3Bucket.new('Private Bucket').permissions.everyone)
-  #   assert_equal([], AwsS3Bucket.new('Private Bucket').permissions.logGroup)
-  # end
+    assert_kind_of(Array, bucket_acl)
+    assert(bucket_acl.size > 0)
+    assert(bucket_acl.all? { |g| g.respond_to?(:permission)})
+    assert(bucket_acl.all? { |g| g.respond_to?(:grantee)})
+    assert(bucket_acl.all? { |g| g.grantee.respond_to?(:type)})
+  end
 
-  # #-----------------------------------------------------#
-  # # Testing Properties of a log bucket
-  # #-----------------------------------------------------#
-  # def test_property_permissions_log
-  #   assert_equal(['FULL_CONTROL'], AwsS3Bucket.new('Log Bucket').permissions.owner)
-  #   assert_equal([], AwsS3Bucket.new('Log Bucket').permissions.authUsers)
-  #   assert_equal([], AwsS3Bucket.new('Log Bucket').permissions.everyone)
-  #   assert_equal(['WRITE'], AwsS3Bucket.new('Log Bucket').permissions.logGroup)
-  # end
+  def test_property_bucket_acl_public
+    bucket_acl = AwsS3Bucket.new('public').bucket_acl
+    
+    public_grants = bucket_acl.select do |g|
+      g.grantee.type == 'Group' && g.grantee.uri =~ /AllUsers/
+    end
+    refute_empty(public_grants)
+  end
+
+  def test_property_bucket_acl_private
+    bucket_acl = AwsS3Bucket.new('private').bucket_acl
+
+    public_grants = bucket_acl.select do |g|
+      g.grantee.type == 'Group' && g.grantee.uri =~ /AllUsers/
+    end
+    assert_empty(public_grants)
+    
+    auth_users_grants = bucket_acl.select do |g|
+      g.grantee.type == 'Group' && g.grantee.uri =~ /AuthenticatedUsers/
+    end
+    assert_empty(auth_users_grants)
+  end
+
+  def test_property_bucket_acl_auth_users
+    bucket_acl = AwsS3Bucket.new('auth-users').bucket_acl
+
+    public_grants = bucket_acl.select do |g|
+      g.grantee.type == 'Group' && g.grantee.uri =~ /AllUsers/
+    end
+    assert_empty(public_grants)
+    
+    auth_users_grants = bucket_acl.select do |g|
+      g.grantee.type == 'Group' && g.grantee.uri =~ /AuthenticatedUsers/
+    end
+    refute_empty(auth_users_grants)
+  end
 end
 
 #=============================================================================#
@@ -149,60 +166,47 @@ module AwsMSBSB
     end
 
     def get_bucket_acl(query)
+      owner_full_control = OpenStruct.new({
+        grantee: OpenStruct.new({
+          type: 'CanonicalUser',
+        }),
+        permission: 'FULL_CONTROL',
+      })
+
       buckets = {
-        'Public Bucket' => OpenStruct.new({
+        'public' => OpenStruct.new({
           :grants => [
+            owner_full_control,
             OpenStruct.new({
-              grantee: {
-                type: 'CanonicalUser',
-              },
-              permission: 'FULL_CONTROL',
-            }),
-            OpenStruct.new({
-              grantee: {
-                type: 'AmazonCustomerByEmail',
-              },
-              permission: 'READ',
-            }),
-            OpenStruct.new({
-              grantee: {
-                type: 'Group',
-                uri: 'http://acs.amazonaws.com/groups/global/LogDelivery'
-              },
-              permission: 'WRITE',
-            }),
-            OpenStruct.new({
-              grantee: {
+              grantee: OpenStruct.new({
                 type: 'Group',
                 uri: 'http://acs.amazonaws.com/groups/global/AllUsers'
-              },
+              }),
               permission: 'READ',
             }),
           ]
         }),
-        'Private Bucket' => OpenStruct.new({
+        'auth-users' => OpenStruct.new({
           :grants => [
+            owner_full_control,
             OpenStruct.new({
-              grantee: {
-                type: 'CanonicalUser',
-              },
-              permission: 'FULL_CONTROL',
+              grantee: OpenStruct.new({
+                type: 'Group',
+                uri: 'http://acs.amazonaws.com/groups/global/AuthenticatedUsers'
+              }),
+              permission: 'READ',
             }),
           ]
         }),
-        'Log Bucket' => OpenStruct.new({
+        'private' => OpenStruct.new({ :grants => [ owner_full_control ] }),
+        'logging' => OpenStruct.new({
           :grants => [
+            owner_full_control,
             OpenStruct.new({
-              grantee: {
-                type: 'CanonicalUser',
-              },
-              permission: 'FULL_CONTROL',
-            }),
-            OpenStruct.new({
-              grantee: {
+              grantee: OpenStruct.new({
                 type: 'Group',
                 uri: 'http://acs.amazonaws.com/groups/global/LogDelivery'
-              },
+              }),
               permission: 'WRITE',
             }),
           ]
@@ -216,33 +220,33 @@ module AwsMSBSB
         'public_file.jpg' => OpenStruct.new({
           :grants => [
             OpenStruct.new({
-              grantee: {
+              grantee: OpenStruct.new({
                 type: 'CanonicalUser',
-              },
-              permission: ['FULL_CONTROL'],
+              }),
+              permission: 'FULL_CONTROL',
             }),
             OpenStruct.new({
-              grantee: {
+              grantee: OpenStruct.new({
                 type: 'AmazonCustomerByEmail',
-              },
-              permission: ['READ'],
+              }),
+              permission: 'READ',
             }),
             OpenStruct.new({
-              grantee: {
+              grantee: OpenStruct.new({
                 type: 'Group',
                 uri: 'http://acs.amazonaws.com/groups/global/AllUsers'
-              },
-              permission: ['READ'],
+              }),
+              permission: 'READ',
             }),
           ]
         }),
         'private_file.jpg' => OpenStruct.new({
           :grants => [
             OpenStruct.new({
-              grantee: {
+              grantee: OpenStruct.new({
                 type: 'CanonicalUser',
-              },
-              permission: ['FULL_CONTROL'],
+              }),
+              permission: 'FULL_CONTROL',
             }),
           ]
         }),
@@ -252,12 +256,10 @@ module AwsMSBSB
 
     def get_bucket_location(query)
       buckets = {
-        'alpha' => OpenStruct.new({
-          location_constraint: 'us-east-2'
-        }),
-        'beta' => OpenStruct.new({
-          location_constraint: 'EU'
-        })
+        'public' => OpenStruct.new({ location_constraint: 'us-east-2' }),
+        'private' => OpenStruct.new({ location_constraint: 'EU' }),
+        'logging' => OpenStruct.new({ location_constraint: 'ap-southeast-2' }),
+        'auth-users' => OpenStruct.new({ location_constraint: 'ap-southeast-1' }),
       }
       unless buckets.key?(query[:bucket])
         raise Aws::S3::Errors::NoSuchBucket.new(nil, nil)

@@ -32,6 +32,10 @@ class AwsS3Bucket < Inspec.resource(1)
   # alias has_public_objects? has_public_objects
   # RSpec will alias has_public_objects? to have_public_objects?
 
+  def bucket_acl
+    @bucket_acl ||= AwsS3Bucket::BackendFactory.create.get_bucket_acl(bucket: bucket_name).grants
+  end
+
   private
 
   def validate_params(raw_params)
@@ -51,7 +55,7 @@ class AwsS3Bucket < Inspec.resource(1)
   def fetch_from_aws
     backend = AwsS3Bucket::BackendFactory.create
 
-    # Since tehre is no basic "get_bucket" API call, use the 
+    # Since there is no basic "get_bucket" API call, use the 
     # region fetch as the existance check.
     begin
       @region = backend.get_bucket_location(bucket: bucket_name).location_constraint
@@ -60,9 +64,6 @@ class AwsS3Bucket < Inspec.resource(1)
       return
     end
     @exists = true
-
-    # fetch_bucket_acls(backend)
-
   end
 
   # Need to rethink this method because if there is over 1000 list_objects
@@ -82,32 +83,7 @@ class AwsS3Bucket < Inspec.resource(1)
     end
   end
 
-  def fetch_permissions
-    # Use a Mash to make it easier to access hash elements in "its('permissions') {should ...}"
-    @permissions = Hashie::Mash.new({})
-    @public = false
-    # Make sure standard extensions exist so we don't get nil for nil:NilClass
-    # when the user tests for extensions which aren't present
-    %w{
-      owner logGroup authUsers everyone
-    }.each { |perm| @permissions[perm] ||= [] }
-
-    AwsS3Bucket::BackendFactory.create.get_bucket_acl(bucket: bucket_name).grants.each do |grant|
-      type = grant.grantee[:type]
-      permission = grant[:permission]
-      uri = grant.grantee[:uri]
-      if type == 'CanonicalUser'
-        @permissions[:owner].push(permission)
-      elsif type == 'AmazonCustomerByEmail'
-        @permissions[:authUsers].push(permission)
-      elsif type == 'Group' and uri =~ /AllUsers/
-        @permissions[:everyone].push(permission)
-        @public = true
-      elsif type == 'Group' and uri =~ /LogDelivery/
-        @permissions[:logGroup].push(permission)
-      end
-    end
-  end
+  
 
   # Uses the SDK API to really talk to AWS
   class Backend
