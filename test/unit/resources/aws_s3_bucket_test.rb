@@ -154,13 +154,6 @@ class AwsS3BucketPropertiesTest < Minitest::Test
   def setup
     AwsS3Bucket::BackendFactory.select(AwsMSBSB::Basic)
   end
-
-  # def test_matcher_has_public_files
-  #   assert_equal(true, AwsS3Bucket.new('Public Bucket').has_public_objects)
-  #   assert_equal(false, AwsS3Bucket.new('Private Bucket').has_public_objects)
-  #   assert_equal([], AwsS3Bucket.new('Private Bucket').public_objects)
-  # end
-
 end
 
 #=============================================================================#
@@ -169,26 +162,6 @@ end
 
 module AwsMSBSB
   class Basic < AwsS3Bucket::Backend
-    def list_objects(query)
-      buckets = {
-        'Public Bucket' => OpenStruct.new({
-          :contents => [
-            OpenStruct.new({
-              key: 'public_file.jpg',
-            }),
-          ]
-        }),
-        'Private Bucket' => OpenStruct.new({
-          :contents => [
-            OpenStruct.new({
-              key: 'private_file.jpg',
-            }),
-          ]
-        }),
-      }
-      buckets[query[:bucket]]
-    end
-
     def get_bucket_acl(query)
       owner_full_control = OpenStruct.new({
         grantee: OpenStruct.new({
@@ -225,45 +198,6 @@ module AwsMSBSB
         'private' => OpenStruct.new({ :grants => [ owner_full_control ] }),
       }
       buckets[query[:bucket]]
-    end
-
-    def get_object_acl(query)
-      objects = {
-        'public_file.jpg' => OpenStruct.new({
-          :grants => [
-            OpenStruct.new({
-              grantee: OpenStruct.new({
-                type: 'CanonicalUser',
-              }),
-              permission: 'FULL_CONTROL',
-            }),
-            OpenStruct.new({
-              grantee: OpenStruct.new({
-                type: 'AmazonCustomerByEmail',
-              }),
-              permission: 'READ',
-            }),
-            OpenStruct.new({
-              grantee: OpenStruct.new({
-                type: 'Group',
-                uri: 'http://acs.amazonaws.com/groups/global/AllUsers'
-              }),
-              permission: 'READ',
-            }),
-          ]
-        }),
-        'private_file.jpg' => OpenStruct.new({
-          :grants => [
-            OpenStruct.new({
-              grantee: OpenStruct.new({
-                type: 'CanonicalUser',
-              }),
-              permission: 'FULL_CONTROL',
-            }),
-          ]
-        }),
-      }
-      objects[query[:key]]
     end
 
     def get_bucket_location(query)

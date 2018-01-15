@@ -1,4 +1,3 @@
-
 #=================================================================#
 #                          S3 Bucket
 #=================================================================#
@@ -71,42 +70,4 @@ resource "aws_s3_bucket_policy" "deny" {
   ]
 }
 POLICY
-}
-
-#=================================================================#
-#                       S3 Bucket Objects
-#=================================================================#
-
-# valid ACLs are "authenticated-read", "aws-exec-read", "bucket-owner-full-control", 
-# "bucket-owner-read", "private", "public-read", or "public-read-write"
-
-resource "aws_s3_bucket_object" "public-read" {
-  bucket = "${aws_s3_bucket.public.id}"
-  acl    = "public-read"
-  key    = "public-pic.png"
-  source = "./inspec-logo.png"  
-}
-
-# add s3 bucket objects - pub Authenticated Users only
-resource "aws_s3_bucket_object" "authenticated-read" {
-  bucket = "${aws_s3_bucket.public.id}"
-  acl    = "authenticated-read"
-  key    = "auth-pic.png"
-  source = "./inspec-logo.png"  
-}
-
-# add s3 bucket objects - private in public
-resource "aws_s3_bucket_object" "private-public" {
-  bucket = "${aws_s3_bucket.public.id}"
-  acl = "private"
-  key    = "private-pic.png"
-  source = "./inspec-logo.png"  
-}
-
-# add s3 bucket objects - private in private
-resource "aws_s3_bucket_object" "private-private" {
-  bucket = "${aws_s3_bucket.private.id}"
-  acl = "private"
-  key    = "private-pic.png"
-  source = "./inspec-logo.png"
 }

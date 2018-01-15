@@ -5,9 +5,6 @@ class AwsS3Bucket < Inspec.resource(1)
   example "
     describe aws_s3_bucket(bucket_name: 'test_bucket') do
       it { should exist }
-      it { should_not have_public_objects }
-      its('permissions.owner') { should be_in ['FULL_CONTROL'] }
-      its('objects.public') { should eq [] }
     end
   "
 
@@ -19,18 +16,6 @@ class AwsS3Bucket < Inspec.resource(1)
   def to_s
     "S3 Bucket #{@bucket_name}"
   end
-
-  # def public_objects
-  #   compute_has_public_objects if @has_public_objects.nil?
-  #   @public_objects
-  # end
-
-  # def has_public_objects?
-  #   compute_has_public_objects if @has_public_objects.nil?
-  #   @has_public_objects
-  # end
-  # alias has_public_objects? has_public_objects
-  # RSpec will alias has_public_objects? to have_public_objects?
 
   def bucket_acl
     # This is simple enough to inline it.
@@ -87,40 +72,13 @@ class AwsS3Bucket < Inspec.resource(1)
     end
   end
 
-  # Need to rethink this method because if there is over 1000 list_objects
-  # then it will send a pagination cursor.
-  def compute_has_public_objects
-    @has_public_objects = false
-    @public_objects = []
-
-    AwsS3Bucket::BackendFactory.create.list_objects(bucket: bucket_name).contents.each do |object|
-      grants = AwsS3Bucket::BackendFactory.create.get_object_acl(bucket: bucket_name, key: object.key).grants
-      grants.each do |grant|
-        if grant.grantee[:type] == 'Group' and grant.grantee[:uri] == 'http://acs.amazonaws.com/groups/global/AllUsers' and grant[:permission] != ''
-          @has_public_objects = true
-          @public_objects.push(object.key)
-        end
-      end
-    end
-  end
-
-  
-
   # Uses the SDK API to really talk to AWS
   class Backend
     class AwsClientApi
       BackendFactory.set_default_backend(self)
 
-      def list_objects(query)
-        AWSConnection.new.s3_client.list_objects(query)
-      end
-
       def get_bucket_acl(query)
         AWSConnection.new.s3_client.get_bucket_acl(query)
-      end
-
-      def get_object_acl(query)
-        AWSConnection.new.s3_client.get_object_acl(query)
       end
 
       def get_bucket_location(query)

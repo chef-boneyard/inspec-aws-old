@@ -30,16 +30,6 @@ control 'aws_s3_bucket properties tests' do
     its('region') { should eq fixtures['s3_bucket_public_region'] }
   end
 
-  #-------------------  public_objects  -------------------#
-  describe aws_s3_bucket(bucket_name: fixtures['s3_bucket_public_name']) do
-    skip
-    #its('public_objects') { should include "public-pic.png" }
-  end
-  describe aws_s3_bucket(bucket_name: fixtures['s3_bucket_private_name']) do
-    skip
-    #its('public_objects') { should be_empty }
-  end
-
   #------------------- bucket_acl -------------------#
   describe "Bucket ACL: Public grants on a public bucket" do
     subject do
@@ -120,13 +110,4 @@ control 'aws_s3_bucket matchers test' do
     #it { should_not be_public }
   end
 
-  #------------------------ has_public_objects --------------------------#  
-  describe aws_s3_bucket(bucket_name: fixtures['s3_bucket_public_name']) do
-    skip
-    #it { should have_public_objects }
-  end
-  describe aws_s3_bucket(bucket_name: fixtures['s3_bucket_private_name']) do
-    skip
-    #it { should_not have_public_objects }
-  end
 end
