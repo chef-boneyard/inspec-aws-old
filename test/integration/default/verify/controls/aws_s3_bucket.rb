@@ -3,6 +3,7 @@ fixtures = {}
   's3_bucket_public_name',
   's3_bucket_private_name',
   's3_bucket_auth_name',
+  's3_bucket_private_acl_public_policy_name',  
   's3_bucket_public_region',
 ].each do |fixture_name|
   fixtures[fixture_name] = attribute(
@@ -98,16 +99,15 @@ control 'aws_s3_bucket matchers test' do
   
   #------------------------  be_public --------------------------#  
   describe aws_s3_bucket(bucket_name: fixtures['s3_bucket_public_name']) do
-    skip
-    # it { should be_public }
+    it { should be_public }
   end
   describe aws_s3_bucket(bucket_name: fixtures['s3_bucket_auth_name']) do
-    skip
-    #it { should be_public }
+    it { should be_public }
   end
   describe aws_s3_bucket(bucket_name: fixtures['s3_bucket_private_name']) do
-    skip
-    #it { should_not be_public }
+    it { should_not be_public }
   end
-
+  describe aws_s3_bucket(bucket_name: fixtures['s3_bucket_private_acl_public_policy_name']) do
+    it { should be_public }
+  end
 end

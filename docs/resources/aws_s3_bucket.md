@@ -10,6 +10,14 @@ To test properties of a multiple S3 buckets , use the `aws_s3_buckets` resource.
 
 <br>
 
+## Limitations
+
+S3 bucket security is a complex matter.  For details on how AWS evaluates requests for access, please see [the AWS documentation](https://docs.aws.amazon.com/AmazonS3/latest/dev/how-s3-evaluates-access-control.html).  S3 buckets and the objects they contain support three different types of access control: bucket ACLs, bucket policies, and object ACLs.
+
+As of this writing, this resource only supports evaluating the first two, bucket ACLs and bucket policies.  Evaluating object ACLs introduces scalability concerns that are currently not well handled by the AWS API, and may be better handled via AWS mechanisms such as CloudTrail and Config.
+
+In particular, users of the `be_public` matcher should carefully examine the conditions under which the matcher will detect an insecure bucket.  See the `be_public` section under the Matchers section below.
+
 ## Syntax
 
 An `aws_s3_bucket` resource block declares a bucket by name, and then lists tests to be performed.
@@ -31,16 +39,22 @@ The following examples show how to use this InSpec audit resource.
 
 ### Test a bucket's bucket-level ACL
 
-    describe aws_s3_bucket(bucket_name: 'test_bucket') do
+    describe aws_s3_bucket('test_bucket') do
       its('bucket_acl.count') { should eq 1 }
     end
 
 ### Check to see if a bucket has a bucket policy
 
-    describe aws_s3_bucket(bucket_name: 'test_bucket') do
+    describe aws_s3_bucket('test_bucket') do
       its('bucket_policy') { should be_empty }
     end
 
+### Check to see if a bucket appears to be exposed to the public
+
+    # See Limitations section above
+    describe aws_s3_bucket('test_bucket') do
+      it { should_not be_public }
+    end
 <br>
 
 ## Supported Properties
@@ -58,7 +72,7 @@ The `region` property identifies the AWS Region in which the S3 bucket is locate
 
 ### bucket_acl
 
-The `bucket_acl` property is a low-level property that lists the individual Bucket ACL grants that are in effect on the bucket.  Other higher-level properties, such as is\_public, are more concise and easier to use.  You can use the `bucket_acl` property to investigate which grants are in efffect, causing is\_public to fail.
+The `bucket_acl` property is a low-level property that lists the individual Bucket ACL grants that are in effect on the bucket.  Other higher-level properties, such as be\_public, are more concise and easier to use.  You can use the `bucket_acl` property to investigate which grants are in efffect, causing be\_public to fail.
 
 The value of bucket_acl is an Array of simple objects.  Each object has a `permission` property and a `grantee` property.  The `permission` property will be a string such as 'READ', 'WRITE' etc (See the [AWS documentation](https://docs.aws.amazon.com/sdkforruby/api/Aws/S3/Client.html#get_bucket_acl-instance_method) for a full list).  The `grantee` property contains sub-properties, such as `type` and `uri`.
 
@@ -77,7 +91,7 @@ The value of bucket_acl is an Array of simple objects.  Each object has a `permi
 
 ### bucket_policy
 
-The `bucket_policy` is a low-level property that describes the IAM policy document controlling access to the bucket.  Other higher-level properties, such as is\_public, are more concise and easier to use.  The `bucket_policy` property returns a Ruby structure that you can probe to check for particular statements.
+The `bucket_policy` is a low-level property that describes the IAM policy document controlling access to the bucket.  Other higher-level properties, such as be\_public, are more concise and easier to use.  The `bucket_policy` property returns a Ruby structure that you can probe to check for particular statements.
 
 The `bucket_policy` property returns an Array of simple objects, each object being an IAM Policy Statement. See the [AWS documentation](https://docs.aws.amazon.com/AmazonS3/latest/dev/example-bucket-policies.html#example-bucket-policies-use-case-2) for details about the structure of this data.
 
@@ -86,8 +100,8 @@ If there is no bucket policy, this property will return an empty Array.
     bucket_policy = aws_s3_bucket('my-bucket')
 
     # Look for statements that allow the general public to do things
-    # It's possible these statements could be protected by conditions, 
-    # such as IP restrictions.
+    # This may be a false positive;  it's possible these statements
+    # could be protected by conditions, such as IP restrictions.
     public_statements = bucket_policy.select do |s|
       s.effect == 'Allow' && s.principal == '*'
     end
@@ -96,8 +110,14 @@ If there is no bucket policy, this property will return an empty Array.
 
 This InSpec audit resource has the following special matchers. For a full list of available matchers (such as `exist`) please visit our [matchers page](https://www.inspec.io/docs/reference/matchers/).
 
-### public
+### be_public
 
-The `public` matcher tests if the S3 bucket has an ACL permission that allows the public to view the bucket
+The `be_public` matcher tests if the bucket has access controls that are potentially insecure.  The intent is that this high-level matcher may be used to detect a number of insecure conditions, which may be added to in the future.  The matcher currently will report an insecure bucket if _any_ of the following conditions are met:
+
+  1. A bucket ACL grant exists for the 'AllUsers' group
+  2. A bucket ACL grant exists for the 'AuthenticatedUsers' group
+  3. A bucket policy has an effect 'Allow' and principal '*'
+
+Note in particular that this resource currently does not detect insecure object ACLs.
 
     it { should_not be_public }

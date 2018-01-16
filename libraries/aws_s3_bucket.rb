@@ -10,8 +10,6 @@ class AwsS3Bucket < Inspec.resource(1)
 
   include AwsResourceMixin
   attr_reader :bucket_name, :region 
-  #attr_reader :is_public_by_acl
-  #alias public? public
 
   def to_s
     "S3 Bucket #{@bucket_name}"
@@ -24,6 +22,13 @@ class AwsS3Bucket < Inspec.resource(1)
 
   def bucket_policy
     @bucket_policy ||= fetch_bucket_policy
+  end
+
+  # RSpec will alias this to be_public
+  def public?
+    bucket_acl.any? { |g| g.grantee.type == 'Group' && g.grantee.uri =~ /AllUsers/ } || \
+    bucket_acl.any? { |g| g.grantee.type == 'Group' && g.grantee.uri =~ /AuthenticatedUsers/ } || \
+    bucket_policy.any? { |s| s.effect == 'Allow' && s.principal == '*' }
   end
 
   private

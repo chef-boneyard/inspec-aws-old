@@ -154,6 +154,20 @@ class AwsS3BucketPropertiesTest < Minitest::Test
   def setup
     AwsS3Bucket::BackendFactory.select(AwsMSBSB::Basic)
   end
+
+  def test_be_public_public_acl
+    assert(AwsS3Bucket.new('public').public?)
+  end
+  def test_be_public_auth_acl
+    assert(AwsS3Bucket.new('auth-users').public?)
+  end
+  def test_be_public_private_acl
+    refute(AwsS3Bucket.new('private').public?)
+  end
+  def test_be_public_public_acl
+    assert(AwsS3Bucket.new('public').public?)
+  end
+  
 end
 
 #=============================================================================#
@@ -196,6 +210,7 @@ module AwsMSBSB
           ]
         }),
         'private' => OpenStruct.new({ :grants => [ owner_full_control ] }),
+        'private-acl-public-policy' => OpenStruct.new({ :grants => [ owner_full_control ] }),
       }
       buckets[query[:bucket]]
     end
@@ -205,6 +220,7 @@ module AwsMSBSB
         'public' => OpenStruct.new({ location_constraint: 'us-east-2' }),
         'private' => OpenStruct.new({ location_constraint: 'EU' }),
         'auth-users' => OpenStruct.new({ location_constraint: 'ap-southeast-1' }),
+        'private-acl-public-policy' => OpenStruct.new({ location_constraint: 'ap-southeast-2' }),
       }
       unless buckets.key?(query[:bucket])
         raise Aws::S3::Errors::NoSuchBucket.new(nil, nil)
@@ -224,7 +240,7 @@ module AwsMSBSB
       "Effect": "Allow",
       "Principal": "*",
       "Action": "s3:GetObject",
-      "Resource": "arn:aws:s3:::private/*"
+      "Resource": "arn:aws:s3:::public/*"
     }
   ]
 }
@@ -241,6 +257,22 @@ EOP
       "Principal": "*",
       "Action": "s3:GetObject",
       "Resource": "arn:aws:s3:::private/*"
+    }
+  ]
+}
+EOP
+        }),
+        'private-acl-public-policy' => OpenStruct.new({
+          policy: StringIO.new(<<'EOP')
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowGetObject",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::private-acl-public-policy/*"
     }
   ]
 }

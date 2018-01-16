@@ -33,6 +33,15 @@ output "s3_bucket_auth_name" {
   value = "${aws_s3_bucket.auth.id}"
 }
 
+resource "aws_s3_bucket" "private_acl_public_policy" {
+  bucket        = "inspec-testing-mixed-01-${terraform.env}.chef.io"
+  acl           = "private"
+}
+
+output "s3_bucket_private_acl_public_policy_name" {
+  value = "${aws_s3_bucket.private_acl_public_policy.id}"
+}
+
 #=================================================================#
 #                       S3 Bucket Policies
 #=================================================================#
@@ -66,6 +75,24 @@ resource "aws_s3_bucket_policy" "deny" {
       "Principal": "*",
       "Action": "s3:GetObject",
       "Resource": "arn:aws:s3:::${aws_s3_bucket.private.id}/*"
+    }
+  ]
+}
+POLICY
+}
+
+resource "aws_s3_bucket_policy" "allow-02" {
+  bucket = "${aws_s3_bucket.private_acl_public_policy.id}"
+  policy =<<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowGetObject",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::${aws_s3_bucket.private_acl_public_policy.id}/*"
     }
   ]
 }
