@@ -9,23 +9,44 @@ class AwsIamPolicy < Inspec.resource(1)
 
   include AwsResourceMixin
 
+  attr_reader :arn, :default_version_id, :attachment_count, :policy
+
   def to_s
     "Policy #{@policy_name}"
   end
 
-  [
-    :arn, :default_version_id, :attachment_count, :is_attachable,
-    :attached_users, :attached_groups, :attached_roles
-  ].each do |property|
-    define_method(property) do
-      @policy[property]
-    end
-  end
-
-  alias attachable? is_attachable
-
   def attached?
     !attachment_count.zero?
+  end
+
+  def attached_users
+    return @attached_users unless @attached_users.nil?
+    fetch_attached_entities
+    @attached_users
+  end
+
+  def attached_groups
+    return @attached_groups unless @attached_groups.nil?
+    fetch_attached_entities
+    @attached_groups
+  end
+
+  def attached_roles
+    return @attached_roles unless @attached_roles.nil?
+    fetch_attached_entities
+    @attached_roles
+  end
+
+  def attached_to_user?(user_name)
+    attached_users.include?(user_name)
+  end
+
+  def attached_to_group?(group_name)
+    attached_groups.include?(group_name)
+  end
+
+  def attached_to_role?(role_name)
+    attached_roles.include?(role_name)
   end
 
   private
@@ -39,7 +60,7 @@ class AwsIamPolicy < Inspec.resource(1)
     )
 
     if validated_params.empty?
-      raise ArgumentError, 'You must provide parameter to aws_iam_policy: policy name.'
+      raise ArgumentError, "You must provide the parameter 'policy_name' to aws_iam_policy."
     end
 
     validated_params
@@ -50,15 +71,26 @@ class AwsIamPolicy < Inspec.resource(1)
 
     criteria = { max_items: 1000 } # maxItems max value is 1000
     resp = backend.list_policies(criteria)
-    @policy = resp.policies.select { |policy| policy.policy_name == @policy_name }.first.to_h
-    @exists = !@policy.empty?
+    policy = resp.policies.detect do |policy|
+      policy.policy_name == @policy_name
+    end
+
+    @exists = !policy.nil?
 
     return unless @exists
+    @arn = policy[:arn]
+    @default_version_id = policy[:default_version_id]
+    @attachment_count = policy[:attachment_count]
+  end
+
+  def fetch_attached_entities
+    return unless @exists
+    backend = AwsIamPolicy::BackendFactory.create
     criteria = { policy_arn: arn }
     resp = backend.list_entities_for_policy(criteria)
-    @policy[:attached_groups] = resp.policy_groups.map(&:group_name)
-    @policy[:attached_users]  = resp.policy_users.map(&:user_name)
-    @policy[:attached_roles]  = resp.policy_roles.map(&:role_name)
+    @attached_groups = resp.policy_groups.map(&:group_name)
+    @attached_users  = resp.policy_users.map(&:user_name)
+    @attached_roles  = resp.policy_roles.map(&:role_name)
   end
 
   class Backend

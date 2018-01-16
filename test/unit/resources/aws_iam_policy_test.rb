@@ -77,11 +77,6 @@ class AwsIamPolicyPropertiesTest < Minitest::Test
     assert_nil(AwsIamPolicy.new(policy_name: 'non-existant').attachment_count)
   end
 
-  def test_property_is_attachable
-    assert_equal(true, AwsIamPolicy.new('test-policy-1').is_attachable)
-    assert_nil(AwsIamPolicy.new(policy_name: 'non-existant').is_attachable)
-  end
-
   def test_property_attached_users
     assert_equal(['test-user'], AwsIamPolicy.new('test-policy-1').attached_users)
     assert_nil(AwsIamPolicy.new(policy_name: 'non-existant').attached_users)
@@ -108,20 +103,36 @@ class AwsIamPolicyMatchersTest < Minitest::Test
     AwsIamPolicy::BackendFactory.select(MAIPSB::Basic)
   end
 
-  def test_matcher_attachable_positive
-    assert AwsIamPolicy.new('test-policy-1').attachable?
-  end
-
-  def test_matcher_attachable_negative
-    refute AwsIamPolicy.new('test-policy-2').attachable?
-  end
-
   def test_matcher_attached_positive
     assert AwsIamPolicy.new('test-policy-1').attached?
   end
 
   def test_matcher_attached_negative
     refute AwsIamPolicy.new('test-policy-2').attached?
+  end
+  
+  def test_matcher_attached_to_user_positive
+    assert AwsIamPolicy.new('test-policy-1').attached_to_user?('test-user')
+  end
+
+  def test_matcher_attached_to_user_negative
+    refute AwsIamPolicy.new('test-policy-2').attached_to_user?('test-user')
+  end
+  
+  def test_matcher_attached_to_group_positive
+    assert AwsIamPolicy.new('test-policy-1').attached_to_group?('test-group')
+  end
+
+  def test_matcher_attached_to_group_negative
+    refute AwsIamPolicy.new('test-policy-2').attached_to_group?('test-group')
+  end
+
+  def test_matcher_attached_to_role_positive
+    assert AwsIamPolicy.new('test-policy-1').attached_to_role?('test-role')
+  end
+
+  def test_matcher_attached_to_role_negative
+    refute AwsIamPolicy.new('test-policy-2').attached_to_role?('test-role')
   end
 end
 
