@@ -1,11 +1,11 @@
 class AwsIamPolicy < Inspec.resource(1)
   name 'aws_iam_policy'
   desc 'Verifies settings for individual AWS IAM Policy'
-  example '''
-    describe aws_iam_policy("AWSSupportAccess") do
+  example "
+    describe aws_iam_policy('AWSSupportAccess') do
       it { should be_attached }
     end
-  '''
+  "
 
   include AwsResourceMixin
   attr_reader :test
@@ -13,9 +13,10 @@ class AwsIamPolicy < Inspec.resource(1)
     "Policy #{@policy_name}"
   end
 
-  [:arn, :default_version_id, :attachment_count, :is_attachable,
+  [
+    :arn, :default_version_id, :attachment_count, :is_attachable,
     :attached_users, :attached_groups, :attached_roles
-    ].each do |property|
+  ].each do |property|
     define_method(property) do
       @policy[property]
     end
@@ -50,16 +51,15 @@ class AwsIamPolicy < Inspec.resource(1)
     criteria = { max_items: 1000 } # maxItems max value is 1000
     resp = backend.list_policies(criteria)
     @test = resp
-    @policy = resp.policies.select {|policy| policy.policy_name == @policy_name }.first.to_h
+    @policy = resp.policies.select { |policy| policy.policy_name == @policy_name }.first.to_h
     @exists = !@policy.empty?
 
-    if @exists
-      criteria = { policy_arn: arn }
-      resp = backend.list_entities_for_policy(criteria)
-      @policy[:attached_groups] = resp.policy_groups.map{ |group| group.group_name}
-      @policy[:attached_users]  = resp.policy_users.map{ |user| user.user_name}
-      @policy[:attached_roles]  = resp.policy_roles.map{ |role| role.role_name}    
-    end
+    return unless @exists
+    criteria = { policy_arn: arn }
+    resp = backend.list_entities_for_policy(criteria)
+    @policy[:attached_groups] = resp.policy_groups.map(&:group_name)
+    @policy[:attached_users]  = resp.policy_users.map(&:user_name)
+    @policy[:attached_roles]  = resp.policy_roles.map(&:role_name)
   end
 
   class Backend
