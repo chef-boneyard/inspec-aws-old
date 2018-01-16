@@ -11,9 +11,9 @@ class AwsVpcs < Inspec.resource(1)
   filter = FilterTable.create
   filter.add_accessor(:entries)
         .add(:exists?) { |x| !x.entries.empty? }
-  filter.connect(self, :access_key_data)
+  filter.connect(self, :vpc_data)
 
-  def access_key_data
+  def vpc_data
     @table
   end
 
