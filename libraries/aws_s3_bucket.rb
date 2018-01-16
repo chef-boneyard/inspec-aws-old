@@ -9,7 +9,7 @@ class AwsS3Bucket < Inspec.resource(1)
   "
 
   include AwsResourceMixin
-  attr_reader :bucket_name, :region 
+  attr_reader :bucket_name, :region
 
   def to_s
     "S3 Bucket #{@bucket_name}"
@@ -26,9 +26,11 @@ class AwsS3Bucket < Inspec.resource(1)
 
   # RSpec will alias this to be_public
   def public?
-    bucket_acl.any? { |g| g.grantee.type == 'Group' && g.grantee.uri =~ /AllUsers/ } || \
-    bucket_acl.any? { |g| g.grantee.type == 'Group' && g.grantee.uri =~ /AuthenticatedUsers/ } || \
-    bucket_policy.any? { |s| s.effect == 'Allow' && s.principal == '*' }
+    # first line just for formatting
+    false || \
+      bucket_acl.any? { |g| g.grantee.type == 'Group' && g.grantee.uri =~ /AllUsers/ } || \
+      bucket_acl.any? { |g| g.grantee.type == 'Group' && g.grantee.uri =~ /AuthenticatedUsers/ } || \
+      bucket_policy.any? { |s| s.effect == 'Allow' && s.principal == '*' }
   end
 
   private
@@ -50,8 +52,8 @@ class AwsS3Bucket < Inspec.resource(1)
   def fetch_from_aws
     backend = AwsS3Bucket::BackendFactory.create
 
-    # Since there is no basic "get_bucket" API call, use the 
-    # region fetch as the existance check.
+    # Since there is no basic "get_bucket" API call, use the
+    # region fetch as the existence check.
     begin
       @region = backend.get_bucket_location(bucket: bucket_name).location_constraint
     rescue Aws::S3::Errors::NoSuchBucket
@@ -69,7 +71,7 @@ class AwsS3Bucket < Inspec.resource(1)
       raw_policy = backend.get_bucket_policy(bucket: bucket_name).policy
       return JSON.parse(raw_policy.read)['Statement'].map do |statement|
         lowercase_hash = {}
-        statement.each_key {|k| lowercase_hash[k.downcase] = statement[k]}
+        statement.each_key { |k| lowercase_hash[k.downcase] = statement[k] }
         OpenStruct.new(lowercase_hash)
       end
     rescue Aws::S3::Errors::NoSuchBucketPolicy
