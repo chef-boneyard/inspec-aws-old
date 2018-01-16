@@ -8,7 +8,7 @@ class AwsIamPolicy < Inspec.resource(1)
   "
 
   include AwsResourceMixin
-  attr_reader :test
+
   def to_s
     "Policy #{@policy_name}"
   end
@@ -50,7 +50,6 @@ class AwsIamPolicy < Inspec.resource(1)
 
     criteria = { max_items: 1000 } # maxItems max value is 1000
     resp = backend.list_policies(criteria)
-    @test = resp
     @policy = resp.policies.select { |policy| policy.policy_name == @policy_name }.first.to_h
     @exists = !@policy.empty?
 
