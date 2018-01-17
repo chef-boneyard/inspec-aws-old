@@ -36,7 +36,7 @@ class AWSConnection
   def cloudwatch_logs_client
     @cloudwatch_logs_client ||= Aws::CloudWatchLogs::Client.new
   end
-  
+
   def cloudtrail_client
     @cloudtrail_client ||= Aws::CloudTrail::Client.new
   end
