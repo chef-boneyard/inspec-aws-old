@@ -242,7 +242,7 @@ output "cloudtrail_trail_2_s3_bucket_name" {
 }
 
 output "cloudtrail_trail_2_name" {
-  value = "${aws_cloudtrail.trail_2.arn}"
+  value = "${aws_cloudtrail.trail_2.name}"
 }
 
 output "cloudtrail_trail_2_arn" {
