@@ -9,7 +9,7 @@ class AwsIamPolicy < Inspec.resource(1)
 
   include AwsResourceMixin
 
-  attr_reader :arn, :default_version_id, :attachment_count, :policy
+  attr_reader :arn, :default_version_id, :attachment_count
 
   def to_s
     "Policy #{@policy_name}"
@@ -71,16 +71,16 @@ class AwsIamPolicy < Inspec.resource(1)
 
     criteria = { max_items: 1000 } # maxItems max value is 1000
     resp = backend.list_policies(criteria)
-    policy = resp.policies.detect do |policy|
+    @policy = resp.policies.detect do |policy|
       policy.policy_name == @policy_name
     end
 
-    @exists = !policy.nil?
+    @exists = !@policy.nil?
 
     return unless @exists
-    @arn = policy[:arn]
-    @default_version_id = policy[:default_version_id]
-    @attachment_count = policy[:attachment_count]
+    @arn = @policy[:arn]
+    @default_version_id = @policy[:default_version_id]
+    @attachment_count = @policy[:attachment_count]
   end
 
   def fetch_attached_entities
