@@ -55,7 +55,7 @@ class AwsESGProperties < Minitest::Test
   def setup
     AwsEc2SecurityGroups::BackendFactory.select(AwsMESGB::Basic)
   end
-
+  
   def test_property_group_ids
     basic = AwsEc2SecurityGroups.new
     assert_kind_of(Array, basic.group_ids)

@@ -1,8 +1,11 @@
 class AwsVpcSubnets < Inspec.resource(1)
   name 'aws_vpc_subnets'
-  desc ''
+  desc 'Verifies settings for VPC Subnets in bulk'
   example "
-
+    # you should be able to test the cidr_block of a subnet
+    describe aws_vpc_subnets.where(subnet_id: fixtures['ec2_default_vpc_subnet_id']) do
+      its('cidr_blocks') { should eq ['172.31.96.0/20'] }
+    end
   "
 
   # Constructor.  Args are reserved for row fetch filtering.
