@@ -1,8 +1,8 @@
 class AwsKmsKey < Inspec.resource(1)
   name 'aws_kms_key'
-  desc 'Verifies settings for individual AWS KMS Key'
+  desc 'Verifies settings for an individual AWS KMS Key'
   example "
-    describe aws_kms_key('key-arn') do
+    describe aws_kms_key('arn:aws:kms:us-east-1::key/key-id') do
       it { should exist }
     end
   "
