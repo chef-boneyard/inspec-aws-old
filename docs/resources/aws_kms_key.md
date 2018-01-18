@@ -14,7 +14,7 @@ Each AWS KMS Key is uniquely identified by its key_id or key_arn.
 
 ## Syntax
 
-An aws_kms_key resource block identifies a key by key arn.
+An aws_kms_key resource block identifies a key by key_arn.
 
     # Find a kms key by name
     describe aws_kms_key('test-key-1-arn') do
@@ -104,6 +104,8 @@ The state of the key one of "Enabled", "Disabled", "PendingDeletion", "PendingIm
     end
 
 ### description
+
+The description of the key.
 
     describe aws_kms_key('test-key-1-arn') do
       its('description') { should cmp "key-description" }
