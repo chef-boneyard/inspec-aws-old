@@ -81,10 +81,22 @@ output "iam_user_without_access_key" {
 #                    IAM Access Keys
 #======================================================#
 
-output "iam_access_key_recall_hit" { 
+output "iam_access_key_recall_hit" {
   value = "${aws_iam_access_key.access_key_for_user.id}"
 }
 
-output "iam_access_key_recall_miss" { 
+output "iam_access_key_recall_miss" {
   value = "AKIAFAKEFAKEFAKEFAKE"
+}
+
+#======================================================#
+#                    IAM Flow Logs
+#======================================================#
+
+resource "aws_flow_log" "default" {
+  log_group_name = "${terraform.env}_lmf_lg_1"
+  iam_role_arn   = "${terraform.env}.role_for_ec2_with_role"
+  vpc_id         = "${data.aws_vpc.default.id}"
+  traffic_type   = "ALL"
+  subnet_id      = "${aws_subnet.default.id}"
 }
