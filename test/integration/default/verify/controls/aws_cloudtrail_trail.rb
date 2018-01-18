@@ -13,7 +13,7 @@ fixtures = {}
   fixtures[fixture_name] = attribute(
     fixture_name,
     default: "default.#{fixture_name}",
-    description: 'See ../build/ec2.tf',
+    description: 'See ../build/cloudtrail.tf',
   )
 end
 
