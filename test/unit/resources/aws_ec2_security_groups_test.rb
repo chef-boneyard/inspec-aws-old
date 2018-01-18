@@ -12,7 +12,7 @@ class AwsESGConstructor < Minitest::Test
   def setup
     AwsEc2SecurityGroups::BackendFactory.select(AwsMESGB::Empty)
   end
-
+  
   def test_constructor_no_args_ok
     AwsEc2SecurityGroups.new
   end
@@ -29,7 +29,7 @@ class AwsESGFilterCriteria < Minitest::Test
   def setup
     AwsEc2SecurityGroups::BackendFactory.select(AwsMESGB::Basic)
   end
-
+  
   def test_filter_vpc_id
     hit = AwsEc2SecurityGroups.new.where(vpc_id: 'vpc-12345678')
     assert(hit.exists?)
@@ -55,7 +55,7 @@ class AwsESGProperties < Minitest::Test
   def setup
     AwsEc2SecurityGroups::BackendFactory.select(AwsMESGB::Basic)
   end
-
+  
   def test_property_group_ids
     basic = AwsEc2SecurityGroups.new
     assert_kind_of(Array, basic.group_ids)
