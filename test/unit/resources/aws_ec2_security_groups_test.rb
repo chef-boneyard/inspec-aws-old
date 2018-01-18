@@ -29,7 +29,7 @@ class AwsESGFilterCriteria < Minitest::Test
   def setup
     AwsEc2SecurityGroups::BackendFactory.select(AwsMESGB::Basic)
   end
-
+  
   def test_filter_vpc_id
     hit = AwsEc2SecurityGroups.new.where(vpc_id: 'vpc-12345678')
     assert(hit.exists?)
