@@ -6,7 +6,7 @@ title: About the aws_vpc_subnets Resource
 
 Use the `aws_vpc_subnets` InSpec audit resource to test properties of some or all subnets.
 
-Subnets are networks within a VPC that can have its own set of ip address and ACLs.  VPCs span across all availability zones in AWS, while a subnet in a VPC can only span a single availability zone, which allows for protection if there is a failure in one availability zone.   
+Subnets are networks within a VPC that can have their own block of IP address's and ACL's.  VPCs span across all availability zones in AWS, while a subnet in a VPC can only span a single availability zone. Separating IP addresses allows for protection if there is a failure in one availability zone.   
 
 <br>
 
