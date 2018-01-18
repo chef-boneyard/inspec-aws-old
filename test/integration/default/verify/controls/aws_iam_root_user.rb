@@ -1,3 +1,4 @@
+
 fixtures = {}
 [
   'aws_account_id',
