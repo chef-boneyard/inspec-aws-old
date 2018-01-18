@@ -4,7 +4,7 @@ title: About the aws_kms_key Resource
 
 # aws_kms_key
 
-Use the aws_kms_key InSpec audit resource to test properties of a single AWS KMS Key.
+Use the `aws_kms_key` InSpec audit resource to test properties of a single AWS KMS Key.
 
 AWS Key Management Service (AWS KMS) is a managed service that makes it easy for you to create and control the encryption keys used to encrypt your data. AWS KMS lets you create master keys that can never be exported from the service and which can be used to encrypt and decrypt data based on policies you define.
 
@@ -14,14 +14,14 @@ Each AWS KMS Key is uniquely identified by its key_id or key_arn.
 
 ## Syntax
 
-An aws_kms_key resource block identifies a key by key.
+An aws_kms_key resource block identifies a key by key arn.
 
-    # Find a CHANGEME by name
+    # Find a kms key by name
     describe aws_kms_key('test-key-1-arn') do
       it { should exist }
     end
 
-    # Hash syntax for CHANGEME name
+    # Hash syntax for key arn
     describe aws_kms_key(key_arn: 'test-key-1-arn') do
       it { should exist }
     end
@@ -59,7 +59,7 @@ The following examples show how to use this InSpec audit resource.
 The globally unique identifier for the key.
 
     describe aws_kms_key('test-key-1-arn') do
-      its('key_id') { should cmp "CHANGEME" }
+      its('key_id') { should cmp "id" }
     end
 
 ### arn
@@ -67,7 +67,7 @@ The globally unique identifier for the key.
 The Amazon Resource Name (ARN) of the key.
 
     describe aws_kms_key('test-key-1-arn') do
-      its('arn') { should cmp "CHANGEME" }
+      its('arn') { should cmp "arn" }
     end
 
 ### creation_date
@@ -75,7 +75,7 @@ The Amazon Resource Name (ARN) of the key.
 The date and time when the key was created.
 
     describe aws_kms_key('test-key-1-arn') do
-      its('creation_date') { should cmp "CHANGEME" }
+      its('creation_date') { should cmp date }
     end
 
 ### created_days_ago
@@ -83,7 +83,7 @@ The date and time when the key was created.
 Number of days since the key was created.
 
     describe aws_kms_key('test-key-1-arn') do
-      its('created_days_ago') { should cmp "CHANGEME" }
+      its('created_days_ago') { should cmp > 10 }
     end
 
 
@@ -92,7 +92,7 @@ Number of days since the key was created.
 The cryptographic operations for which you can use the key. Currently the only allowed value is ENCRYPT_DECRYPT , which means you can use the key for the encrypt and decrypt operations.
 
     describe aws_kms_key('test-key-1-arn') do
-      its('key_usage') { should cmp "CHANGEME" }
+      its('key_usage') { should cmp "ENCRYPT_DECRYPT" }
     end
 
 ### key_state
@@ -100,15 +100,13 @@ The cryptographic operations for which you can use the key. Currently the only a
 The state of the key one of "Enabled", "Disabled", "PendingDeletion", "PendingImport".
 
     describe aws_kms_key('test-key-1-arn') do
-      its('key_state') { should cmp "CHANGEME" }
+      its('key_state') { should cmp "Enabled" }
     end
 
 ### description
 
-ADD_DESCRIPTION
-
     describe aws_kms_key('test-key-1-arn') do
-      its('description') { should cmp "CHANGEME" }
+      its('description') { should cmp "key-description" }
     end
 
 ### deletion_date
@@ -116,7 +114,7 @@ ADD_DESCRIPTION
 The date and time after which AWS KMS deletes the key. This value is present only when KeyState is PendingDeletion , otherwise this value is omitted.
 
     describe aws_kms_key('test-key-1-arn') do
-      its('deletion_date') { should cmp "CHANGEME" }
+      its('deletion_date') { should cmp date }
     end
 
 ### valid_to
@@ -124,7 +122,7 @@ The date and time after which AWS KMS deletes the key. This value is present onl
 The time at which the imported key material expires. When the key material expires, AWS KMS deletes the key material and the key becomes unusable. This value is present only for keys whose Origin is EXTERNAL and whose ExpirationModel is KEY_MATERIAL_EXPIRES , otherwise this value is omitted.
 
     describe aws_kms_key('test-key-1-arn') do
-      its('valid_to') { should cmp "CHANGEME" }
+      its('valid_to') { should cmp date }
     end
 
 ### origin
@@ -133,7 +131,7 @@ The source of the key's key material. When this value is AWS_KMS, AWS KMS create
 
 
     describe aws_kms_key('test-key-1-arn') do
-      its('origin') { should cmp "CHANGEME" }
+      its('origin') { should cmp "AWS_KMS" }
     end
 
 ### expiration_model
@@ -141,7 +139,7 @@ The source of the key's key material. When this value is AWS_KMS, AWS KMS create
 Specifies whether the key's key material expires. This value is present only when Origin is EXTERNAL , otherwise this value is omitted.
 
     describe aws_kms_key('test-key-1-arn') do
-      its('expiration_model') { should cmp "CHANGEME" }
+      its('expiration_model') { should cmp "KEY_MATERIAL_EXPIRES" }
     end
 
 ### key_manager
@@ -149,7 +147,7 @@ Specifies whether the key's key material expires. This value is present only whe
 The key's manager keys are either customer-managed or AWS-managed.
 
     describe aws_kms_key('test-key-1-arn') do
-      its('key_manager') { should cmp "CHANGEME" }
+      its('key_manager') { should cmp "AWS" }
     end
 
 
