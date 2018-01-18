@@ -1,3 +1,4 @@
+
 fixtures = {}
 [
   'iam_user_recall_hit',
