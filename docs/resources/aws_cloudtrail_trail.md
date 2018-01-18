@@ -67,7 +67,7 @@ Specifies the name of the Amazon S3 bucket designated for publishing log files.
 The ARN identifier of the specified trail. An ARN uniquely identifies the trail within AWS.
 
     describe aws_cloudtrail_trail('trail-name') do
-      its('trail_arn') { should cmp "trail-arn" }
+      its('trail_arn') { should cmp "arn:aws:cloudtrail:us-east-1:484747447281:trail/trail-name" }
     end
 
 ### cloud_watch_logs_role_arn
@@ -117,7 +117,7 @@ The test will pass if the identified trail is a multi region trail.
 
 ### be_encrypted
 
-The test will pass if the logs delivered by identified trail is encrypted.
+The test will pass if the logs delivered by the identified trail is encrypted.
 
     describe aws_cloudtrail_trail('trail-name') do
       it { should be_encrypted }
@@ -125,7 +125,7 @@ The test will pass if the logs delivered by identified trail is encrypted.
 
 ### be_log_file_validation_enabled
 
-The test will pass if the identified trail log file integrity validation is enabled.
+The test will pass if the identified trail has log file integrity validation is enabled.
 
     describe aws_cloudtrail_trail('trail-name') do
       it { should be_log_file_validation_enabled }
