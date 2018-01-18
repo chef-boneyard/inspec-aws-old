@@ -12,11 +12,11 @@ class AwsESGConstructor < Minitest::Test
   def setup
     AwsEc2SecurityGroups::BackendFactory.select(AwsMESGB::Empty)
   end
-
+  
   def test_constructor_no_args_ok
     AwsEc2SecurityGroups.new
   end
-
+  
   def test_constructor_reject_unknown_resource_params
     assert_raises(ArgumentError) { AwsEc2SecurityGroups.new(beep: 'boop') }
   end
@@ -55,7 +55,7 @@ class AwsESGProperties < Minitest::Test
   def setup
     AwsEc2SecurityGroups::BackendFactory.select(AwsMESGB::Basic)
   end
-  
+    
   def test_property_group_ids
     basic = AwsEc2SecurityGroups.new
     assert_kind_of(Array, basic.group_ids)
