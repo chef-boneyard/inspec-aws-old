@@ -12,7 +12,7 @@ class AwsESGConstructor < Minitest::Test
   def setup
     AwsEc2SecurityGroups::BackendFactory.select(AwsMESGB::Empty)
   end
-
+  
   def test_constructor_no_args_ok
     AwsEc2SecurityGroups.new
   end
