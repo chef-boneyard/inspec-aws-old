@@ -99,6 +99,7 @@ module AwsMVSSB
           :subnets => []
         })
       }
+      
       return subnets[query[:filters][0][:values][0]] unless subnets[query[:filters][0][:values][0]].nil?
       subnets['empty']
     end

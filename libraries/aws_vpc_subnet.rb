@@ -4,10 +4,10 @@ require '_aws'
 
 class AwsVpcSubnet < Inspec.resource(1)
   name 'aws_vpc_subnet'
-  desc 'This resource is used to test the attributes of a vpc subnet'
+  desc 'This resource is used to test the attributes of a VPC subnet'
   example "
     describe aws_vpc_subnet(vpc_id: 'vpc-12345678', subnet_id: 'subnet-12345678') do
-      its('subnet_id') { should eq 'subnet-12345678' }
+      it { should exist }
       its('cidr_block') { should eq '10.0.1.0/24' }
     end
   "
@@ -27,14 +27,12 @@ class AwsVpcSubnet < Inspec.resource(1)
       allowed_params: [:vpc_id, :subnet_id],
       allowed_scalar_type: String,
     )
-    if validated_params.empty?
-      raise ArgumentError, 'You must provide a vpc_id to aws_vpc_subnet.'
-    end
 
+    # Make sure the vpc_id parameter was specified and in the correct form.
     if validated_params.key?(:vpc_id) && validated_params[:vpc_id] !~ /^vpc\-[0-9a-f]{8}/
       raise ArgumentError, 'aws_vpc_subnet VPC ID must be in the format "vpc-" followed by 8 hexadecimal characters.'
     end
-
+    # Make sure the subnet_id parameter was specified and in the correct form.
     if validated_params.key?(:subnet_id) && validated_params[:subnet_id] !~ /^subnet\-[0-9a-f]{8}/
       raise ArgumentError, 'aws_vpc_subnet Subnet ID must be in the format "subnet-" followed by 8 hexadecimal characters.'
     end
@@ -69,6 +67,7 @@ class AwsVpcSubnet < Inspec.resource(1)
       return
     end
 
+    # If no subnets exist in the VPC, exist is false.
     if ds_response.subnets.empty?
       @exists = false
       return
