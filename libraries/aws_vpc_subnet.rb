@@ -27,6 +27,10 @@ class AwsVpcSubnet < Inspec.resource(1)
       allowed_params: [:vpc_id, :subnet_id],
       allowed_scalar_type: String,
     )
+    # Make sure the params is not empty
+    if validated_params.empty?
+      raise ArgumentError, 'You must provide a vpc_id and subnet_id to aws_vpc_subnet.'
+    end
 
     # Make sure the vpc_id parameter was specified and in the correct form.
     if validated_params.key?(:vpc_id) && validated_params[:vpc_id] !~ /^vpc\-[0-9a-f]{8}/
