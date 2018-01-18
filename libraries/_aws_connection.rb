@@ -37,10 +37,6 @@ class AWSConnection
     @cloudwatch_logs_client ||= Aws::CloudWatchLogs::Client.new
   end
 
-  def cloudtrail_client
-    @cloudtrail_client ||= Aws::CloudTrail::Client.new
-  end
-
   def ec2_resource
     @ec2_resource ||= Aws::EC2::Resource.new
   end
@@ -55,9 +51,5 @@ class AWSConnection
 
   def iam_client
     @iam_client ||= Aws::IAM::Client.new
-  end
-
-  def kms_client
-    @kms_client ||= Aws::KMS::Client.new
   end
 end
