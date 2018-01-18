@@ -6,7 +6,7 @@ title: About the aws_s3_bucket Resource
 
 Use the `aws_s3_bucket` InSpec audit resource to test properties of a single AWS bucket.
 
-To test properties of a multiple S3 buckets , use the `aws_s3_buckets` resource.
+To test properties of a multiple S3 buckets, use the `aws_s3_buckets` resource.
 
 <br>
 
@@ -14,7 +14,7 @@ To test properties of a multiple S3 buckets , use the `aws_s3_buckets` resource.
 
 S3 bucket security is a complex matter.  For details on how AWS evaluates requests for access, please see [the AWS documentation](https://docs.aws.amazon.com/AmazonS3/latest/dev/how-s3-evaluates-access-control.html).  S3 buckets and the objects they contain support three different types of access control: bucket ACLs, bucket policies, and object ACLs.
 
-As of this writing, this resource only supports evaluating the first two, bucket ACLs and bucket policies.  Evaluating object ACLs introduces scalability concerns that are currently not well handled by the AWS API, and may be better handled via AWS mechanisms such as CloudTrail and Config.
+As of January 2018, this resource supports evaluating bucket ACLs and bucket policies. We do not support evaluating object ACLs because it introduces scalability concerns in the AWS API; we recommend using AWS mechanisms such as CloudTrail and Config to detect insecure object ACLs.
 
 In particular, users of the `be_public` matcher should carefully examine the conditions under which the matcher will detect an insecure bucket.  See the `be_public` section under the Matchers section below.
 
@@ -72,7 +72,7 @@ The `region` property identifies the AWS Region in which the S3 bucket is locate
 
 ### bucket_acl
 
-The `bucket_acl` property is a low-level property that lists the individual Bucket ACL grants that are in effect on the bucket.  Other higher-level properties, such as be\_public, are more concise and easier to use.  You can use the `bucket_acl` property to investigate which grants are in efffect, causing be\_public to fail.
+The `bucket_acl` property is a low-level property that lists the individual Bucket ACL grants that are in effect on the bucket.  Other higher-level properties, such as be\_public, are more concise and easier to use.  You can use the `bucket_acl` property to investigate which grants are in effect, causing be\_public to fail.
 
 The value of bucket_acl is an Array of simple objects.  Each object has a `permission` property and a `grantee` property.  The `permission` property will be a string such as 'READ', 'WRITE' etc (See the [AWS documentation](https://docs.aws.amazon.com/sdkforruby/api/Aws/S3/Client.html#get_bucket_acl-instance_method) for a full list).  The `grantee` property contains sub-properties, such as `type` and `uri`.
 
@@ -91,7 +91,7 @@ The value of bucket_acl is an Array of simple objects.  Each object has a `permi
 
 ### bucket_policy
 
-The `bucket_policy` is a low-level property that describes the IAM policy document controlling access to the bucket.  Other higher-level properties, such as be\_public, are more concise and easier to use.  The `bucket_policy` property returns a Ruby structure that you can probe to check for particular statements.
+The `bucket_policy` is a low-level property that describes the IAM policy document controlling access to the bucket. The `bucket_policy` property returns a Ruby structure that you can probe to check for particular statements.  We recommend using a higher-level property, such as `be_public`, which is concise and easier to implement in your policy files.
 
 The `bucket_policy` property returns an Array of simple objects, each object being an IAM Policy Statement. See the [AWS documentation](https://docs.aws.amazon.com/AmazonS3/latest/dev/example-bucket-policies.html#example-bucket-policies-use-case-2) for details about the structure of this data.
 
@@ -112,12 +112,12 @@ This InSpec audit resource has the following special matchers. For a full list o
 
 ### be_public
 
-The `be_public` matcher tests if the bucket has access controls that are potentially insecure.  The intent is that this high-level matcher may be used to detect a number of insecure conditions, which may be added to in the future.  The matcher currently will report an insecure bucket if _any_ of the following conditions are met:
+The `be_public` matcher tests if the bucket has potentially insecure access controls. This high-level matcher detects several insecure conditions, which may be enhanced in the future. Currently, the matcher reports an insecure bucket if any of the following conditions are met:
 
   1. A bucket ACL grant exists for the 'AllUsers' group
   2. A bucket ACL grant exists for the 'AuthenticatedUsers' group
   3. A bucket policy has an effect 'Allow' and principal '*'
 
-Note in particular that this resource currently does not detect insecure object ACLs.
+Note: This resource does not detect insecure object ACLs.
 
     it { should_not be_public }
