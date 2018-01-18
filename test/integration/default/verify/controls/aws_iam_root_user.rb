@@ -25,4 +25,4 @@ control "aws_iam_root_user access_key_count property" do
   describe aws_iam_root_user do
     its('access_key_count') { should be 0 }
   end
-end
+end 
