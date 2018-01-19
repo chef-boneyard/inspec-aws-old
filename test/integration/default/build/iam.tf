@@ -85,7 +85,7 @@ output "iam_access_key_recall_hit" {
   value = "${aws_iam_access_key.access_key_for_user.id}"
 }
 
-output "iam_access_key_recall_miss" {
+output "iam_access_key_recall_miss" { 
   value = "AKIAFAKEFAKEFAKEFAKE"
 }
 
