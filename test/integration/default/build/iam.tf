@@ -93,10 +93,24 @@ output "iam_access_key_recall_miss" {
 #                    IAM Flow Logs
 #======================================================#
 
-resource "aws_flow_log" "default" {
-  log_group_name = "${terraform.env}_lmf_lg_1"
-  iam_role_arn   = "${terraform.env}.role_for_ec2_with_role"
+resource "aws_flow_log" "default_subnet" {
+  log_group_name = "${aws_cloudwatch_log_group.lmf_lg_1.name}"
+  iam_role_arn   = "${aws_iam_role.role_for_ec2_with_role.arn}"
+  subnet_id      = "${aws_subnet.default.id}"
+  traffic_type   = "ALL"
+}
+
+resource "aws_flow_log" "default_vpc" {
+  log_group_name = "${aws_cloudwatch_log_group.lmf_lg_1.name}"
+  iam_role_arn   = "${aws_iam_role.role_for_ec2_with_role.arn}"
   vpc_id         = "${data.aws_vpc.default.id}"
   traffic_type   = "ALL"
-  subnet_id      = "${aws_subnet.default.id}"
+}
+
+output "flow_log_default_subnet_id" {
+  value = "${aws_flow_log.default_subnet.id}"
+}
+
+output "flow_log_default_vpc_id" {
+  value = "${aws_flow_log.default_vpc.id}"
 }
