@@ -52,4 +52,8 @@ class AWSConnection
   def iam_client
     @iam_client ||= Aws::IAM::Client.new
   end
+
+  def kms_client
+    @kms_client ||= Aws::KMS::Client.new
+  end
 end
