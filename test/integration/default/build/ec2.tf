@@ -157,10 +157,6 @@ data "aws_vpc" "default" {
   default = "true"
 }
 
-data "aws_vpc" "vpc_2" {
-  default = "false"
-}
-
 resource "aws_subnet" "default" {
   vpc_id     = "${data.aws_vpc.default.id}"
   cidr_block = "172.31.96.0/20"
@@ -173,10 +169,6 @@ data "aws_security_group" "default" {
 
 output "ec2_security_group_default_vpc_id" {
   value = "${data.aws_vpc.default.id}"
-}
-
-output "ec2_security_group_vpc_2_id" {
-  value = "${data.aws_vpc.vpc_2.id}"
 }
 
 output "ec2_default_vpc_subnet_id" {
