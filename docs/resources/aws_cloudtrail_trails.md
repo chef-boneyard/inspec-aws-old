@@ -46,7 +46,7 @@ The control will pass if the filter returns at least one result. Use should_not 
 
 ### names
 
-Provides a list of trail arns for all CloudTrail Trails in the AWS account.
+Provides a list of trail names for all CloudTrail Trails in the AWS account.
 
     describe aws_cloudtrail_trails do
       its('names') { should include('trail-1') }
@@ -54,7 +54,7 @@ Provides a list of trail arns for all CloudTrail Trails in the AWS account.
 
 ### trail_arns
 
-Provides a list of trail names for all CloudTrail Trails in the AWS account.
+Provides a list of trail arns for all CloudTrail Trails in the AWS account.
 
     describe aws_cloudtrail_trails do
       its('trail_arns') { should include('rn:aws:cloudtrail:us-east-1::trail/trail-1') }
