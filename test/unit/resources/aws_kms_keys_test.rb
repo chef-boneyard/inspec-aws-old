@@ -100,5 +100,4 @@ module MAKKPB
       OpenStruct.new({ keys: fixtures })
     end
   end
-
 end
