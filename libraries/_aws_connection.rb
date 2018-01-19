@@ -53,6 +53,10 @@ class AWSConnection
     @iam_client ||= Aws::IAM::Client.new
   end
 
+  def s3_client
+    @s3_client ||= Aws::S3::Client.new
+  end
+
   def rds_client
     @rds_client ||= Aws::RDS::Client.new
   end
