@@ -20,19 +20,19 @@ class AwsIamPolicy < Inspec.resource(1)
   end
 
   def attached_users
-    return @attached_users unless @attached_users.nil?
+    return @attached_users if defined? @attached_users
     fetch_attached_entities
     @attached_users
   end
 
   def attached_groups
-    return @attached_groups unless @attached_groups.nil?
+    return @attached_groups if defined? @attached_groups
     fetch_attached_entities
     @attached_groups
   end
 
   def attached_roles
-    return @attached_roles unless @attached_roles.nil?
+    return @attached_roles if defined? @attached_roles
     fetch_attached_entities
     @attached_roles
   end
@@ -84,7 +84,12 @@ class AwsIamPolicy < Inspec.resource(1)
   end
 
   def fetch_attached_entities
-    return unless @exists
+    unless @exists
+      @attached_groups = nil
+      @attached_users  = nil
+      @attached_roles  = nil
+      return
+    end
     backend = AwsIamPolicy::BackendFactory.create
     criteria = { policy_arn: arn }
     resp = backend.list_entities_for_policy(criteria)
