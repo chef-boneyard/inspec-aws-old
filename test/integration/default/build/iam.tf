@@ -90,7 +90,7 @@ output "iam_access_key_recall_miss" {
 }
 
 #======================================================#
-#                    IAM Flow Logs
+#                    Flow Logs
 #======================================================#
 
 resource "aws_flow_log" "default_subnet" {
