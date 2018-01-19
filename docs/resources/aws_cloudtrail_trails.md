@@ -57,7 +57,7 @@ Provides a list of trail names for all CloudTrail Trails in the AWS account.
 Provides a list of trail arns for all CloudTrail Trails in the AWS account.
 
     describe aws_cloudtrail_trails do
-      its('trail_arns') { should include('rn:aws:cloudtrail:us-east-1::trail/trail-1') }
+      its('trail_arns') { should include('arn:aws:cloudtrail:us-east-1::trail/trail-1') }
     end
 
 ### entries

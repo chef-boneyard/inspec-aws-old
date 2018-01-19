@@ -32,7 +32,7 @@ class AwsCloudTrailTrailsRecallEmptyTest < Minitest::Test
     AwsCloudTrailTrails::BackendFactory.select(MACTTPB::Empty)
   end
 
-  def test_search_miss_key_empty_kms_key_list
+  def test_search_miss_trail_empty_trail_list
     refute AwsCloudTrailTrails.new.exists?
   end
 end
@@ -56,14 +56,14 @@ class AwsCloudTrailTrailsProperties < Minitest::Test
     AwsCloudTrailTrails::BackendFactory.select(MACTTPB::Basic)
   end
   
-  def test_property_key_ids
+  def test_property_names
     basic = AwsCloudTrailTrails.new
     assert_kind_of(Array, basic.names)
     assert(basic.names.include?('test-trail-1'))
     refute(basic.names.include?(nil))
   end
 
-  def test_property_key_arns
+  def test_property_trail_arns
     basic = AwsCloudTrailTrails.new
     assert_kind_of(Array, basic.trail_arns)
     assert(basic.trail_arns.include?('arn:aws:cloudtrail:us-east-1::trail/test-trail-1'))
