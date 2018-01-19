@@ -81,11 +81,11 @@ output "iam_user_without_access_key" {
 #                    IAM Access Keys
 #======================================================#
 
-output "iam_access_key_recall_hit" {
+output "iam_access_key_recall_hit" { 
   value = "${aws_iam_access_key.access_key_for_user.id}"
 }
 
-output "iam_access_key_recall_miss" { 
+output "iam_access_key_recall_miss" {
   value = "AKIAFAKEFAKEFAKEFAKE"
 }
 
