@@ -69,7 +69,7 @@ class AwsFlowLogPropertiesTest < Minitest::Test
     AwsFlowLog::BackendFactory.select(MAFLSB::Basic)
   end
 
-  def test_property_flow_id_id
+  def test_property_flow_id
     assert_equal('fl-12345678', AwsFlowLog.new('fl-12345678').flow_log_id)
   end
 
