@@ -13,7 +13,9 @@ class AwsVpcSubnet < Inspec.resource(1)
   "
 
   include AwsResourceMixin
-  attr_reader :vpc_id, :subnet_id, :cidr_block
+  attr_reader :vpc_id, :subnet_id, :cidr_block, :availability_zone, :available_ip_address_count,
+              :default_for_az, :map_public_ip_on_launch, :state, :ipv_6_cidr_block_association_set,
+              :assign_ipv_6_address_on_creation
 
   def to_s
     "VPC Subnet #{@subnet_id}"
@@ -76,9 +78,16 @@ class AwsVpcSubnet < Inspec.resource(1)
       @exists = false
       return
     end
-    @vpc_id = ds_response.subnets[0].vpc_id
-    @subnet_id = ds_response.subnets[0].subnet_id
-    @cidr_block = ds_response.subnets[0].cidr_block
+    @vpc_id                           = ds_response.subnets[0].vpc_id
+    @subnet_id                        = ds_response.subnets[0].subnet_id
+    @cidr_block                       = ds_response.subnets[0].cidr_block
+    @availability_zone                = ds_response.subnets[0].availability_zone
+    @available_ip_address_count       = ds_response.subnets[0].available_ip_address_count
+    @default_for_az                   = ds_response.subnets[0].default_for_az
+    @map_public_ip_on_launch          = ds_response.subnets[0].map_public_ip_on_launch
+    @state                            = ds_response.subnets[0].state
+    @ipv_6_cidr_block_association_set = ds_response.subnets[0].ipv_6_cidr_block_association_set
+    @assign_ipv_6_address_on_creation = ds_response.subnets[0].assign_ipv_6_address_on_creation
   end
 
   # Uses the SDK API to really talk to AWS
