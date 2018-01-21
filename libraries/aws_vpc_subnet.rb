@@ -54,7 +54,6 @@ class AwsVpcSubnet < Inspec.resource(1)
     [
       :vpc_id,
       :subnet_id,
-      :cidr_block,
     ].each do |criterion_name|
       val = instance_variable_get("@#{criterion_name}".to_sym)
       next if val.nil?
@@ -78,6 +77,10 @@ class AwsVpcSubnet < Inspec.resource(1)
       @exists = false
       return
     end
+    assign_properties(ds_response)
+  end
+
+  def assign_properties(ds_response)
     @vpc_id                           = ds_response.subnets[0].vpc_id
     @subnet_id                        = ds_response.subnets[0].subnet_id
     @cidr_block                       = ds_response.subnets[0].cidr_block

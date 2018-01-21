@@ -49,12 +49,92 @@ A string identifying the subnet that the VPC contains.
 
 ## Properties
 
+### assign_ipv_6_address_on_creation
+
+Detects whether the network interface on the subnet accepts IPv6 addresses.
+
+    describe aws_vpc_subnet(vpc_id: 'vpc-12345678' , subnet_id: 'subnet-12345678') do
+      its('assign_ipv_6_address_on_creation') { should eq false }    
+    end
+
+### availability_zone
+
+Provides the Availability Zone of the subnet.
+
+    describe aws_vpc_subnet(vpc_id: 'vpc-12345678' , subnet_id: 'subnet-12345678') do
+      its('availability_zone') { should eq 'us-east-1c' }    
+    end
+
+### available_ip_address_count
+
+Provides the number of available IPv4 addresses on the subnet.
+
+    describe aws_vpc_subnet(vpc_id: 'vpc-12345678' , subnet_id: 'subnet-12345678') do
+      its('available_ip_address_count') { should eq 251 }    
+    end
+
 ### cidr_block
 
 Provides the block of ip addresses specified to the subnet.
 
     describe aws_vpc_subnet(vpc_id: 'vpc-12345678' , subnet_id: 'subnet-12345678') do
       its('cidr_block') { should eq '10.0.1.0/24' }    
+    end
+
+### default_for_az
+
+Detects if this is the default subnet for the Availability Zone.
+
+    describe aws_vpc_subnet(vpc_id: 'vpc-12345678' , subnet_id: 'subnet-12345678') do
+      its('default_for_az') { should eq false }    
+    end
+
+### ipv_6_cidr_block_association_set
+
+Provides information about the IPv6 cidr_block associatied with the subnet.
+
+    describe aws_vpc_subnet(vpc_id: 'vpc-12345678' , subnet_id: 'subnet-12345678') do
+      its('ipv_6_cidr_block_association_set') { should eq [
+              {
+                  "Ipv6CidrBlock": "2001:db8:1234:a101::/64",
+                  "AssociationId": "subnet-cidr-assoc-30e7e348",
+                  "Ipv6CidrBlockState": {
+                      "State": "ASSOCIATED"
+                  }
+              }
+          ] }    
+    end
+
+### map_public_ip_on_launch
+
+Provides the ID of the VPC the subnet is in.
+
+    describe aws_vpc_subnet(vpc_id: 'vpc-12345678' , subnet_id: 'subnet-12345678') do
+      its('map_public_ip_on_launch') { should eq false }    
+    end
+
+### state
+
+Provides the ID of the VPC the subnet is in.
+
+    describe aws_vpc_subnet(vpc_id: 'vpc-12345678' , subnet_id: 'subnet-12345678') do
+      its('state') { should eq 'available' }    
+    end
+
+### subnet_id
+
+Provides the ID of the VPC the subnet is in.
+
+    describe aws_vpc_subnet(vpc_id: 'vpc-12345678' , subnet_id: 'subnet-12345678') do
+      its('subnet_id') { should eq 'subnet-12345678' }    
+    end
+
+### vpc_id
+
+Provides the ID of the VPC the subnet is in.
+
+    describe aws_vpc_subnet(vpc_id: 'vpc-12345678' , subnet_id: 'subnet-12345678') do
+      its('vpc_id') { should eq 'vpc-12345678' }    
     end
 
 ## Matchers
