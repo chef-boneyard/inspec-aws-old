@@ -111,7 +111,7 @@ Provides the status of the logs delivery (SUCCESS | FAILED).
 
     # Inspect the status of the delivery
     describe aws_flow_log(flow_log_id: 'fl-12345678')
-      its('deliver_logs_status') { should eq 'SUCCESS }
+      its('deliver_logs_status') { should eq 'SUCCESS' }
     end
 
 ### flow_log_id
@@ -120,7 +120,7 @@ Provides the flow log ID.
 
     # Inspect that the vpc is logging to a specific Flow Log
     describe aws_flow_log(vpc_id: 'vpc-12345678')
-      its('flow_log_id') { should eq 'fl-12345678 }
+      its('flow_log_id') { should eq 'fl-12345678' }
     end
 
 ### flow_log_status
@@ -158,4 +158,3 @@ Provides the type of traffic captured for the Flow Log.
     describe aws_flow_log(flow_log_id: 'fl-12345678')
       its('traffic_type') { should eq 'ALL' }
     end
-    

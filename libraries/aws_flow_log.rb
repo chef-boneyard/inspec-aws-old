@@ -2,8 +2,10 @@ class AwsFlowLog < Inspec.resource(1)
   name 'aws_flow_log'
   desc 'Verifies settings for an IAM Flow Log'
   example "
-    describe aws_flow_log(flow_log_id: ) do
-
+    describe aws_flow_log(flow_log_id: 'fl-12345678') do
+      its('flow_log_status') { should eq 'ACTIVE' }
+      its('traffic_type') { should eq 'ALL' }
+      its('deliver_logs_error_message') { should eq 'Access error' }
     end
   "
 
