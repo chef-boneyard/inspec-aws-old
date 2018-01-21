@@ -72,7 +72,7 @@ module MAIGPB
         OpenStruct.new({
           path: '/',
           group_name: 'AmazonEC2ReadOnlyAccess',
-          group_id: 'AGPAQWERQWERQWERQWERQ',
+          group_id: 'AGPAASDFASDFASDFASDFA',
           arn: 'arn:aws:iam::222222222222:group/AmazonEC2ReadOnlyAccess',
           create_date: DateTime.parse('2017-12-15 17:37:14 UTC')
         }),
