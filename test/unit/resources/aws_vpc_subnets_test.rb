@@ -57,11 +57,32 @@ class AwsVpcSubnetProperties < Minitest::Test
     AwsVpcSubnets::BackendFactory.select(AwsMVSB::Basic)
   end
 
-  def test_property_cidr_block
+  def test_property_vpc_ids
+    basic = AwsVpcSubnets.new
+    assert_kind_of(Array, basic.vpc_ids)
+    assert(basic.vpc_ids.include?('vpc-01234567'))
+    refute(basic.vpc_ids.include?(nil))
+  end
+
+  def test_property_subnet_ids
+    basic = AwsVpcSubnets.new
+    assert_kind_of(Array, basic.subnet_ids)
+    assert(basic.subnet_ids.include?('subnet-01234567'))
+    refute(basic.subnet_ids.include?(nil))
+  end
+
+  def test_property_cidr_blocks
     basic = AwsVpcSubnets.new
     assert_kind_of(Array, basic.cidr_blocks)
     assert(basic.cidr_blocks.include?('10.0.1.0/24'))
     refute(basic.cidr_blocks.include?(nil))
+  end
+
+  def test_property_states
+    basic = AwsVpcSubnets.new
+    assert_kind_of(Array, basic.states)
+    assert(basic.states.include?('available'))
+    refute(basic.states.include?(nil))
   end
 end
 
