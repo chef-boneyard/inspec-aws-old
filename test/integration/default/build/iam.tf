@@ -88,3 +88,15 @@ output "iam_access_key_recall_hit" {
 output "iam_access_key_recall_miss" { 
   value = "AKIAFAKEFAKEFAKEFAKE"
 }
+
+#======================================================#
+#                    IAM Users
+#======================================================#
+
+resource "aws_iam_group" "administrators" {
+  name = "${terraform.env}.administrators"
+}
+
+output "iam_group_administrators" {
+  value = "${aws_iam_group.administrators.name}"
+}
