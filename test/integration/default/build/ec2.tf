@@ -157,6 +157,11 @@ data "aws_vpc" "default" {
   default = "true"
 }
 
+resource "aws_subnet" "default" {
+  vpc_id     = "${data.aws_vpc.default.id}"
+  cidr_block = "172.31.96.0/20"
+}
+
 data "aws_security_group" "default" {
   vpc_id = "${data.aws_vpc.default.id}"
   name = "default"
@@ -166,24 +171,12 @@ output "ec2_security_group_default_vpc_id" {
   value = "${data.aws_vpc.default.id}"
 }
 
+output "ec2_default_vpc_subnet_id" {
+  value = "${aws_subnet.default.id}"
+}
+
 output "ec2_security_group_default_group_id" {
   value = "${data.aws_security_group.default.id}"
-}
-
-resource "aws_vpc" "non_default" {
-  cidr_block = "172.32.0.0/16"
-}
-
-output "vpc_non_default_id" {
-  value = "${aws_vpc.non_default.id}"
-}
-
-output "vpc_non_default_cidr_block" {
-  value = "${aws_vpc.non_default.cidr_block}"
-}
-
-output "vpc_non_default_instance_tenancy" {
-  value = "${aws_vpc.non_default.instance_tenancy}"
 }
 
 # Create a security group with a known description
