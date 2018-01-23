@@ -36,7 +36,7 @@ control "aws_vpc_subnet properties of default VPC" do
     its('available_ip_address_count') { should eq 4091 }
     its('map_public_ip_on_launch') { should eq false }
     its('default_for_az') { should eq false }
-    its('availability_zone') { should eq 'us-east-1c' }
+    its('availability_zone') { should eq 'us-east-1a' }
     its('state') { should eq 'available' }
     its('ipv_6_cidr_block_association_set') { should eq [] }
     its('assign_ipv_6_address_on_creation') { should eq false }
