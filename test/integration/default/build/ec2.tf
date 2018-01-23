@@ -75,6 +75,10 @@ resource "aws_iam_role" "role_for_ec2_with_role" {
 EOF
 }
 
+output "role_for_ec2_with_role_arn" {
+  value = "${aws_iam_role.role_for_ec2_with_role.arn}"
+}
+
 resource "aws_iam_instance_profile" "profile_for_ec2_with_role" {
   name  = "${terraform.env}.profile_for_ec2_with_role"
   role = "${aws_iam_role.role_for_ec2_with_role.name}"
@@ -157,11 +161,6 @@ data "aws_vpc" "default" {
   default = "true"
 }
 
-resource "aws_subnet" "default" {
-  vpc_id     = "${data.aws_vpc.default.id}"
-  cidr_block = "172.31.96.0/20"
-}
-
 data "aws_security_group" "default" {
   vpc_id = "${data.aws_vpc.default.id}"
   name = "default"
@@ -169,10 +168,6 @@ data "aws_security_group" "default" {
 
 output "ec2_security_group_default_vpc_id" {
   value = "${data.aws_vpc.default.id}"
-}
-
-output "ec2_default_vpc_subnet_id" {
-  value = "${aws_subnet.default.id}"
 }
 
 output "ec2_security_group_default_group_id" {
@@ -205,4 +200,17 @@ resource "aws_security_group" "alpha" {
 
 output "ec2_security_group_alpha_group_id" {
   value = "${aws_security_group.alpha.id}"
+}
+
+#============================================================#
+#                      Security Groups
+#============================================================#
+
+resource "aws_subnet" "default" {
+  vpc_id     = "${data.aws_vpc.default.id}"
+  cidr_block = "172.31.96.0/20"
+}
+
+output "ec2_default_vpc_subnet_id" {
+  value = "${aws_subnet.default.id}"
 }

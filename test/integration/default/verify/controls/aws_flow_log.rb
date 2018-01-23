@@ -15,6 +15,7 @@ ec2_fixtures = {}
 [
   'ec2_security_group_default_vpc_id',
   'ec2_default_vpc_subnet_id',
+  'role_for_ec2_with_role_arn'
 ].each do |fixture_name|
   ec2_fixtures[fixture_name] = attribute(
   fixture_name,
@@ -61,8 +62,8 @@ control "aws_flow_log properties" do
   describe aws_flow_log(flow_log_id: iam_fixtures['flow_log_default_vpc_id']) do
     its('flow_log_status') { should eq 'ACTIVE' }
     its('traffic_type') { should eq 'ALL' }
-    its('deliver_logs_error_message') { should eq 'Access error' }
-    its('deliver_logs_permission_arn') { should eq 'arn:aws:iam::721741954427:role/test.role_for_ec2_with_role' }
+    its('deliver_logs_error_message') { should eq nil }
+    its('deliver_logs_permission_arn') { should eq ec2_fixtures['role_for_ec2_with_role_arn'] }
     its('log_group_name') { should eq iam_fixtures['log_metric_filter_1_log_group_name'] }
     its('flow_log_id') { should eq iam_fixtures['flow_log_default_vpc_id'] }
     its('deliver_logs_status') { should eq nil }
@@ -72,8 +73,8 @@ control "aws_flow_log properties" do
   describe aws_flow_log(vpc_id: ec2_fixtures['ec2_security_group_default_vpc_id']) do
     its('flow_log_status') { should eq 'ACTIVE' }
     its('traffic_type') { should eq 'ALL' }
-    its('deliver_logs_error_message') { should eq 'Access error' }
-    its('deliver_logs_permission_arn') { should eq 'arn:aws:iam::721741954427:role/test.role_for_ec2_with_role' }
+    its('deliver_logs_error_message') { should eq nil }
+    its('deliver_logs_permission_arn') { should eq ec2_fixtures['role_for_ec2_with_role_arn'] }
     its('log_group_name') { should eq iam_fixtures['log_metric_filter_1_log_group_name'] }
     its('flow_log_id') { should eq iam_fixtures['flow_log_default_vpc_id'] }
     its('deliver_logs_status') { should eq nil }
@@ -85,7 +86,7 @@ control "aws_flow_log properties" do
     its('flow_log_status') { should eq 'ACTIVE' }
     its('traffic_type') { should eq 'ALL' }
     its('deliver_logs_error_message') { should eq nil }
-    its('deliver_logs_permission_arn') { should eq 'arn:aws:iam::721741954427:role/test.role_for_ec2_with_role' }
+    its('deliver_logs_permission_arn') { should eq ec2_fixtures['role_for_ec2_with_role_arn'] }
     its('log_group_name') { should eq iam_fixtures['log_metric_filter_1_log_group_name'] }
     its('flow_log_id') { should eq iam_fixtures['flow_log_default_subnet_id'] }
     its('deliver_logs_status') { should eq nil }
