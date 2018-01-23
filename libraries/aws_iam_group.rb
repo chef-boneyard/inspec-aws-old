@@ -4,12 +4,13 @@ class AwsIamGroup < Inspec.resource(1)
   name 'aws_iam_group'
   desc 'Verifies settings for AWS IAM Group'
   example "
-    describe aws_iam_group('MyGroup') do
+    describe aws_iam_group('mygroup') do
       it { should exist }
     end
   "
 
   include AwsResourceMixin
+  attr_reader :group_name
 
   def to_s
     "IAM Group #{group_name}"
