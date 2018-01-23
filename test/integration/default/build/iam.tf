@@ -90,7 +90,7 @@ output "iam_access_key_recall_miss" {
 }
 
 #======================================================#
-#                    IAM Users
+#                    IAM Groups
 #======================================================#
 
 resource "aws_iam_group" "administrators" {
