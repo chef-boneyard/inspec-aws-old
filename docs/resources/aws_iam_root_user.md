@@ -26,7 +26,7 @@ An `aws_iam_root_user` resource block requires no parameters but has several mat
 
 The following examples show how to use this InSpec audit resource.
 
-### Test that the AWS root account has only one access key
+### Test that the AWS root account has at-least one access key
 
     describe aws_iam_root_user do
       it { should have_access_key }
@@ -52,6 +52,6 @@ The `have_mfa_enabled` matcher tests if the AWS root user has Multi-Factor Authe
 
 ### have_access_key
 
-The `have_access_keys` matcher tests if the AWS root user has at least one access key.
+The `have_access_key` matcher tests if the AWS root user has at least one access key.
 
     it { should have_access_key }
