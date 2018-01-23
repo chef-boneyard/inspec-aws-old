@@ -4,7 +4,7 @@ title: About the aws_iam_groups Resource
 
 # aws_iam_groups
 
-Use the `aws_iam_groups` InSpec audit resource to test properties of a all or multiple groups.
+Use the `aws_iam_groups` InSpec audit resource to test properties of all or multiple groups.
 
 To test properties of a single group, use the `aws_iam_groups` resource.
 
