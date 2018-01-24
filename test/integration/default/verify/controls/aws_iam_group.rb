@@ -13,4 +13,8 @@ control "aws_iam_group recall" do
   describe aws_iam_group(fixtures['iam_group_administrators']) do
     it { should exist }
   end
+
+  describe aws_iam_group('fakegroup') do
+    it { should_not exist }
+  end
 end
