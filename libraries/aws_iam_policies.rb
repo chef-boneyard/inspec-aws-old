@@ -1,8 +1,8 @@
-class AwsIamPolicys < Inspec.resource(1)
-  name 'aws_iam_policys'
-  desc 'Verifies settings for AWS IAM Policys in bulk'
+class AwsIamPolicies < Inspec.resource(1)
+  name 'aws_iam_policies'
+  desc 'Verifies settings for AWS IAM Policies in bulk'
   example '
-    describe aws_iam_policys do
+    describe aws_iam_policies do
       it { should exist }
     end
   '
@@ -20,11 +20,11 @@ class AwsIamPolicys < Inspec.resource(1)
   end
 
   def to_s
-    'IAM Policys'
+    'IAM Policies'
   end
 
   def initialize
-    backend = AwsIamPolicys::BackendFactory.create
+    backend = AwsIamPolicies::BackendFactory.create
     @table = backend.list_policies({}).to_h[:policies]
   end
 

@@ -1,24 +1,24 @@
 require 'helper'
-require 'aws_iam_policys'
+require 'aws_iam_policies'
 
-# MAIPPB = MockAwsIamPolicysPluralBackend
+# MAIPPB = MockAwsIamPoliciesPluralBackend
 # Abbreviation not used outside this file
 
 #=============================================================================#
 #                            Constructor Tests
 #=============================================================================#
-class AwsIamPolicysConstructorTest < Minitest::Test
+class AwsIamPoliciesConstructorTest < Minitest::Test
 
   def setup
-    AwsIamPolicys::BackendFactory.select(MAIPPB::Empty)
+    AwsIamPolicies::BackendFactory.select(MAIPPB::Empty)
   end
 
   def test_empty_params_ok
-    AwsIamPolicys.new
+    AwsIamPolicies.new
   end
 
   def test_rejects_unrecognized_params
-    assert_raises(ArgumentError) { AwsIamPolicys.new(shoe_size: 9) }
+    assert_raises(ArgumentError) { AwsIamPolicies.new(shoe_size: 9) }
   end
 end
 
@@ -26,45 +26,45 @@ end
 #=============================================================================#
 #                               Search / Recall
 #=============================================================================#
-class AwsIamPolicysRecallEmptyTest < Minitest::Test
+class AwsIamPoliciesRecallEmptyTest < Minitest::Test
 
   def setup
-    AwsIamPolicys::BackendFactory.select(MAIPPB::Empty)
+    AwsIamPolicies::BackendFactory.select(MAIPPB::Empty)
   end
 
   def test_search_miss_policy_empty_policy_list
-    refute AwsIamPolicys.new.exists?
+    refute AwsIamPolicies.new.exists?
   end
 end
 
-class AwsIamPolicysRecallBasicTest < Minitest::Test
+class AwsIamPoliciesRecallBasicTest < Minitest::Test
 
   def setup
-    AwsIamPolicys::BackendFactory.select(MAIPPB::Basic)
+    AwsIamPolicies::BackendFactory.select(MAIPPB::Basic)
   end
 
   def test_search_hit_via_empty_filter
-    assert AwsIamPolicys.new.exists?
+    assert AwsIamPolicies.new.exists?
   end
 end
 
 #=============================================================================#
 #                            Properties
 #=============================================================================#
-class AwsIamPolicysProperties < Minitest::Test
+class AwsIamPoliciesProperties < Minitest::Test
   def setup
-    AwsIamPolicys::BackendFactory.select(MAIPPB::Basic)
+    AwsIamPolicies::BackendFactory.select(MAIPPB::Basic)
   end
   
   def test_property_policy_names
-    basic = AwsIamPolicys.new
+    basic = AwsIamPolicies.new
     assert_kind_of(Array, basic.policy_names)
     assert(basic.policy_names.include?('test-policy-1'))
     refute(basic.policy_names.include?(nil))
   end
 
   def test_property_arns
-    basic = AwsIamPolicys.new
+    basic = AwsIamPolicies.new
     assert_kind_of(Array, basic.arns)
     assert(basic.arns.include?('arn:aws:iam::aws:policy/test-policy-1'))
     refute(basic.arns.include?(nil))
@@ -74,13 +74,13 @@ end
 #                               Test Fixtures
 #=============================================================================#
 module MAIPPB
-  class Empty < AwsIamPolicys::Backend
+  class Empty < AwsIamPolicies::Backend
     def list_policies(query = {})
       OpenStruct.new({ policies: [] })
     end
   end
 
-  class Basic < AwsIamPolicys::Backend
+  class Basic < AwsIamPolicies::Backend
     def list_policies(query = {})
       fixtures = [
         OpenStruct.new({
