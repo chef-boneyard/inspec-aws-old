@@ -12,7 +12,7 @@ class AwsCloudwatchAlarm < Inspec.resource(1)
   end
   EOD
 
-  include AwsResourceMixin
+  include AwsSingularResourceMixin
   attr_reader :alarm_name, :metric_name, :metric_namespace, :alarm_actions
 
   private
@@ -32,8 +32,8 @@ class AwsCloudwatchAlarm < Inspec.resource(1)
     validated_params
   end
 
-  def fetch_from_aws
-    aws_alarms = BackendFactory.create.describe_alarms_for_metric(
+  def fetch_from_api
+    aws_alarms = AwsCloudwatchAlarm::BackendFactory.create(inspec_runner).describe_alarms_for_metric(
       metric_name: @metric_name,
       namespace: @metric_namespace,
     )
@@ -51,10 +51,13 @@ class AwsCloudwatchAlarm < Inspec.resource(1)
   end
 
   class Backend
-    class AwsClientApi < Backend
-      BackendFactory.set_default_backend(self)
-      def describe_alarms_for_metric(criteria)
-        AWSConnection.new.cloudwatch_client.describe_alarms_for_metric(criteria)
+    class AwsClientApi < AwsBackendBase
+      AwsCloudwatchAlarm::BackendFactory.set_default_backend(self)
+      self.aws_client_class=(Aws::CloudWatch::Client)
+
+      def describe_alarms_for_metric(query)
+        #aws_transport.aws_client(Aws::CloudWatch::Client).describe_alarms_for_metric(query)
+        aws_service_client.describe_alarms_for_metric(query)
       end
     end
   end
