@@ -10,7 +10,7 @@ class AwsSnsTopic < Inspec.resource(1)
     end
   "
 
-  include AwsResourceMixin
+  include AwsSingularResourceMixin
   attr_reader :arn, :confirmed_subscription_count
 
   private
@@ -30,8 +30,8 @@ class AwsSnsTopic < Inspec.resource(1)
     validated_params
   end
 
-  def fetch_from_aws
-    aws_response = AwsSnsTopic::BackendFactory.create.get_topic_attributes(topic_arn: @arn).attributes
+  def fetch_from_api
+    aws_response = BackendFactory.create(inspec_runner).get_topic_attributes(topic_arn: @arn).attributes
     @exists = true
 
     # The response has a plain hash with CamelCase plain string keys and string values
@@ -42,11 +42,12 @@ class AwsSnsTopic < Inspec.resource(1)
 
   # Uses the SDK API to really talk to AWS
   class Backend
-    class AwsClientApi
+    class AwsClientApi < AwsBackendBase
       BackendFactory.set_default_backend(self)
+      self.aws_client_class=(Aws::SNS::Client)
 
       def get_topic_attributes(criteria)
-        AWSConnection.new.sns_client.get_topic_attributes(criteria)
+        aws_service_client.get_topic_attributes(criteria)
       end
     end
   end
