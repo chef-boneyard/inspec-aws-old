@@ -197,3 +197,7 @@ resource "aws_security_group" "alpha" {
 output "ec2_security_group_alpha_group_id" {
   value = "${aws_security_group.alpha.id}"
 }
+
+output "ec2_security_group_alpha_group_name" {
+  value = "${aws_security_group.alpha.name}"
+}
