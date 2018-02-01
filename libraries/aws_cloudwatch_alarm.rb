@@ -53,10 +53,9 @@ class AwsCloudwatchAlarm < Inspec.resource(1)
   class Backend
     class AwsClientApi < AwsBackendBase
       AwsCloudwatchAlarm::BackendFactory.set_default_backend(self)
-      self.aws_client_class=(Aws::CloudWatch::Client)
+      self.aws_client_class = Aws::CloudWatch::Client
 
       def describe_alarms_for_metric(query)
-        #aws_transport.aws_client(Aws::CloudWatch::Client).describe_alarms_for_metric(query)
         aws_service_client.describe_alarms_for_metric(query)
       end
     end

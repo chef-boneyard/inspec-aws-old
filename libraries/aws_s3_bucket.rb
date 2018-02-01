@@ -91,7 +91,7 @@ class AwsS3Bucket < Inspec.resource(1)
   class Backend
     class AwsClientApi < AwsBackendBase
       BackendFactory.set_default_backend(self)
-      self.aws_client_class=(Aws::S3::Client)
+      self.aws_client_class = Aws::S3::Client
 
       def get_bucket_acl(query)
         aws_service_client.get_bucket_acl(query)

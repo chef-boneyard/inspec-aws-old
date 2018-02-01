@@ -39,7 +39,7 @@ EOX
 
     # No criteria yet
     unless raw_criteria.empty?
-      raise ArgumentError, "aws_ec2_security_groups does not currently accept resource parameters."
+      raise ArgumentError, 'aws_ec2_security_groups does not currently accept resource parameters.'
     end
     raw_criteria
   end
@@ -62,7 +62,7 @@ EOX
   class Backend
     class AwsClientApi < AwsBackendBase
       BackendFactory.set_default_backend self
-      self.aws_client_class=(Aws::EC2::Client)
+      self.aws_client_class = Aws::EC2::Client
 
       def describe_security_groups(query)
         aws_service_client.describe_security_groups(query)

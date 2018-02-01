@@ -69,7 +69,7 @@ class AwsCloudTrailTrail < Inspec.resource(1)
   class Backend
     class AwsClientApi < AwsBackendBase
       AwsCloudTrailTrail::BackendFactory.set_default_backend(self)
-      self.aws_client_class=(Aws::CloudTrail::Client)
+      self.aws_client_class = Aws::CloudTrail::Client
 
       def describe_trails(query)
         # aws_transport.aws_client(Aws::CloudTrail::Client).describe_trails(query)

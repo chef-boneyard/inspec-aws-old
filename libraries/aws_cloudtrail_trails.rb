@@ -13,11 +13,11 @@ class AwsCloudTrailTrails < Inspec.resource(1)
 
   def validate_params(resource_params)
     unless resource_params.empty?
-      raise ArgumentError, "aws_cloudtrail_trails does not accept resource parameters."
+      raise ArgumentError, 'aws_cloudtrail_trails does not accept resource parameters.'
     end
     resource_params
   end
-  
+
   # Underlying FilterTable implementation.
   filter = FilterTable.create
   filter.add_accessor(:entries)

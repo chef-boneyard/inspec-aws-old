@@ -73,7 +73,7 @@ class AwsIamAccessKeys < Inspec.resource(1)
     # using the Credential Report.
     class AwsUserIterator < AwsBackendBase
       BackendFactory.set_default_backend(self)
-      self.aws_client_class=(Aws::IAM::Client)
+      self.aws_client_class = Aws::IAM::Client
 
       def fetch(criteria)
         iam_client = aws_service_client

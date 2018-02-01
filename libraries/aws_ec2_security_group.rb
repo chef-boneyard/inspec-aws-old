@@ -84,7 +84,7 @@ class AwsEc2SecurityGroup < Inspec.resource(1)
   class Backend
     class AwsClientApi < AwsBackendBase
       AwsEc2SecurityGroup::BackendFactory.set_default_backend self
-      self.aws_client_class=(Aws::EC2::Client)
+      self.aws_client_class = Aws::EC2::Client
 
       def describe_security_groups(query)
         aws_service_client.describe_security_groups(query)

@@ -80,7 +80,7 @@ EOX
     # Uses the cloudwatch API to really talk to AWS
     class AwsClientApi < AwsBackendBase
       BackendFactory.set_default_backend(self)
-      self.aws_client_class=(Aws::CloudWatchLogs::Client)
+      self.aws_client_class = Aws::CloudWatchLogs::Client
 
       def describe_metric_filters(criteria)
         query = {}

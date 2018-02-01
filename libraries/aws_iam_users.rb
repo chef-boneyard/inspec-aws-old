@@ -33,7 +33,7 @@ class AwsIamUsers < Inspec.resource(1)
   def validate_params(raw_params)
     # No params yet
     unless raw_params.empty?
-      raise ArgumentError, "aws_iam_users does not accept resource parameters"
+      raise ArgumentError, 'aws_iam_users does not accept resource parameters'
     end
     raw_params
   end
@@ -78,7 +78,7 @@ class AwsIamUsers < Inspec.resource(1)
   class Backend
     class AwsClientApi < AwsBackendBase
       BackendFactory.set_default_backend(self)
-      self.aws_client_class=(Aws::IAM::Client)
+      self.aws_client_class = Aws::IAM::Client
 
       # TODO: delegate this out
       def list_users(query = {})

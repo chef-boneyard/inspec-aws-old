@@ -7,7 +7,7 @@ module AwsPluralResourceMixin
   # having to know which is selected.  This is mainly used for
   # unit testing.
   # TODO: DRY up.  This code exists in both the Singular and Plural mixins.
-  # We'd like to put it in AwsResourceMixin, but included only sees the 
+  # We'd like to put it in AwsResourceMixin, but included only sees the
   # directly-including class - we can't see second-order includers.
   def self.included(base)
     # Create a new class, whose body is simply to extend the

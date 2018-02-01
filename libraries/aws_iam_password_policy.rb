@@ -17,24 +17,20 @@ EOX
 
   # TODO: rewrite to avoid direct injection, match other resources, use AwsSingularResourceMixin
   def initialize(conn = nil)
-    iam_resource = conn ? conn.iam_resource : inspec_runner.backend.aws_resource(Aws::IAM::Resource, {}) 
+    iam_resource = conn ? conn.iam_resource : inspec_runner.backend.aws_resource(Aws::IAM::Resource, {})
     @policy = iam_resource.account_password_policy
   rescue Aws::IAM::Errors::NoSuchEntity
     @policy = nil
   end
 
   def inspec_runner
-    # When running under inspec-cli, we have an 'inspec' method that 
-    # returns the runner. When running under unit tests, we don't 
+    # When running under inspec-cli, we have an 'inspec' method that
+    # returns the runner. When running under unit tests, we don't
     # have that, but we still have to call this to pass something
     # (nil is OK) to the backend.
     # TODO: remove with https://github.com/chef/inspec-aws/issues/216
     # TODO: remove after rewrite to include AwsSingularResource
-    if self.respond_to?(:inspec)
-      inspec
-    else
-      nil
-    end
+    inspec if respond_to?(:inspec)
   end
 
   def exists?

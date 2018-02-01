@@ -44,7 +44,7 @@ class AwsSnsTopic < Inspec.resource(1)
   class Backend
     class AwsClientApi < AwsBackendBase
       BackendFactory.set_default_backend(self)
-      self.aws_client_class=(Aws::SNS::Client)
+      self.aws_client_class = Aws::SNS::Client
 
       def get_topic_attributes(criteria)
         aws_service_client.get_topic_attributes(criteria)
