@@ -61,6 +61,10 @@ class AWSConnection
     @s3_client ||= Aws::S3::Client.new
   end
 
+  def kms_client
+    @kms_client ||= Aws::KMS::Client.new
+  end
+
   def rds_client
     @rds_client ||= Aws::RDS::Client.new
   end
