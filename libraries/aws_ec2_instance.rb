@@ -126,7 +126,7 @@ end
 class AwsEc2 < AwsEc2Instance
   name 'aws_ec2'
 
-  def initialize(opts, conn = AWSConnection.new)
+  def initialize(opts, conn = nil)
     deprecated
     super(opts, conn)
   end
