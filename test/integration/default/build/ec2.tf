@@ -189,7 +189,7 @@ output "vpc_non_default_instance_tenancy" {
 # Create a security group with a known description
 # in the default VPC
 resource "aws_security_group" "alpha" {
-  name        = "alpha"
+  name        = "${terraform.env}-alpha"
   description = "SG alpha"
   vpc_id      = "${data.aws_vpc.default.id}"
 }
