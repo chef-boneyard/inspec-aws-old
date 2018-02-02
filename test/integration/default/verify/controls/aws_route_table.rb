@@ -31,9 +31,3 @@ control "aws_route_tables dont exist" do
     it { should_not exist }
   end
 end
-
-control "aws_route_table properties" do
-  describe aws_route_table(fixtures['routetable_rtb_route_table_id']) do
-    its('vpc_id') { should eq fixtures['routetable_rtb_vpc_id'] }
-  end
-end

@@ -23,11 +23,6 @@ class BasicAwsRouteTableTest2 < Minitest::Test
   def test_search_hit
     assert AwsRouteTable.new('rtb-2c60ec44').exists?
     assert AwsRouteTable.new('rtb-58508630').exists?
-    assert_equal('rtb-2c60ec44', AwsRouteTable.new('rtb-2c60ec44').route_table_id)
-  end
-
-  def test_vpc_id
-    assert_equal('vpc-169f777e', AwsRouteTable.new('rtb-2c60ec44').vpc_id)
   end
 end
 

@@ -44,12 +44,6 @@ class AwsRouteTable < Inspec.resource(1)
 
     resp = backend.describe_route_tables(args)
     routetable = resp.to_h[:route_tables]
-
-    unless routetable.empty?
-      r = routetable.first
-      @route_table_id = r[:route_table_id]
-      @vpc_id = r[:vpc_id]
-    end
     @exists = !routetable.empty?
   end
 

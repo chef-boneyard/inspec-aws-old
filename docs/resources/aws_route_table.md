@@ -10,7 +10,7 @@ Use the `aws_route_table` InSpec audit resource to test properties of a single R
 
 ## Syntax
 
-  # Ensure that a certain role exists by name
+  # Ensure that a certain route table exists by name
   describe aws_route_table('rtb-123abcde') do
     it { should exist }
   end
@@ -41,14 +41,4 @@ Indicates that the Route Table provided was found.  Use should_not to test for R
 
     describe aws_route_table('should-not-be-there') do
       it { should_not exist }
-    end
-
-## Properties
-
-### description
-
-The VPC ID of the Route Table.
-
-    describe aws_route_table('rtb-123abcde') do
-      its('vpc_id') { should eq 'vpc-123abcde'}
     end
