@@ -11,7 +11,7 @@ class EmptyAwsRouteTableTest < Minitest::Test
   end
 
   def test_search_hit_via_scalar_works
-    refute AwsRouteTable.new('rtb-2c60ec44').exists?
+    refute AwsRouteTable.new('rtb-123abcde').exists?
   end
 end
 
@@ -28,22 +28,6 @@ class BasicAwsRouteTableTest2 < Minitest::Test
 
   def test_vpc_id
     assert_equal('vpc-169f777e', AwsRouteTable.new('rtb-2c60ec44').vpc_id)
-  end
-
-  def test_associations
-    assert_empty AwsRouteTable.new('rtb-2c60ec44').associations
-  end
-
-  def test_propagating_vgws
-    assert_empty AwsRouteTable.new('rtb-2c60ec44').propagating_vgws
-  end
-
-  def test_tags
-    assert_equal('InSpec', AwsRouteTable.new('rtb-2c60ec44').tags.first[:value])
-  end
-
-  def test_routes
-    assert_equal('172.32.1.0/24', AwsRouteTable.new('rtb-2c60ec44').routes.first[:destination_cidr_block])
   end
 end
 

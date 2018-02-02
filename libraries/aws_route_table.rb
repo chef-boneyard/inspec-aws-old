@@ -13,7 +13,7 @@ class AwsRouteTable < Inspec.resource(1)
     "Route Table #{@route_table_id}"
   end
 
-  attr_reader :associations, :propagating_vgws, :route_table_id, :routes, :tags, :vpc_id
+  attr_reader :route_table_id, :vpc_id
 
   private
 
@@ -43,18 +43,14 @@ class AwsRouteTable < Inspec.resource(1)
     end
 
     resp = backend.describe_route_tables(args)
-    @routetable = resp.to_h[:route_tables]
+    routetable = resp.to_h[:route_tables]
 
-    unless @routetable.empty?
-      r = @routetable.first
-      @associations = r[:associations]
-      @propagating_vgws = r[:propagating_vgws]
+    unless routetable.empty?
+      r = routetable.first
       @route_table_id = r[:route_table_id]
-      @routes = r[:routes]
-      @tags = r[:tags]
       @vpc_id = r[:vpc_id]
     end
-    @exists = !@routetable.empty?
+    @exists = !routetable.empty?
   end
 
   class Backend
