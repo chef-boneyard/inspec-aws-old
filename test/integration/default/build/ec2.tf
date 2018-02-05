@@ -75,8 +75,29 @@ resource "aws_iam_role" "role_for_ec2_with_role" {
 EOF
 }
 
-output "role_for_ec2_with_role_arn" {
-  value = "${aws_iam_role.role_for_ec2_with_role.arn}"
+# Has a role
+resource "aws_iam_role" "role_for_flow_log" {
+  name = "${terraform.env}.role_for_flow_log"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "vpc-flow-logs.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+output "role_for_flow_log_arn" {
+  value = "${aws_iam_role.role_for_flow_log.arn}"
 }
 
 resource "aws_iam_instance_profile" "profile_for_ec2_with_role" {

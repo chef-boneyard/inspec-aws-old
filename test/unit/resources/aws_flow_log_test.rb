@@ -10,7 +10,7 @@ require 'aws_flow_log'
 class AwsFlowLogConstructorTest < Minitest::Test
 
   def setup
-    AwsFlowLog::BackendFactory.select(MAFLSB::Empty)
+    AwsFlowLog::BackendFactory.select(MAFLSB::Basic)
   end
 
   def test_rejects_empty_params
@@ -91,32 +91,14 @@ class AwsFlowLogPropertiesTest < Minitest::Test
     assert_nil(AwsFlowLog.new(flow_log_id: 'fl-00000000').deliver_logs_permission_arn)
   end
 
-  def test_property_deliver_logs_status
-    assert_equal('SUCCESS', AwsFlowLog.new(flow_log_id: 'fl-12345678').deliver_logs_status)
-    assert_nil(AwsFlowLog.new(flow_log_id: 'fl-00000000').deliver_logs_status)
-  end
-
   def test_property_log_group_name
     assert_equal('FlowLogsForSubnetA', AwsFlowLog.new(flow_log_id: 'fl-12345678').log_group_name)
     assert_nil(AwsFlowLog.new(flow_log_id: 'fl-00000000').log_group_name)
   end
 
-  def test_property_resource_id_vpc
-    assert_equal('vpc-12345678', AwsFlowLog.new(vpc_id: 'vpc-12345678').resource_id)
-  end
-
-  def test_property_resource_id_subnet
-    assert_equal('subnet-12345678', AwsFlowLog.new(subnet_id: 'subnet-12345678').resource_id)
-  end
-
   def test_property_traffic_type
     assert_equal('ALL', AwsFlowLog.new(flow_log_id: 'fl-12345678').traffic_type)
     assert_nil(AwsFlowLog.new(flow_log_id: 'fl-00000000').traffic_type)
-  end
-
-  def test_property_flow_log_status
-    assert_equal('ACTIVE', AwsFlowLog.new(flow_log_id: 'fl-12345678').flow_log_status)
-    assert_nil(AwsFlowLog.new(flow_log_id: 'fl-00000000').flow_log_status)
   end
 end
 
@@ -129,6 +111,16 @@ class AwsFlowLogMatchersTest < Minitest::Test
     AwsFlowLog::BackendFactory.select(MAFLSB::Basic)
   end
 
+  def test_matcher_active
+    assert AwsFlowLog.new(flow_log_id: 'fl-12345678').active?
+    refute AwsFlowLog.new(flow_log_id: 'fl-87654321').active?
+  end
+
+  def test_matcher_has_logs_delivered_ok
+    assert AwsFlowLog.new(flow_log_id: 'fl-12345678').has_logs_delivered_ok?
+    refute AwsFlowLog.new(flow_log_id: 'fl-87654321').has_logs_delivered_ok?
+  end
+
 end
 
 
@@ -136,14 +128,6 @@ end
 #                               Test Fixtures
 #=============================================================================#
 module MAFLSB
-  class Empty < AwsFlowLog::Backend
-    def describe_flow_logs(query)
-      OpenStruct.new({
-        flow_logs: []
-      })
-    end
-  end
-
   class Basic < AwsFlowLog::Backend
     def describe_flow_logs(query)
       fixtures = [
@@ -155,26 +139,26 @@ module MAFLSB
          log_group_name: 'FlowLogsForSubnetA',
          traffic_type: 'ALL',
          flow_log_id: 'fl-12345678',
-         deliver_logs_status: 'SUCCESS',
+         deliver_logs_status: nil,
         }),
         OpenStruct.new({
-          deliver_logs_error_message: 'Access error',
+          deliver_logs_error_message: nil,
           resource_id: 'subnet-12345678',
           deliver_logs_permission_arn: 'arn:aws:iam::123456789101:role/flowlogsrole',
-          flow_log_status: 'ACTIVE',
-          log_group_name: 'FlowLogsForSubnetA',
+          deliver_log_status: nil,
+          flow_log_status: nil,
+          log_group_name: 'FlowLogsForSubnetB',
           traffic_type: 'ALL',
           flow_log_id: 'fl-87654321',
-          deliver_logs_status: 'SUCCESS',
+          deliver_logs_status: 'FAILED',
         }),
       ]
-
       selected = fixtures.detect do |fixture|
         fixture.flow_log_id == query[:filter][0][:values][0] or fixture.resource_id == query[:filter][0][:values][0]
       end
 
       return OpenStruct.new({ flow_logs: [selected] }) unless selected.nil?
-      {}
+      OpenStruct.new({ flow_logs: [] })
     end
   end
 end

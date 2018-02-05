@@ -62,6 +62,14 @@ output "log_metric_filter_2_log_group_name" {
   value = "${aws_cloudwatch_log_group.lmf_lg_2.name}"
 }
 
+resource "aws_cloudwatch_log_group" "lmf_lg_3" {
+  name = "${terraform.env}_lmf_lg_3"
+}
+
+output "log_metric_filter_3_log_group_name" {
+  value = "${aws_cloudwatch_log_group.lmf_lg_3.name}"
+}
+
 #======================================================#
 #                   Cloudwatch Alarms
 #======================================================#

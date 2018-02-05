@@ -3,16 +3,18 @@ class AwsFlowLog < Inspec.resource(1)
   desc 'Verifies settings for an IAM Flow Log'
   example "
     describe aws_flow_log(flow_log_id: 'fl-12345678') do
-      its('flow_log_status') { should eq 'ACTIVE' }
+      its { should be_active }
       its('traffic_type') { should eq 'ALL' }
       its('deliver_logs_error_message') { should eq 'Access error' }
     end
   "
 
   include AwsResourceMixin
-  attr_reader :flow_log_id, :vpc_id, :subnet_id, :resource_id, :flow_log_status,
+  attr_reader :flow_log_id, :vpc_id, :subnet_id, :active,
               :deliver_logs_error_message, :deliver_logs_permission_arn,
-              :deliver_logs_status, :log_group_name, :traffic_type
+              :has_logs_delivered_ok, :log_group_name, :traffic_type
+  alias active? active
+  alias has_logs_delivered_ok? has_logs_delivered_ok
 
   def to_s
     "Flow Log #{@flow_log_id}"
@@ -28,32 +30,20 @@ class AwsFlowLog < Inspec.resource(1)
       allowed_scalar_type: String,
     )
     if validated_params.empty?
-      raise ArgumentError, 'You must provide a flow_log_id to aws_flow_log.'
+      raise ArgumentError, 'You must provide a flow_log_id, vpc_id, or subnet_id to aws_flow_log.'
     end
     validated_params
   end
 
   def fetch_from_aws
-    @resource_id = vpc_id ? vpc_id : subnet_id
-    filters_array = []
-    filters_array.push :flow_log_id unless @flow_log_id.nil?
-    filters_array.push :resource_id unless @resource_id.nil?
-    # Transform into filter format expected by AWS
+    resource_id = vpc_id ? vpc_id : subnet_id
     filters = []
-    filters_array.each do |criterion_name|
-      val = instance_variable_get("@#{criterion_name}".to_sym)
-      next if val.nil?
-      filters.push(
-        {
-          name: criterion_name.to_s.tr('_', '-'),
-          values: [val],
-        },
-      )
-    end
+    filters.push({ name: 'flow-log-id', values: [@flow_log_id] }) unless @flow_log_id.nil?
+    filters.push({ name: 'resource-id', values: [resource_id] }) unless resource_id.nil?
 
     begin
       flow_log = AwsFlowLog::BackendFactory.create.describe_flow_logs(filter: filters).flow_logs[0]
-    rescue StandardError
+    rescue Aws::EC2::Errors::ServiceError
       @exists = false
       return
     end
@@ -64,12 +54,11 @@ class AwsFlowLog < Inspec.resource(1)
 
     @exists = true
     @flow_log_id                 = flow_log.flow_log_id
-    @flow_log_status             = flow_log.flow_log_status
+    @active                      = flow_log.flow_log_status == 'ACTIVE'
     @deliver_logs_error_message  = flow_log.deliver_logs_error_message
     @deliver_logs_permission_arn = flow_log.deliver_logs_permission_arn
-    @deliver_logs_status         = flow_log.deliver_logs_status
+    @has_logs_delivered_ok       = flow_log.deliver_logs_status.nil?
     @log_group_name              = flow_log.log_group_name
-    @resource_id                 = flow_log.resource_id
     @traffic_type                = flow_log.traffic_type
   end
 

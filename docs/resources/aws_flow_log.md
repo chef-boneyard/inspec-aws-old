@@ -14,7 +14,7 @@ An `aws_flow_log` resource block uses resource parameters to search for a Flow L
 
     # Ensure the flow log is active
     describe aws_flow_log(flow_log_id: 'fl-12345678') do
-      its('flow_log_status') { should eq 'ACTIVE' }
+      it { should be_active }
     end
 
     describe aws_flow_log(vpc_id: 'fl-12345678') do
@@ -31,13 +31,17 @@ An `aws_flow_log` resource block uses resource parameters to search for a Flow L
 
 The following examples show how to use this InSpec audit resource.
 
-As this is the initial release of `aws_flow_log`, its limited functionality precludes examples.
+### Ensure that the flow log is active
+
+    describe aws_flow_log(flow_log_id: 'fl-12345678') do
+      it { should be_active }
+    end 
 
 <br>
 
 ## Resource Parameters
 
-This InSpec resource accepts the following parameters, which are used to search for the Security Group.
+This InSpec resource accepts the following parameters, which are used to search for the FLow Log.
 
 ### flow_log_id
 
@@ -53,7 +57,7 @@ The Flow Log ID of the Flow Log.  This is of the format `fl-` followed by 8 hexa
 
 The VPC that the Flow Log is logging. This is of the format `vpc-` followed by 8 hexadecimal characters.  The vpc_id is unique within your AWS account; using vpc_id ensures that you will never match more than one Flow Log.  
 
-    # Get default security group for a certain VPC
+    # Get the flow log for a specific vpc
     describe aws_flow_log(vpc_id: 'vpc-12345678') do
       it { should exist }
     end
@@ -81,8 +85,26 @@ The control will pass if the specified Flow Log was found.  Use should_not if yo
     end   
 
     # Test to make sure a specific Flow Log does not exist
-    describe aws_ec2_security_group(flow_log_id: 'fl-00000000')
+    describe aws_flow_log(flow_log_id: 'fl-00000000')
       it { should_not exist }
+    end
+
+### have_logs_delivered_ok
+
+Provides whether or not the logs are delivered without error.
+
+    # Inspect the status of the delivery
+    describe aws_flow_log(flow_log_id: 'fl-12345678')
+      its { should have_logs_delivered_ok }
+    end
+    
+### active
+
+Provides whether or not the flow log is active.
+
+    # Inspect the status of the Flow Log
+    describe aws_flow_log(flow_log_id: 'fl-12345678')
+      it { should be_active }
     end
 
 ## Properties
@@ -105,15 +127,6 @@ Provides the ARN of the IAM role that posts logs to CloudWatch Logs.
       its('deliver_logs_permission_arn') { should eq 'arn:aws:iam::721741954427:role/test.role_for_ec2_with_role' }
     end
 
-### deliver_logs_status
-
-Provides the status of the logs delivery (SUCCESS | FAILED).
-
-    # Inspect the status of the delivery
-    describe aws_flow_log(flow_log_id: 'fl-12345678')
-      its('deliver_logs_status') { should eq 'SUCCESS' }
-    end
-
 ### flow_log_id
 
 Provides the flow log ID.
@@ -121,15 +134,6 @@ Provides the flow log ID.
     # Inspect that the vpc is logging to a specific Flow Log
     describe aws_flow_log(vpc_id: 'vpc-12345678')
       its('flow_log_id') { should eq 'fl-12345678' }
-    end
-
-### flow_log_status
-
-Provides the status of the Flow Log.
-
-    # Inspect the status of the Flow Log
-    describe aws_flow_log(flow_log_id: 'fl-12345678')
-      its('flow_log_status') { should eq 'ACTIVE' }
     end
 
 ### log_group_name
@@ -141,18 +145,9 @@ Provides the name of the Flow Log group.
       its('log_group_name') { should eq 'lg-name' }
     end
 
-### resource_id
-
-Provides the ID of the resource on which the Flow Log was created.
-
-    # Inspect the ID of the resource the Flow Log is logging
-    describe aws_flow_log(flow_log_id: 'fl-12345678')
-      its('resourc_id') { should eq 'vpc-12345678' }
-    end
-
 ### traffic_type
 
-Provides the type of traffic captured for the Flow Log.
+Provides the type of traffic captured for the Flow Log. (ACCEPT | REJECT | ALL)
 
     # Inspect the type of traffic being captures
     describe aws_flow_log(flow_log_id: 'fl-12345678')
