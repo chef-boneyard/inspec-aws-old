@@ -14,11 +14,18 @@ class AwsVpcSubnet < Inspec.resource(1)
 
   include AwsResourceMixin
   attr_reader :vpc_id, :subnet_id, :cidr_block, :availability_zone, :available_ip_address_count,
-              :default_for_az, :map_public_ip_on_launch, :state, :ipv_6_cidr_block_association_set,
+              :default_for_az, :map_public_ip_on_launch, :available, :ipv_6_cidr_block_association_set,
               :assign_ipv_6_address_on_creation
+  alias available? available
+  alias default_for_az? default_for_az
 
   def to_s
     "VPC Subnet #{@subnet_id}"
+  end
+  
+  # Expose map_public_ip_on_launch and assign_ipv_6_address_on_creation
+  def method_missing(name)
+    "@#{name}"
   end
 
   private
@@ -64,7 +71,7 @@ class AwsVpcSubnet < Inspec.resource(1)
     @available_ip_address_count       = ds_response.subnets[0].available_ip_address_count
     @default_for_az                   = ds_response.subnets[0].default_for_az
     @map_public_ip_on_launch          = ds_response.subnets[0].map_public_ip_on_launch
-    @state                            = ds_response.subnets[0].state
+    @available                        = ds_response.subnets[0].state == 'available'
     @ipv_6_cidr_block_association_set = ds_response.subnets[0].ipv_6_cidr_block_association_set
     @assign_ipv_6_address_on_creation = ds_response.subnets[0].assign_ipv_6_address_on_creation
   end
