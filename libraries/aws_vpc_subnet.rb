@@ -25,11 +25,6 @@ class AwsVpcSubnet < Inspec.resource(1)
     "VPC Subnet #{@subnet_id}"
   end
 
-  # Expose map_public_ip_on_launch and assign_ipv_6_address_on_creation
-  def method_missing(name)
-    "@#{name}"
-  end
-
   private
 
   def validate_params(raw_params)
