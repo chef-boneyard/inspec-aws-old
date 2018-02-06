@@ -1,3 +1,5 @@
+require '_aws'
+
 class AwsEc2SecurityGroup < Inspec.resource(1)
   name 'aws_ec2_security_group'
   desc 'Verifies settings for an individual AWS Security Group.'
@@ -54,7 +56,9 @@ class AwsEc2SecurityGroup < Inspec.resource(1)
       :group_name,
       :vpc_id,
     ].each do |criterion_name|
-      val = instance_variable_get("@#{criterion_name}".to_sym)
+      instance_var = "@#{criterion_name}".to_sym
+      next unless instance_variable_defined?(instance_var)
+      val = instance_variable_get(instance_var)
       next if val.nil?
       filters.push(
         {
