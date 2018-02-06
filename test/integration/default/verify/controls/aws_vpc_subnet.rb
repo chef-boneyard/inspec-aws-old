@@ -40,8 +40,8 @@ end
 control "aws_vpc_subnet matchers of subnet_01" do
   describe aws_vpc_subnet(subnet_id: fixtures['ec2_default_vpc_subnet_01_id']) do
     it { should be_available }
-    it { should map_public_ip_on_launch }
+    it { should_not be_mapping_public_ip_on_launch }
     it { should_not be_default_for_az }
-    it { should_not assign_ipv_6_address_on_creation }
+    it { should_not be_assigning_ipv_6_address_on_creation }
   end
 end

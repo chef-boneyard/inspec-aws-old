@@ -14,10 +14,12 @@ class AwsVpcSubnet < Inspec.resource(1)
 
   include AwsResourceMixin
   attr_reader :vpc_id, :subnet_id, :cidr_block, :availability_zone, :available_ip_address_count,
-              :default_for_az, :map_public_ip_on_launch, :available, :ipv_6_cidr_block_association_set,
-              :assign_ipv_6_address_on_creation
+              :default_for_az, :mapping_public_ip_on_launch, :available, :ipv_6_cidr_block_association_set,
+              :assigning_ipv_6_address_on_creation
   alias available? available
   alias default_for_az? default_for_az
+  alias mapping_public_ip_on_launch? mapping_public_ip_on_launch
+  alias assigning_ipv_6_address_on_creation? assigning_ipv_6_address_on_creation
 
   def to_s
     "VPC Subnet #{@subnet_id}"
@@ -42,6 +44,10 @@ class AwsVpcSubnet < Inspec.resource(1)
     if validated_params.key?(:subnet_id) && validated_params[:subnet_id] !~ /^subnet\-[0-9a-f]{8}/
       raise ArgumentError, 'aws_vpc_subnet Subnet ID must be in the format "subnet-" followed by 8 hexadecimal characters.'
     end
+    
+    if validated_params.empty?
+      raise ArgumentError, 'You must provide a subnet_id to aws_vpc_subnet.'
+    end
 
     validated_params
   end
@@ -64,16 +70,16 @@ class AwsVpcSubnet < Inspec.resource(1)
   end
 
   def assign_properties(ds_response)
-    @vpc_id                           = ds_response.subnets[0].vpc_id
-    @subnet_id                        = ds_response.subnets[0].subnet_id
-    @cidr_block                       = ds_response.subnets[0].cidr_block
-    @availability_zone                = ds_response.subnets[0].availability_zone
-    @available_ip_address_count       = ds_response.subnets[0].available_ip_address_count
-    @default_for_az                   = ds_response.subnets[0].default_for_az
-    @map_public_ip_on_launch          = ds_response.subnets[0].map_public_ip_on_launch
-    @available                        = ds_response.subnets[0].state == 'available'
-    @ipv_6_cidr_block_association_set = ds_response.subnets[0].ipv_6_cidr_block_association_set
-    @assign_ipv_6_address_on_creation = ds_response.subnets[0].assign_ipv_6_address_on_creation
+    @vpc_id                              = ds_response.subnets[0].vpc_id
+    @subnet_id                           = ds_response.subnets[0].subnet_id
+    @cidr_block                          = ds_response.subnets[0].cidr_block
+    @availability_zone                   = ds_response.subnets[0].availability_zone
+    @available_ip_address_count          = ds_response.subnets[0].available_ip_address_count
+    @default_for_az                      = ds_response.subnets[0].default_for_az
+    @mapping_public_ip_on_launch         = ds_response.subnets[0].map_public_ip_on_launch
+    @available                           = ds_response.subnets[0].state == 'available'
+    @ipv_6_cidr_block_association_set    = ds_response.subnets[0].ipv_6_cidr_block_association_set
+    @assigning_ipv_6_address_on_creation = ds_response.subnets[0].assign_ipv_6_address_on_creation
   end
 
   # Uses the SDK API to really talk to AWS

@@ -40,15 +40,15 @@ A string identifying the subnet that the VPC contains.
 
 ## Matchers
 
-### assign_ipv_6_address_on_creation
+### assigning_ipv_6_address_on_creation
 
 Detects whether the network interface on the subnet accepts IPv6 addresses.
 
     describe aws_vpc_subnet(subnet_id: 'subnet-12345678') do
-      it { should assign_ipv_6_address_on_creation }    
+      it { should be_assigning_ipv_6_address_on_creation }    
     end
     
-### state
+### available
 
 Provides the current state of the subnet.
 
@@ -72,12 +72,12 @@ The `exist` matcher indicates that a subnet exists for the specified vpc.
       it { should exist }
     end
     
-### map_public_ip_on_launch
+### mapping_public_ip_on_launch
 
 Provides the ID of the VPC the subnet is in.
 
     describe aws_vpc_subnet(subnet_id: 'subnet-12345678') do
-      it { should map_public_ip_on_launch }    
+      it { should be_mapping_public_ip_on_launch }    
     end
 
 ## Properties

@@ -87,8 +87,8 @@ end
 #=============================================================================#
 class AwsVpcSubnetPropertiesTest < Minitest::Test
   def test_matcher_assign_ipv_6_address_on_creation
-    assert AwsVpcSubnet.new(subnet_id: 'subnet-12345678').assign_ipv_6_address_on_creation?
-    refute AwsVpcSubnet.new(subnet_id: 'subnet-87654321').assign_ipv_6_address_on_creation?
+    assert AwsVpcSubnet.new(subnet_id: 'subnet-12345678').assigning_ipv_6_address_on_creation
+    refute AwsVpcSubnet.new(subnet_id: 'subnet-87654321').assigning_ipv_6_address_on_creation
   end
   
   def test_matcher_available
@@ -102,8 +102,8 @@ class AwsVpcSubnetPropertiesTest < Minitest::Test
   end
   
   def test_matcher_map_public_ip_on_launch
-    assert AwsVpcSubnet.new(subnet_id: 'subnet-12345678').map_public_ip_on_launch?
-    refute AwsVpcSubnet.new(subnet_id: 'subnet-87654321').map_public_ip_on_launch?
+    assert AwsVpcSubnet.new(subnet_id: 'subnet-12345678').mapping_public_ip_on_launch
+    refute AwsVpcSubnet.new(subnet_id: 'subnet-87654321').mapping_public_ip_on_launch
   end
 end
 
