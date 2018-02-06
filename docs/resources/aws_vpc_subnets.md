@@ -18,7 +18,8 @@ An `aws_vpc_subnets` resource block uses an optional filter to select a group of
 
     # Test all subnets within a single vpc
     describe aws_vpc_subnets.where(vpc_id: 'vpc-12345678') do
-      its('subnet_id') { should include ['subnet-12345678', 'subnet-98765432'] }
+      its('subnet_ids') { should include 'subnet-12345678' }
+      its('subnet_ids') { should include 'subnet-98765432' }
     end
 
 <br>
@@ -55,7 +56,8 @@ A string identifying the VPC which may or may not contain subnets.
 
     # Look for all subnts within a vpc.
     describe aws_vpc_subnets.where( vpc_id: 'vpc-12345678') do
-      its('subnet-ids') { should include ['subnet-12345678', 'subnet-98765432'] }
+      its('subnet_ids') { should include 'subnet-12345678' }
+      its('subnet_ids') { should include 'subnet-98765432' }
     end
 
 ### subnet_id
@@ -63,7 +65,7 @@ A string identifying the VPC which may or may not contain subnets.
 A string identifying a specific subnet.
 
     # Examine a specific subnet
-    describe aws_ec2_security_groups.where(subnet_id: 'subnet-12345678') do
+    describe aws_vpc_subnets.where(subnet_id: 'subnet-12345678') do
       its('cidr_blocks') { should eq ['10.0.1.0/24'] }
     end
 
@@ -74,25 +76,35 @@ A string identifying a specific subnet.
 
 Provides a string that contains the cidr block of ip addresses that can be given in the subnet.
 
-    # Examine a specific subnets cidr_block
-    describe aws_ec2_security_groups.where( subnet_id: 'subnet-12345678') do
-      its('cidr_block') { should eq ['10.0.1.0/24'] }
+    # Examine a specific subnets cidr_blocks
+    describe aws_vpc_subnets.where( subnet_id: 'subnet-12345678') do
+      its('cidr_blocks') { should eq ['10.0.1.0/24'] }
     end
 
 ### vpc_ids
 
 Provides an array containing a string of the vpc_id associated with a subnet.
 
-    # Examine a specific subnets cidr_block
-    describe aws_ec2_security_groups.where( subnet_id: 'subnet-12345678') do
-      its('vpc_ids') { should eq ['vpc-12345678'] }
+    # Examine a specific subnets VPC IDS
+    describe aws_vpc_subnets.where( subnet_id: 'subnet-12345678') do
+      its('vpc_ids') { should include 'vpc-12345678' }
     end
 
 ### subnet_ids
 
-Provides an array of strings containing the subnet IDs associated with a vpc
+Provides an array of strings containing the subnet IDs associated with a vpc.
 
-    # Examine a specific subnets cidr_block
-    describe aws_ec2_security_groups.where( vpc_id: 'vpc-12345678') do
-      its('subnet_ids') { should eq ['subnet-12345678', 'subnet-87654321'] }
+    # Examine a specific vpcs Subnet IDs
+    describe aws_vpc_subnets.where( vpc_id: 'vpc-12345678') do
+      its('subnet_ids') { should include 'subnet-12345678' }
+      its('subnet_ids') { should include 'subnet-98765432' }
+    end
+    
+### states
+
+Provides an array of strings including whether the subnets are available or not.
+
+    # Examine a specific vpcs Subnet IDs
+    describe aws_vpc_subnets.where( vpc_id: 'vpc-12345678') do
+      its('states') { should_not include 'pending' }
     end

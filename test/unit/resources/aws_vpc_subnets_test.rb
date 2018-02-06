@@ -10,7 +10,7 @@ require 'aws_vpc_subnets'
 #=============================================================================#
 class AwsVpcSubnetsConstructor < Minitest::Test
   def setup
-    AwsVpcSubnets::BackendFactory.select(AwsMVSB::Empty)
+    AwsVpcSubnets::BackendFactory.select(AwsMVSB::Basic)
   end
 
   def test_constructor_no_args_ok
@@ -43,7 +43,7 @@ class AwsVpcSubnetsFilterCriteria < Minitest::Test
     hit = AwsVpcSubnets.new.where(subnet_id: 'subnet-01234567')
     assert(hit.exists?)
 
-    miss = AwsVpcSubnets.new.where(group_name: 'subnet-98765432')
+    miss = AwsVpcSubnets.new.where(subnet_id: 'subnet-98765432')
     refute(miss.exists?)
   end
 
@@ -89,18 +89,9 @@ end
 #=============================================================================#
 #                               Test Fixtures
 #=============================================================================#
-
 module AwsMVSB
-  class Empty < AwsVpcSubnets::Backend
-    def describe_subnets(_query)
-      OpenStruct.new({
-        subnets: [],
-      })
-    end
-  end
-
   class Basic < AwsVpcSubnets::Backend
-    def describe_subnets(query)
+    def describe_subnets
       fixtures = [
         OpenStruct.new({
           availability_zone: "us-east-1c",
@@ -123,15 +114,7 @@ module AwsMVSB
           vpc_id: "vpc-00112233",
         }),
       ]
-
-      selected = fixtures.select do |sg|
-        query.keys.all? do |criterion|
-          query[criterion] == sg[criterion]
-        end
-      end
-
-      OpenStruct.new({ subnets: selected })
+      OpenStruct.new({ subnets: fixtures })
     end
   end
-
 end
