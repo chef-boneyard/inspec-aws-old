@@ -24,7 +24,7 @@ class AwsVpcSubnet < Inspec.resource(1)
   def to_s
     "VPC Subnet #{@subnet_id}"
   end
-  
+
   # Expose map_public_ip_on_launch and assign_ipv_6_address_on_creation
   def method_missing(name)
     "@#{name}"
@@ -39,12 +39,12 @@ class AwsVpcSubnet < Inspec.resource(1)
       allowed_scalar_name: :subnet_id,
       allowed_scalar_type: String,
     )
-    
+
     # Make sure the subnet_id parameter was specified and in the correct form.
     if validated_params.key?(:subnet_id) && validated_params[:subnet_id] !~ /^subnet\-[0-9a-f]{8}/
       raise ArgumentError, 'aws_vpc_subnet Subnet ID must be in the format "subnet-" followed by 8 hexadecimal characters.'
     end
-    
+
     if validated_params.empty?
       raise ArgumentError, 'You must provide a subnet_id to aws_vpc_subnet.'
     end
@@ -57,7 +57,7 @@ class AwsVpcSubnet < Inspec.resource(1)
 
     # Transform into filter format expected by AWS
     filters = []
-    filters.push({name: 'subnet-id', values: [@subnet_id]})
+    filters.push({ name: 'subnet-id', values: [@subnet_id] })
     ds_response = backend.describe_subnets(filters: filters)
 
     # If no subnets exist in the VPC, exist is false.
