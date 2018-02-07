@@ -224,7 +224,7 @@ output "ec2_security_group_alpha_group_id" {
 }
 
 #============================================================#
-#                      Security Groups
+#                      VPC Subnets
 #============================================================#
 
 resource "aws_subnet" "default" {
