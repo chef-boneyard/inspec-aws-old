@@ -235,7 +235,7 @@ resource "aws_subnet" "default" {
 output "ec2_default_vpc_subnet_id" {
   value = "${aws_subnet.default.id}"
 }
-=======
+
 output "ec2_security_group_alpha_group_name" {
   value = "${aws_security_group.alpha.name}"
 }
