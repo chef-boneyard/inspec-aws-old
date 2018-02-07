@@ -65,7 +65,7 @@ class AwsIamUsersTestFilterCriteria < Minitest::Test
   #           password_ever_used?
   #------------------------------------------#
   def test_users_criteria_password_ever_used?
-    AwsIamUsers::Backend.select(Maiusb::Basic)
+    AwsIamUsers::BackendFactory.select(Maiusb::Basic)
     users = AwsIamUsers.new.where { password_ever_used? }
     assert(2, users.entries.count)
     assert_includes users.entries.map{ |u| u[:user_name] }, 'carol'
@@ -76,7 +76,7 @@ class AwsIamUsersTestFilterCriteria < Minitest::Test
   #           password_never_used?
   #------------------------------------------#
   def test_users_criteria_password_never_used?
-    AwsIamUsers::Backend.select(Maiusb::Basic)
+    AwsIamUsers::BackendFactory.select(Maiusb::Basic)
     users = AwsIamUsers.new.where { password_never_used? }
     assert(1, users.entries.count)
     assert_includes users.entries.map{ |u| u[:user_name] }, 'alice'
@@ -87,7 +87,7 @@ class AwsIamUsersTestFilterCriteria < Minitest::Test
   #        password_last_used_days_ago
   #------------------------------------------#
   def test_users_criteria_has_password_last_used_days_ago_10
-    AwsIamUsers::Backend.select(Maiusb::Basic)
+    AwsIamUsers::BackendFactory.select(Maiusb::Basic)
     users = AwsIamUsers.new.where(password_last_used_days_ago: 10)
     puts users
     assert(1, users.entries.count)

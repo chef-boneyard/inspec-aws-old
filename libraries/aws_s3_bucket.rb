@@ -38,7 +38,7 @@ class AwsS3Bucket < Inspec.resource(1)
   def has_access_logging_enabled?
     return unless @exists
     # This is simple enough to inline it.
-    !AwsS3Bucket::BackendFactory.create.get_bucket_logging(bucket: bucket_name).logging_enabled.nil?
+    !AwsS3Bucket::BackendFactory.create(inspec_runner).get_bucket_logging(bucket: bucket_name).logging_enabled.nil?
   end
 
   private
