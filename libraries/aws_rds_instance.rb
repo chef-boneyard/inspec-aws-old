@@ -10,10 +10,10 @@ class AwsRdsInstance < Inspec.resource(1)
   "
 
   include AwsResourceMixin
-  attr_reader :db_id
+  attr_reader :db_instance_identifier
 
   def to_s
-    "RDS Instance #{@db_id}"
+    "RDS Instance #{@db_instance_identifier}"
   end
 
   private
@@ -21,15 +21,15 @@ class AwsRdsInstance < Inspec.resource(1)
   def validate_params(raw_params)
     validated_params = check_resource_param_names(
       raw_params: raw_params,
-      allowed_params: [:db_id],
-      allowed_scalar_name: :db_id,
+      allowed_params: [:db_instance_identifier],
+      allowed_scalar_name: :db_instance_identifier,
       allowed_scalar_type: String,
     )
-    if validated_params.empty? or !validated_params.key?(:db_id)
+    if validated_params.empty? or !validated_params.key?(:db_instance_identifier)
       raise ArgumentError, 'You must provide an id for the aws_rds_instance.'
     end
 
-    if validated_params.key?(:db_id) && validated_params[:db_id] !~ /^[a-z]{1}[0-9a-z\-]{0,62}$/
+    if validated_params.key?(:db_instance_identifier) && validated_params[:db_instance_identifier] !~ /^[a-z]{1}[0-9a-z\-]{0,62}$/
       raise ArgumentError, 'aws_rds_instance Database Instance ID must be in the format: start with a letter followed by up to 62 letters/numbers/hyphens.'
     end
 
@@ -39,16 +39,10 @@ class AwsRdsInstance < Inspec.resource(1)
   def fetch_from_aws
     backend = AwsRdsInstance::BackendFactory.create
 
-    # Transform into filter format expected by AWS
-    [
-      :db_id,
-    ].each do |criterion_name|
-      val = instance_variable_get("@#{criterion_name}".to_sym)
-      next if val.nil?
-    end
     begin
-      dsg_response = backend.describe_db_instances(db_instance_identifier: db_id)
-    rescue StandardError
+      dsg_response = backend.describe_db_instances(db_instance_identifier: db_instance_identifier)
+      @exists = true
+    rescue Aws::RDS::Errors::DBInstanceNotFound
       @exists = false
       return
     end
@@ -58,8 +52,7 @@ class AwsRdsInstance < Inspec.resource(1)
       return
     end
 
-    @exists = true
-    @db_id = dsg_response.db_instances[0].db_instance_identifier
+    @db_instance_identifier = dsg_response.db_instances[0].db_instance_identifier
   end
 
   # Uses the SDK API to really talk to AWS

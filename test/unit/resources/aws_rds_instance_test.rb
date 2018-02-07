@@ -12,7 +12,7 @@ class AwsMDBIConstructor < Minitest::Test
   def setup
     AwsRdsInstance::BackendFactory.select(AwsMRDSIB::Empty)
   end
-  
+
   def test_constructor_no_args_raises
     assert_raises(ArgumentError) { AwsRdsInstance.new }
   end
@@ -21,17 +21,13 @@ class AwsMDBIConstructor < Minitest::Test
     AwsRdsInstance.new('test-instance-id')
   end
 
-  def test_constructor_expected_well_formed_args
-    {
-      db_id: 'test-instance-id',
-    }.each do |param, value| 
-      AwsRdsInstance.new(param => value)
-    end
+  def test_accepts_db_instance_identifier_as_hash
+    AwsRdsInstance.new(db_instance_identifier: 'test-instance-id')
   end
 
   def test_constructor_reject_malformed_args
     {
-      db_id: 'no_good',
+      db_instance_identifier: 'no_good',
     }.each do |param, value|
       assert_raises(ArgumentError) { AwsRdsInstance.new(param => value) }
     end
@@ -43,8 +39,27 @@ class AwsMDBIConstructor < Minitest::Test
 end
 
 #=============================================================================#
-#                               Properties
+#                               Search / Recall
 #=============================================================================#
+
+class AwsMDBIRecallTest < Minitest::Test
+
+  def setup
+    AwsRdsInstance::BackendFactory.select(AwsMRDSIB::Basic)
+  end
+
+  def test_search_hit_via_scalar_works
+    assert AwsRdsInstance.new('some-db').exists?
+  end
+
+  def test_search_hit_via_hash_works
+    assert AwsRdsInstance.new(db_instance_identifier: 'some-db').exists?
+  end
+
+  def test_search_miss_is_not_an_exception
+    refute AwsRdsInstance.new(db_instance_identifier: 'test-instance-id').exists?
+  end
+end
 
 #=============================================================================#
 #                               Test Fixtures
@@ -53,9 +68,7 @@ end
 module AwsMRDSIB
   class Empty < AwsRdsInstance::Backend
     def describe_db_instances(_query)
-      OpenStruct.new({
-                         db_instances: [],
-                     })
+      raise Aws::RDS::Errors::DBInstanceNotFound.new(nil, nil)
     end
   end
 
@@ -63,17 +76,19 @@ module AwsMRDSIB
     def describe_db_instances(query)
       fixtures = [
           OpenStruct.new({
-                             db_id: 'some-db',
+                             db_instance_identifier: 'some-db',
                          }),
           OpenStruct.new({
-                             db_id: 'awesome-db',
+                             db_instance_identifier: 'awesome-db',
                          }),
       ]
 
       selected = fixtures.select do |db|
-        query[:filters].all? do |filter|
-          filter[:values].include?(db[filter[:name].tr('_','-')])
-        end
+        db[:db_instance_identifier].eql? query[:db_instance_identifier]
+      end
+
+      if selected.empty?
+        raise Aws::RDS::Errors::DBInstanceNotFound.new(nil, nil)
       end
 
       OpenStruct.new({ db_instances: selected })
