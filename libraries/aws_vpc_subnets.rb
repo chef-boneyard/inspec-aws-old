@@ -16,7 +16,7 @@ class AwsVpcSubnets < Inspec.resource(1)
 
   def initialize
     backend = AwsVpcSubnets::BackendFactory.create
-    @table = backend.describe_subnets.to_h[:subnets]
+    @table = backend.describe_subnets.subnets.map(&:to_h)
   end
 
   # Underlying FilterTable implementation.
