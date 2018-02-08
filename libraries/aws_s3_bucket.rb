@@ -106,7 +106,7 @@ class AwsS3Bucket < Inspec.resource(1)
       end
 
       def get_bucket_logging(query)
-        AWSConnection.new.s3_client.get_bucket_logging(query)
+        aws_service_client.get_bucket_logging(query)
       end
     end
   end
