@@ -182,6 +182,10 @@ data "aws_vpc" "default" {
   default = "true"
 }
 
+data "aws_vpc" "flow_log_vpc" {
+  default = "true"
+}
+
 data "aws_security_group" "default" {
   vpc_id = "${data.aws_vpc.default.id}"
   name = "default"
@@ -189,6 +193,10 @@ data "aws_security_group" "default" {
 
 output "ec2_security_group_default_vpc_id" {
   value = "${data.aws_vpc.default.id}"
+}
+
+output "ec2_security_group_flow_log_vpc_id" {
+  value = "${data.aws_vpc.flow_log_vpc.id}"
 }
 
 output "ec2_security_group_default_group_id" {
@@ -230,6 +238,11 @@ output "ec2_security_group_alpha_group_id" {
 resource "aws_subnet" "subnet_01" {
   vpc_id     = "${data.aws_vpc.default.id}"
   cidr_block = "172.31.96.0/20"
+}
+
+resource "aws_subnet" "flow_log_subnet" {
+  vpc_id     = "${data.aws_vpc.flow_log_vpc.id}"
+  cidr_block = "172.31.120.0/20"
 }
 
 output "ec2_default_vpc_subnet_01_id" {

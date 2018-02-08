@@ -56,7 +56,7 @@ control "aws_flow_log properties" do
   # Test properties with vpc_id
   describe aws_flow_log(vpc_id: fixtures['flow_log_default_vpc_vpc_id']) do
     its('traffic_type') { should eq 'ALL' }
-    its('deliver_logs_error_message') { should eq 'Access error' }
+    its('deliver_logs_error_message') { should eq nil }
     its('deliver_logs_permission_arn') { should eq fixtures['role_for_flow_log_arn'] }
     its('log_group_name') { should eq fixtures['log_metric_filter_3_log_group_name'] }
     its('flow_log_id') { should eq fixtures['flow_log_default_vpc_flow_log_id'] }
