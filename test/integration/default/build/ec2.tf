@@ -75,6 +75,31 @@ resource "aws_iam_role" "role_for_ec2_with_role" {
 EOF
 }
 
+# Has a role
+resource "aws_iam_role" "role_for_flow_log" {
+  name = "${terraform.env}.role_for_flow_log"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "vpc-flow-logs.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+output "role_for_flow_log_arn" {
+  value = "${aws_iam_role.role_for_flow_log.arn}"
+}
+
 resource "aws_iam_instance_profile" "profile_for_ec2_with_role" {
   name  = "${terraform.env}.profile_for_ec2_with_role"
   role = "${aws_iam_role.role_for_ec2_with_role.name}"
@@ -157,6 +182,10 @@ data "aws_vpc" "default" {
   default = "true"
 }
 
+data "aws_vpc" "flow_log_vpc" {
+  default = "true"
+}
+
 data "aws_security_group" "default" {
   vpc_id = "${data.aws_vpc.default.id}"
   name = "default"
@@ -164,6 +193,10 @@ data "aws_security_group" "default" {
 
 output "ec2_security_group_default_vpc_id" {
   value = "${data.aws_vpc.default.id}"
+}
+
+output "ec2_security_group_flow_log_vpc_id" {
+  value = "${data.aws_vpc.flow_log_vpc.id}"
 }
 
 output "ec2_security_group_default_group_id" {
@@ -204,6 +237,11 @@ output "ec2_security_group_alpha_group_id" {
 resource "aws_subnet" "subnet_01" {
   vpc_id     = "${data.aws_vpc.default.id}"
   cidr_block = "172.31.96.0/20"
+}
+
+resource "aws_subnet" "flow_log_subnet" {
+  vpc_id     = "${data.aws_vpc.flow_log_vpc.id}"
+  cidr_block = "172.31.120.0/20"
 }
 
 output "ec2_default_vpc_subnet_01_id" {
