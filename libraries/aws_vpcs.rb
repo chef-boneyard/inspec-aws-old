@@ -9,7 +9,7 @@ class AwsVpcs < Inspec.resource(1)
     end
   '
   supports platform: 'aws'
-  
+
   include AwsPluralResourceMixin
 
   # Underlying FilterTable implementation.

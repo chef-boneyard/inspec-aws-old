@@ -10,7 +10,7 @@ class AwsIamRootUser < Inspec.resource(1)
     end
   "
   supports platform: 'aws'
-  
+
   # TODO: rewrite to avoid direct injection, match other resources, use AwsSingularResourceMixin
   def initialize(conn = nil)
     @client = conn ? conn.iam_client : inspec_runner.backend.aws_client(Aws::IAM::Client)

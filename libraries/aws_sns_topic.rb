@@ -10,7 +10,7 @@ class AwsSnsTopic < Inspec.resource(1)
     end
   "
   supports platform: 'aws'
-  
+
   include AwsSingularResourceMixin
   attr_reader :arn, :confirmed_subscription_count
 

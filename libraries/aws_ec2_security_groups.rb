@@ -15,7 +15,7 @@ class AwsEc2SecurityGroups < Inspec.resource(1)
     end
 EOX
   supports platform: 'aws'
-  
+
   include AwsPluralResourceMixin
 
   # Underlying FilterTable implementation.

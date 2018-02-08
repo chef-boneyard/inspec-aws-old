@@ -16,7 +16,7 @@ class AwsIamUsers < Inspec.resource(1)
     end
   '
   supports platform: 'aws'
-  
+
   include AwsPluralResourceMixin
 
   filter = FilterTable.create

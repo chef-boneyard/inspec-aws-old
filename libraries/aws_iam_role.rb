@@ -9,7 +9,7 @@ class AwsIamRole < Inspec.resource(1)
     end
   "
   supports platform: 'aws'
-  
+
   include AwsSingularResourceMixin
   attr_reader :description, :role_name
 

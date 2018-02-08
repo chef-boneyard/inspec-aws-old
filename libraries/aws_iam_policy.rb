@@ -9,7 +9,7 @@ class AwsIamPolicy < Inspec.resource(1)
     end
   "
   supports platform: 'aws'
-  
+
   include AwsSingularResourceMixin
 
   attr_reader :arn, :attachment_count, :default_version_id

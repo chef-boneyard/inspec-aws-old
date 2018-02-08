@@ -14,7 +14,7 @@ class AwsIamUser < Inspec.resource(1)
     end
   "
   supports platform: 'aws'
-  
+
   include AwsSingularResourceMixin
   attr_reader :access_keys, :has_console_password, :has_mfa_enabled, :username
   alias has_mfa_enabled? has_mfa_enabled

@@ -13,7 +13,7 @@ class AwsIamAccessKey < Inspec.resource(1)
     end
   "
   supports platform: 'aws'
-  
+
   include AwsSingularResourceMixin
   attr_reader :access_key_id, :create_date, :status, :username
   alias id access_key_id

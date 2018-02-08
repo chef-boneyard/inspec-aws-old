@@ -9,7 +9,7 @@ class AwsRouteTable < Inspec.resource(1)
     end
   "
   supports platform: 'aws'
-  
+
   include AwsSingularResourceMixin
 
   def to_s

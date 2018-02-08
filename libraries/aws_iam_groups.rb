@@ -9,7 +9,7 @@ class AwsIamGroups < Inspec.resource(1)
     end
   '
   supports platform: 'aws'
-  
+
   include AwsPluralResourceMixin
 
   def validate_params(resource_params)
