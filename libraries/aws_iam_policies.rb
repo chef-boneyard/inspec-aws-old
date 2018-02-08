@@ -30,7 +30,7 @@ class AwsIamPolicies < Inspec.resource(1)
   end
 
   def fetch_from_api
-    backend = AwsIamPolicies::BackendFactory.create(inspec_runner)
+    backend = BackendFactory.create(inspec_runner)
     @table = backend.list_policies({}).to_h[:policies]
   end
 

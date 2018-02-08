@@ -11,7 +11,7 @@ class AwsIamPolicy < Inspec.resource(1)
 
   include AwsSingularResourceMixin
 
-  attr_reader :arn, :default_version_id, :attachment_count
+  attr_reader :arn, :attachment_count, :default_version_id
 
   def to_s
     "Policy #{@policy_name}"
@@ -69,7 +69,7 @@ class AwsIamPolicy < Inspec.resource(1)
   end
 
   def fetch_from_api
-    backend = AwsIamPolicy::BackendFactory.create(inspec_runner)
+    backend = BackendFactory.create(inspec_runner)
 
     criteria = { max_items: 1000 } # maxItems max value is 1000
     resp = backend.list_policies(criteria)

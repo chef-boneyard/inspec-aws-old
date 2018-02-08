@@ -24,7 +24,7 @@ class AwsCloudwatchLogMetricFilter < Inspec.resource(1)
 EOX
 
   include AwsSingularResourceMixin
-  attr_reader :filter_name, :log_group_name, :pattern, :metric_name, :metric_namespace
+  attr_reader :filter_name, :log_group_name, :metric_name, :metric_namespace, :pattern
 
   private
 
@@ -41,7 +41,7 @@ EOX
 
   def fetch_from_api
     # get a backend
-    backend = AwsCloudwatchLogMetricFilter::BackendFactory.create(inspec_runner)
+    backend = BackendFactory.create(inspec_runner)
 
     # Perform query with remote filtering
     aws_search_criteria = {}

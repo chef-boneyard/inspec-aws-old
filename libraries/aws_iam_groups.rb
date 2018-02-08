@@ -29,7 +29,7 @@ class AwsIamGroups < Inspec.resource(1)
   end
 
   def fetch_from_api
-    backend = AwsIamGroups::BackendFactory.create(inspec_runner)
+    backend = BackendFactory.create(inspec_runner)
     @table = backend.list_groups.to_h[:groups]
   end
 

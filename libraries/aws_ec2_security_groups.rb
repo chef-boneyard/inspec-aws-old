@@ -46,10 +46,7 @@ EOX
 
   def fetch_from_api
     @table = []
-    backend = AwsEc2SecurityGroups::BackendFactory.create(inspec_runner)
-    # Note: should we ever implement server-side filtering
-    # (and this is a very good resource for that),
-    # we will need to reformat the criteria we are sending to AWS.
+    backend = BackendFactory.create(inspec_runner)
     backend.describe_security_groups({}).security_groups.each do |sg_info|
       @table.push({
                     group_id: sg_info.group_id,

@@ -15,7 +15,7 @@ class AwsIamUser < Inspec.resource(1)
   "
 
   include AwsSingularResourceMixin
-  attr_reader :username, :has_mfa_enabled, :has_console_password, :access_keys
+  attr_reader :access_keys, :has_console_password, :has_mfa_enabled, :username
   alias has_mfa_enabled? has_mfa_enabled
   alias has_console_password? has_console_password
 

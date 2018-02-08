@@ -13,7 +13,7 @@ class AwsCloudwatchAlarm < Inspec.resource(1)
   EOD
 
   include AwsSingularResourceMixin
-  attr_reader :alarm_name, :metric_name, :metric_namespace, :alarm_actions
+  attr_reader :alarm_actions, :alarm_name, :metric_name, :metric_namespace
 
   private
 
@@ -33,7 +33,7 @@ class AwsCloudwatchAlarm < Inspec.resource(1)
   end
 
   def fetch_from_api
-    aws_alarms = AwsCloudwatchAlarm::BackendFactory.create(inspec_runner).describe_alarms_for_metric(
+    aws_alarms = BackendFactory.create(inspec_runner).describe_alarms_for_metric(
       metric_name: @metric_name,
       namespace: @metric_namespace,
     )

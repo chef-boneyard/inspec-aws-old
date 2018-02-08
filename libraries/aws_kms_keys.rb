@@ -30,7 +30,7 @@ class AwsKmsKeys < Inspec.resource(1)
   end
 
   def fetch_from_api
-    backend = AwsKmsKeys::BackendFactory.create(inspec_runner)
+    backend = BackendFactory.create(inspec_runner)
     @table = backend.list_keys({ limit: 1000 }).to_h[:keys] # max value for limit is 1000
   end
 

@@ -36,7 +36,7 @@ class AwsRouteTable < Inspec.resource(1)
   end
 
   def fetch_from_api
-    backend = AwsRouteTable::BackendFactory.create(inspec_runner)
+    backend = BackendFactory.create(inspec_runner)
 
     if @route_table_id.nil?
       args = nil

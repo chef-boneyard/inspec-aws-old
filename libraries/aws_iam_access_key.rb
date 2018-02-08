@@ -14,7 +14,7 @@ class AwsIamAccessKey < Inspec.resource(1)
   "
 
   include AwsSingularResourceMixin
-  attr_reader :username, :access_key_id, :status, :create_date
+  attr_reader :access_key_id, :create_date, :status, :username
   alias id access_key_id
 
   def validate_params(raw_params)

@@ -10,7 +10,7 @@ class AwsIamRole < Inspec.resource(1)
   "
 
   include AwsSingularResourceMixin
-  attr_reader :role_name, :description
+  attr_reader :description, :role_name
 
   private
 

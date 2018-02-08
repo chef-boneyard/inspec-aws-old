@@ -31,7 +31,7 @@ class AwsCloudTrailTrails < Inspec.resource(1)
   end
 
   def fetch_from_api
-    backend = AwsCloudTrailTrails::BackendFactory.create(inspec_runner)
+    backend = BackendFactory.create(inspec_runner)
     @table = backend.describe_trails({}).to_h[:trail_list]
   end
 

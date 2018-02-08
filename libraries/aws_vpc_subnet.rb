@@ -13,9 +13,9 @@ class AwsVpcSubnet < Inspec.resource(1)
   "
 
   include AwsSingularResourceMixin
-  attr_reader :vpc_id, :subnet_id, :cidr_block, :availability_zone, :available_ip_address_count,
-              :default_for_az, :mapping_public_ip_on_launch, :available, :ipv_6_cidr_block_association_set,
-              :assigning_ipv_6_address_on_creation
+  attr_reader :assigning_ipv_6_address_on_creation, :availability_zone, :available_ip_address_count,
+              :available, :cidr_block, :default_for_az, :ipv_6_cidr_block_association_set,
+              :mapping_public_ip_on_launch, :subnet_id, :vpc_id 
   alias available? available
   alias default_for_az? default_for_az
   alias mapping_public_ip_on_launch? mapping_public_ip_on_launch
@@ -48,7 +48,7 @@ class AwsVpcSubnet < Inspec.resource(1)
   end
 
   def fetch_from_api
-    backend = AwsVpcSubnet::BackendFactory.create(inspec_runner)
+    backend = BackendFactory.create(inspec_runner)
 
     # Transform into filter format expected by AWS
     filters = []

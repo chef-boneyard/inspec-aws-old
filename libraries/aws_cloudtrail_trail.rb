@@ -12,8 +12,8 @@ class AwsCloudTrailTrail < Inspec.resource(1)
   supports platform: 'aws'
 
   include AwsSingularResourceMixin
-  attr_reader :s3_bucket_name, :trail_arn, :cloud_watch_logs_role_arn,
-              :cloud_watch_logs_log_group_arn, :kms_key_id, :home_region
+  attr_reader :cloud_watch_logs_log_group_arn, :cloud_watch_logs_role_arn, :home_region,
+              :kms_key_id, :s3_bucket_name, :trail_arn
 
   def to_s
     "CloudTrail #{@trail_name}"
@@ -49,7 +49,7 @@ class AwsCloudTrailTrail < Inspec.resource(1)
   end
 
   def fetch_from_api
-    backend = AwsCloudTrailTrail::BackendFactory.create(inspec_runner)
+    backend = BackendFactory.create(inspec_runner)
 
     query = { trail_name_list: [@trail_name] }
     resp = backend.describe_trails(query)
@@ -72,7 +72,6 @@ class AwsCloudTrailTrail < Inspec.resource(1)
       self.aws_client_class = Aws::CloudTrail::Client
 
       def describe_trails(query)
-        # aws_transport.aws_client(Aws::CloudTrail::Client).describe_trails(query)
         aws_service_client.describe_trails(query)
       end
     end
