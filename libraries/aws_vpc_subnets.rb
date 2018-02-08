@@ -11,7 +11,8 @@ class AwsVpcSubnets < Inspec.resource(1)
       its('states') { should_not include 'pending' }
     end
   "
-
+  supports platform: 'aws'
+  
   include AwsPluralResourceMixin
   
   def validate_params(resource_params)

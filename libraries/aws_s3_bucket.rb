@@ -9,7 +9,8 @@ class AwsS3Bucket < Inspec.resource(1)
       it { should exist }
     end
   "
-
+  supports platform: 'aws'
+  
   include AwsSingularResourceMixin
   attr_reader :bucket_name, :region
 

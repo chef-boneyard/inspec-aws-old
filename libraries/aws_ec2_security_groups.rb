@@ -14,7 +14,8 @@ class AwsEc2SecurityGroups < Inspec.resource(1)
       its('entries.count') { should be > 1 }
     end
 EOX
-
+  supports platform: 'aws'
+  
   include AwsPluralResourceMixin
 
   # Underlying FilterTable implementation.

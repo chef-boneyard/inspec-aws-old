@@ -8,6 +8,7 @@ class AwsEc2SecurityGroup < Inspec.resource(1)
       it { should exist }
     end
   '
+  supports platform: 'aws'
 
   include AwsSingularResourceMixin
   attr_reader :description, :group_id, :group_name, :vpc_id

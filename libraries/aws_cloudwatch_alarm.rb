@@ -11,7 +11,8 @@ class AwsCloudwatchAlarm < Inspec.resource(1)
     it { should exist }
   end
   EOD
-
+  supports platform: 'aws'
+  
   include AwsSingularResourceMixin
   attr_reader :alarm_actions, :alarm_name, :metric_name, :metric_namespace
 

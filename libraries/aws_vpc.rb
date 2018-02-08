@@ -9,7 +9,8 @@ class AwsVpc < Inspec.resource(1)
       its('cidr_block') { should cmp '10.0.0.0/16' }
     end
   "
-
+  supports platform: 'aws'
+  
   include AwsSingularResourceMixin
 
   def to_s

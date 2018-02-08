@@ -8,7 +8,8 @@ class AwsRouteTable < Inspec.resource(1)
       its('route_table_id') { should cmp 'rtb-2c60ec44' }
     end
   "
-
+  supports platform: 'aws'
+  
   include AwsSingularResourceMixin
 
   def to_s

@@ -8,7 +8,8 @@ class AwsIamPolicies < Inspec.resource(1)
       it { should exist }
     end
   '
-
+  supports platform: 'aws'
+  
   include AwsPluralResourceMixin
   def validate_params(resource_params)
     unless resource_params.empty?

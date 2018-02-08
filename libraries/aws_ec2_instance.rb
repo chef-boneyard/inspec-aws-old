@@ -16,7 +16,8 @@ class AwsEc2Instance < Inspec.resource(1)
       it { should have_roles }
     end
 EOX
-
+  supports platform: 'aws'
+  
   # TODO: rewrite to avoid direct injection, match other resources, use AwsSingularResourceMixin
   def initialize(opts, conn = nil)
     @opts = opts

@@ -14,6 +14,7 @@ class AwsIamPasswordPolicy < Inspec.resource(1)
       its('requires_uppercase_characters?') { should be true }
     end
 EOX
+  supports platform: 'aws'
 
   # TODO: rewrite to avoid direct injection, match other resources, use AwsSingularResourceMixin
   def initialize(conn = nil)

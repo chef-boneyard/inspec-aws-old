@@ -8,7 +8,8 @@ class AwsVpcs < Inspec.resource(1)
       it { should exist }
     end
   '
-
+  supports platform: 'aws'
+  
   include AwsPluralResourceMixin
 
   # Underlying FilterTable implementation.

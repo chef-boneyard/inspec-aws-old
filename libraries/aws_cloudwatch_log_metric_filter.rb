@@ -22,7 +22,7 @@ class AwsCloudwatchLogMetricFilter < Inspec.resource(1)
     it { should exist }
   end
 EOX
-
+  supports platform: 'aws'
   include AwsSingularResourceMixin
   attr_reader :filter_name, :log_group_name, :metric_name, :metric_namespace, :pattern
 

@@ -12,7 +12,8 @@ class AwsIamAccessKey < Inspec.resource(1)
       its('last_used_date') { should be > Time.now - 90 * 86400 }
     end
   "
-
+  supports platform: 'aws'
+  
   include AwsSingularResourceMixin
   attr_reader :access_key_id, :create_date, :status, :username
   alias id access_key_id

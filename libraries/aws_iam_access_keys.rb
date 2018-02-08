@@ -8,7 +8,8 @@ class AwsIamAccessKeys < Inspec.resource(1)
       it { should_not exist }
     end
   '
-
+  supports platform: 'aws'
+  
   include AwsPluralResourceMixin
 
   def validate_params(raw_params)

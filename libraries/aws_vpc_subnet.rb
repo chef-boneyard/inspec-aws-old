@@ -11,7 +11,8 @@ class AwsVpcSubnet < Inspec.resource(1)
       its('cidr_block') { should eq '10.0.1.0/24' }
     end
   "
-
+  supports platform: 'aws'
+  
   include AwsSingularResourceMixin
   attr_reader :assigning_ipv_6_address_on_creation, :availability_zone, :available_ip_address_count,
               :available, :cidr_block, :default_for_az, :ipv_6_cidr_block_association_set,
