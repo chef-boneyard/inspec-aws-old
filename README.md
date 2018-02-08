@@ -1,3 +1,15 @@
+# This Repository Will Be Archived Soon
+
+On or about February 9th, 2018, we plan to set this repo to be Archived, which means that it will be available as read-only.  With this change, this repo no longer accepts new issues, pull requests, or comments.
+
+We are moving the functionality of this AWS resource pack into InSpec core, at https://github.com/chef/inspec . We’ll migrate the existing issues there, as well.
+
+You may use the `aws-merge` branch of the `inspec` repo to test the new integration, but it will be unstable until the release of InSpec 2.0.
+
+The February 15, 2018, release InSpec 2.0 will include the functionality of inspec-aws.
+
+---
+
 # InSpec for AWS
 
 ## Roadmap
